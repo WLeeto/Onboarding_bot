@@ -76,7 +76,7 @@ class database:
         result = self.session.query(Answer).filter(Answer.id == 1).first()
         return result.answer_text
 
-    def find_by_surname(self, surname):
+    def find_by_surname(self, surname: str):
         """
         Поиск сотрудника по фамилии
         """
@@ -91,14 +91,14 @@ class database:
             })
         return result
 
-    def find_department_by_user_id(self, user_id):
+    def find_department_by_user_id(self, user_id: int):
         """
         Находит отдел сотрудника по его id
         """
         result = self.session.query(Departments).join(Users.department).filter(Users.id == user_id).first()
         return result.name
 
-    def find_by_title(self, title) -> list:
+    def find_by_title(self, title: str) -> list:
         """
         Находит сотрудника по должности
         """
@@ -113,12 +113,68 @@ class database:
             })
         return result
 
-    def find_contacts_by_id(self, user_id) -> dict:
+    def find_contacts_by_id(self, id: int) -> dict:
+        """
+        Находит контакты пользователя по id
+        """
         result = {}
-        search = [i for i in self.session.query(Contacts).filter(Contacts.profile_id == user_id).all()]
+        search = [i for i in self.session.query(Contacts).filter(Contacts.profile_id == id).all()]
         for i in search:
             if i.contact_type == "@":
                 result["e-mail"] = i.contact
             elif i.contact_type == "P":
                 result["phone"] = i.contact
         return result
+
+    def find_all_users(self) -> list:
+        """
+        Отдает всех пользователей
+        """
+        result = []
+        search = [i for i in self.session.query(Users).all()]
+        for i in search:
+            result.append({
+                'telegram_id': i.tg_id,
+                'Name': i.first_name,
+                'Surname': i.surname,
+                'Job_title': i.job_title,
+            })
+
+        return result
+
+    def add_new_user(self, tg_id: int, first_name: str, surname: str, job_title: str, tg_name: str = None,
+                     photo: str = None, hired_at: str = None, middle_name: str = None, nickname: str = None,
+                     department_id: int = None, organization_id: int = None, user_id: int = None, fired_at: str = None,
+                     date_of_birth: str = None, status: str = None, timezone: str = None):
+        new_user = Users(
+            tg_id=tg_id,
+            first_name=first_name,
+            surname=surname,
+            job_title=job_title,
+            tg_name=tg_name,
+            photo=photo,
+            hired_at=hired_at,
+            middle_name=middle_name,
+            nickname=nickname,
+            department_id=department_id,
+            organization_id=organization_id,
+            user_id=user_id,
+            fired_at=fired_at,
+            date_of_birth=date_of_birth,
+            status=status,
+            timezone=timezone
+        )
+        self.session.add(new_user)
+        self.session.commit()
+        return f"Добавлен пользователь: {new_user.tg_id}"
+
+    def is_tg_id_in_base(self, tg_id: int) -> bool:
+        """
+        Проверяет есть ли tg_id в базе бота
+        """
+        result = self.session.query(Users).filter(Users.tg_id == tg_id).first()
+        if result:
+            return True
+        else:
+            return False
+
