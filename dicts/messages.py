@@ -29,20 +29,23 @@ wana_start_yes_button = "Да, вываливай !"
 wana_start_no_button = "Нет, надоели тесты Т_Т"
 wana_start_no_message = "Ну и ладно, а я старался, вопросы придумывал Т_Т"
 
-first_question_text = "first_question_text"
-first_question_answer_1 = "first_question_answer_1"
-first_question_answer_2 = "first_question_answer_2"
-first_question_answer_3 = "first_question_answer_3"
+first_question_text = "❔ Из какой страны родом Джастин Бибер? ❔"
+first_question_answer_1 = "Канада"
+first_question_answer_2 = "США"
+first_question_answer_3 = "Африка"
+correct_first_answer = "Канада"
 
-second_question_text = "second_question_text"
-second_question_answer_1 = "second_question_answer_1"
-second_question_answer_2 = "second_question_answer_2"
-second_question_answer_3 = "second_question_answer_3"
+second_question_text = "❔ Что является национальным животным Шотландии? ❔"
+second_question_answer_1 = "Лошадь"
+second_question_answer_2 = "Единорог"
+second_question_answer_3 = "Корова"
+correct_second_answer = "Единорог"
 
-third_question_text = "third_question_text"
-third_question_answer_1 = "third_question_answer_1"
-third_question_answer_2 = "third_question_answer_2"
-third_question_answer_3 = "third_question_answer_3"
+third_question_text = "❔ Какая страна производит больше всего кофе в мире? ❔"
+third_question_answer_1 = "Колумбия"
+third_question_answer_2 = "Индонезия"
+third_question_answer_3 = "Бразилия"
+correct_third_answer = "Бразилия"
 
 start_survey_dict = {
     "wana_start_yes_button": wana_start_yes_button,
@@ -54,16 +57,19 @@ start_survey_dict = {
     "first_question_answer_1": first_question_answer_1,
     "first_question_answer_2": first_question_answer_2,
     "first_question_answer_3": first_question_answer_3,
+    "correct_first_answer": correct_first_answer,
 
     "second_question_text": second_question_text,
     "second_question_answer_1": second_question_answer_1,
     "second_question_answer_2": second_question_answer_2,
     "second_question_answer_3": second_question_answer_3,
+    "correct_second_answer": correct_second_answer,
 
     "third_question_text": third_question_text,
     "third_question_answer_1": third_question_answer_1,
     "third_question_answer_2": third_question_answer_2,
     "third_question_answer_3": third_question_answer_3,
+    "correct_third_answer": correct_third_answer,
 }
 
 

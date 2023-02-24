@@ -34,25 +34,34 @@ class Survey_inlines_keyboards:
 
     def first_question(self):
         first_question = InlineKeyboardMarkup(row_width=self.rows_in_line)
-        button_1 = InlineKeyboardButton(text=self.first_question_answer_1, callback_data="first_question_answer_1")
-        button_2 = InlineKeyboardButton(text=self.first_question_answer_2, callback_data="first_question_answer_2")
-        button_3 = InlineKeyboardButton(text=self.first_question_answer_3, callback_data="first_question_answer_3")
+        button_1 = InlineKeyboardButton(text=self.first_question_answer_1,
+                                        callback_data="first" + " " + self.first_question_answer_1)
+        button_2 = InlineKeyboardButton(text=self.first_question_answer_2,
+                                        callback_data="first" + " " + self.first_question_answer_2)
+        button_3 = InlineKeyboardButton(text=self.first_question_answer_3,
+                                        callback_data="first" + " " + self.first_question_answer_3)
         first_question.add(button_1, button_2, button_3)
         return first_question
 
     def second_question(self):
         first_question = InlineKeyboardMarkup(row_width=self.rows_in_line)
-        button_1 = InlineKeyboardButton(text=self.second_question_answer_1, callback_data="second_question_answer_1")
-        button_2 = InlineKeyboardButton(text=self.second_question_answer_2, callback_data="second_question_answer_2")
-        button_3 = InlineKeyboardButton(text=self.second_question_answer_3, callback_data="second_question_answer_3")
+        button_1 = InlineKeyboardButton(text=self.second_question_answer_1,
+                                        callback_data="second" + " " + self.second_question_answer_1)
+        button_2 = InlineKeyboardButton(text=self.second_question_answer_2,
+                                        callback_data="second" + " " + self.second_question_answer_2)
+        button_3 = InlineKeyboardButton(text=self.second_question_answer_3,
+                                        callback_data="second" + " " + self.second_question_answer_3)
         first_question.add(button_1, button_2, button_3)
         return first_question
 
     def third_question(self):
         first_question = InlineKeyboardMarkup(row_width=self.rows_in_line)
-        button_1 = InlineKeyboardButton(text=self.third_question_answer_1, callback_data="third_question_answer_1")
-        button_2 = InlineKeyboardButton(text=self.third_question_answer_2, callback_data="third_question_answer_2")
-        button_3 = InlineKeyboardButton(text=self.third_question_answer_3, callback_data="third_question_answer_3")
+        button_1 = InlineKeyboardButton(text=self.third_question_answer_1,
+                                        callback_data="third" + " " + self.third_question_answer_1)
+        button_2 = InlineKeyboardButton(text=self.third_question_answer_2,
+                                        callback_data="third" + " " + self.third_question_answer_2)
+        button_3 = InlineKeyboardButton(text=self.third_question_answer_3,
+                                        callback_data="third" + " " + self.third_question_answer_3)
         first_question.add(button_1, button_2, button_3)
         return first_question
 

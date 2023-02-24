@@ -5,7 +5,7 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 
 from create_bot import dp, bot, db
 from dicts.messages import sleep_timer, start_survey_dict, message_dict
-from func.all_func import question_list, delete_message, recognize_question
+from func.all_func import question_list, delete_message, recognize_question, start_survey_answers
 
 from keyboards.inline_start_survey import Survey_inlines_keyboards
 
@@ -113,7 +113,7 @@ async def first_question(callback_query: types.CallbackQuery, state: FSMContext)
         keyboard = Survey_inlines_keyboards()
         await callback_query.answer()
         await FSM_start_survey.second_question.set()
-        await bot.edit_message_text(start_survey_dict["first_question_text"],
+        await bot.edit_message_text(f'Первый вопрос:\n{start_survey_dict["first_question_text"]}',
                                     chat_id=callback_query.from_user.id,
                                     message_id=callback_query.message.message_id,
                                     reply_markup=keyboard.first_question())
@@ -134,8 +134,8 @@ async def first_question(callback_query: types.CallbackQuery, state: FSMContext)
 async def second_question(callback_query: types.CallbackQuery, state: FSMContext):
     keyboard = Survey_inlines_keyboards()
     async with state.proxy() as answers:
-        answers['first'] = callback_query.data
-    await bot.edit_message_text(start_survey_dict["second_question_text"],
+        answers['first'] = callback_query.data.split(" ")[1]
+    await bot.edit_message_text(f'Второй вопрос:\n{start_survey_dict["second_question_text"]}',
                                 chat_id=callback_query.from_user.id,
                                 message_id=callback_query.message.message_id,
                                 reply_markup=keyboard.second_question())
@@ -150,8 +150,8 @@ async def second_question(callback_query: types.CallbackQuery, state: FSMContext
 async def third_question(callback_query: types.CallbackQuery, state: FSMContext):
     keyboard = Survey_inlines_keyboards()
     async with state.proxy() as answers:
-        answers['second'] = callback_query.data
-    await bot.edit_message_text(start_survey_dict["third_question_text"],
+        answers['second'] = callback_query.data.split(" ")[1]
+    await bot.edit_message_text(f'Третий вопрос:\n{start_survey_dict["third_question_text"]}',
                                 chat_id=callback_query.from_user.id,
                                 message_id=callback_query.message.message_id,
                                 reply_markup=keyboard.third_question())
@@ -165,14 +165,17 @@ async def third_question(callback_query: types.CallbackQuery, state: FSMContext)
 # )
 async def answers(callback_query: types.CallbackQuery, state: FSMContext):
     async with state.proxy() as answers:
-        answers['third'] = callback_query.data
-        await bot.edit_message_text(f"Твои ответы:\n"
-                                    f"{start_survey_dict[answers['first']]}\n"
-                                    f"{start_survey_dict[answers['second']]}\n"
-                                    f"{start_survey_dict[answers['third']]}\n",
-                                    chat_id=callback_query.from_user.id,
-                                    message_id=callback_query.message.message_id
-                                    )
+        answers['third'] = callback_query.data.split(" ")[1]
+        all_answers = start_survey_answers(answer_1=answers['first'],
+                                           answer_2=answers['second'],
+                                           answer_3=answers['third'])
+
+    await bot.edit_message_text(f"<u>Сверим ответы. Внимание на экран:</u>\n\n"
+                                f"{all_answers}",
+                                chat_id=callback_query.from_user.id,
+                                message_id=callback_query.message.message_id,
+                                parse_mode="html"
+                                )
     await callback_query.answer()
     await state.finish()
     await asyncio.sleep(3)
