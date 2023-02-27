@@ -25,7 +25,8 @@ async def start(message: types.Message):
         await asyncio.sleep(1)
         await message.answer(message_dict['for_olds_message'], reply_markup=keyboard.start_survey())
     else:
-        pass
+        await message.answer(message_dict["greeting_message"])
+        await message.answer(message_dict["newbie_greeting"])
 
 
 # @dp.message_handler(commands='find')
