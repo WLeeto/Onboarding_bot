@@ -24,15 +24,15 @@ async def delete_message(message: types.Message, sleep_time: int = 0):
 def recognize_question(question: str, questions: dict):
     recognized = {'id': '', 'percent': 0}
     for key, value in questions.items():
-        percent = fuzz.WRatio(question, value)
+        percent = fuzz.ratio(question, value)
         if percent > recognized['percent']:
             recognized['id'] = key
             recognized['percent'] = percent
-    if recognized['percent'] <= 50:
-        print(f"!!! Совпадение запроса '{question}': {recognized['percent']}")
+    if recognized['percent'] <= 49:
+        print(f"!!! Совпадение запроса '{question} и {recognized['id']}': {recognized['percent']}")
         result = None
     else:
-        print(f"Совпадение запроса '{question}': {recognized['percent']}")
+        print(f"Совпадение запроса '{question}' и {recognized['id']}: {recognized['percent']}")
         result = recognized['id']
     return result
 
