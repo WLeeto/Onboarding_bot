@@ -25,6 +25,19 @@ class Survey_inlines_keyboards:
         self.third_question_answer_2 = start_survey_dict["third_question_answer_2"]
         self.third_question_answer_3 = start_survey_dict["third_question_answer_3"]
 
+    def ok_keyboard(self):
+        ok_keyboard = InlineKeyboardMarkup(row_width=self.rows_in_line)
+        button_1 = InlineKeyboardButton(text=self.survey_text_yes, callback_data="start")
+        ok_keyboard.add(button_1)
+        return ok_keyboard
+
+    def is_ok(self):
+        is_ok = InlineKeyboardMarkup(row_width=self.rows_in_line)
+        button_1 = InlineKeyboardButton(text="Да, правильно", callback_data="answer correct")
+        button_2 = InlineKeyboardButton(text="Нет, надо поправить", callback_data="answer incorrect")
+        is_ok.add(button_1, button_2)
+        return is_ok
+
     def start_survey(self):
         start_survey = InlineKeyboardMarkup(row_width=self.rows_in_line)
         button_1 = InlineKeyboardButton(text=self.survey_text_yes, callback_data="survey yes")
