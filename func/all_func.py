@@ -29,10 +29,12 @@ def recognize_question(question: str, questions: dict):
             recognized['id'] = key
             recognized['percent'] = percent
     if recognized['percent'] <= 44:
-        print(f"!!! Совпадение запроса '{question} и {recognized['id']}': {recognized['percent']}")
+        print(f"!!! Совпадение запроса '{question} и {db.find_question_by_question_id(recognized['id'])}':"
+              f" {recognized['percent']}")
         result = None
     else:
-        print(f"Совпадение запроса '{question}' и {recognized['id']}: {recognized['percent']}")
+        print(f"Совпадение запроса '{question}' и {db.find_question_by_question_id(recognized['id'])}:"
+              f" {recognized['percent']}")
         result = recognized['id']
     return result
 
@@ -55,3 +57,36 @@ def start_survey_answers(answer_1, answer_2, answer_3) -> str:
         return_text += f"<b>Третий вопрос:</b>\n{start_survey_dict['third_question_text']}\n❌{answer_3}\n" \
                        f"Верный ответ:\n✅{start_survey_dict['correct_third_answer']}\n\n"
     return return_text
+
+
+def is_breakes(message):
+    """
+    Проверка есть ли в сообщении переносы \n
+    """
+    splitted = message.split(r"\n")
+    result = ""
+    for i in splitted:
+        result += f"\n{i}"
+    return result
+
+
+def is_reply_keyboard(message):
+    """
+    Проверка есть ли в сообщении прикрепленная клавиатура
+    """
+    splitted = message.split("#keyboard ")
+    result = [i for i in splitted]
+    return result
+
+
+def search_message(id: int, first_name: str, surname: str, job_title: str) -> str:
+    contacts = db.find_contacts_by_id(id)
+    contacts_text = f"  <b>E-mail:</b> {contacts.get('e-mail')}\n" \
+                    f"  <b>Phone:</b> {contacts.get('phone')}"
+    text = f"<b>Имя:</b> {first_name}\n" \
+           f"<b>Фамилия</b>: {surname}\n" \
+           f"<b>Должность</b>: {job_title}\n" \
+           f"<b>Отдел:</b> {db.find_department_by_user_id(id)}\n" \
+           f"<b>Контакты:</b> \n{contacts_text}\n\n"
+
+    return text

@@ -18,6 +18,13 @@ class database:
         Base.metadata.drop_all(self.engine)
         print('Все таблицы удалены, все пропало !!!')
 
+    def find_question_by_question_id(self, question_id: int) -> str:
+        """
+        Находит текст вопроса по его id в БД
+        """
+        question = self.session.query(Question).filter(Question.id == question_id).first()
+        return question.question_text
+
     def add_answer(self, answer: str):
         """
         Добавляет ответ в базу
@@ -104,6 +111,51 @@ class database:
         """
         result = []
         search = self.session.query(Users).filter(Users.job_title == title).all()
+        for i in search:
+            result.append({
+                "id": i.id,
+                "first_name": i.first_name,
+                "surname": i.surname,
+                "job_title": i.job_title
+            })
+        return result
+
+    def partial_search_by_title(self, title: str) -> list:
+        """
+        Находит сотрудника по частичному соответствию должности
+        """
+        result = []
+        search = self.session.query(Users).filter(Users.job_title.ilike(f"%{title}%")).all()
+        for i in search:
+            result.append({
+                "id": i.id,
+                "first_name": i.first_name,
+                "surname": i.surname,
+                "job_title": i.job_title
+            })
+        return result
+
+    def find_by_name(self, name: str) -> list:
+        """
+        Находит сотрудника по имени
+        """
+        result = []
+        search = self.session.query(Users).filter(Users.first_name == name).all()
+        for i in search:
+            result.append({
+                "id": i.id,
+                "first_name": i.first_name,
+                "surname": i.surname,
+                "job_title": i.job_title
+            })
+        return result
+
+    def partial_search_by_name(self, name: str) -> list:
+        """
+        Находит сотрудника по частичному соответствию имени
+        """
+        result = []
+        search = self.session.query(Users).filter(Users.first_name.ilike(fr"%{name}%")).all()
         for i in search:
             result.append({
                 "id": i.id,

@@ -5,10 +5,12 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 
 from create_bot import dp, bot, db
 from dicts.messages import sleep_timer, start_survey_dict, message_dict, operator_list
-from func.all_func import question_list, delete_message, recognize_question, start_survey_answers
+from func.all_func import question_list, delete_message, recognize_question, start_survey_answers, is_breakes, \
+    is_reply_keyboard, search_message
 from keyboards.inline_operators_markup import Operator_keyboard
 
 from keyboards.inline_start_survey import Survey_inlines_keyboards
+from keyboards.all_keyboards import all_keyboards
 
 from transliterate import translit
 
@@ -20,23 +22,60 @@ async def recognizing(message: types.Message):
         answer = db.find_answer_by_question_id(response_id)
     else:
         answer = db.no_answer()
-    await message.reply(answer)
+
+    check_keyboards = is_reply_keyboard(answer)
+    if len(check_keyboards) == 1:
+        await message.reply(is_breakes(check_keyboards[0]))
+    else:
+        keyboard = all_keyboards[check_keyboards[-1]]
+        await message.reply(is_breakes(check_keyboards[0]), reply_markup=keyboard)
+
+
+# @dp.callback_query_handler(lambda c: c.data.startswith("get"), state=None)
+async def get_document(callback_query: types.CallbackQuery):
+    """
+    Тут парсятся все запросы документов
+    """
+    file_path = "documents/1_application for annual leave.doc"
+    with open(file_path, "rb") as file:
+        await bot.send_document(chat_id=callback_query.from_user.id, document=file)
+        await callback_query.answer()
 
 
 # Состояния для поиска сотрудника по фамилии ---------------------------------------------------------------------------
-class FSM_search_by_name(StatesGroup):
+class FSM_search(StatesGroup):
+    enter_name = State()
     enter_surname = State()
+    enter_title = State()
 
 
-# @dp.callback_query_handler(lambda c: c.data == "search_by_name", state=None)
-async def search_by_surname_step1(callback_query: types.CallbackQuery):
-    await FSM_search_by_name.enter_surname.set()
-    answer = await bot.edit_message_text("Кого ищем ? (введи фамилию):",
-                                         callback_query.from_user.id, callback_query.message.message_id)
-    asyncio.create_task(delete_message(answer, sleep_timer))
+# @dp.callback_query_handler(lambda c: c.data.startswith("search"), state=None)
+async def search(callback_query: types.CallbackQuery, state: FSMContext):
+    if callback_query.data.split(" ")[1] == "by_name":
+        await FSM_search.enter_name.set()
+        answer = await bot.edit_message_text("Кого ищем ? (введи имя):",
+                                             callback_query.from_user.id, callback_query.message.message_id)
+    elif callback_query.data.split(" ")[1] == "by_surname":
+        await FSM_search.enter_surname.set()
+        answer = await bot.edit_message_text("Кого ищем ? (введи фамилию):",
+                                             callback_query.from_user.id, callback_query.message.message_id)
+    elif callback_query.data.split(" ")[1] == "by_title":
+        await FSM_search.enter_title.set()
+        answer = await bot.edit_message_text("Кого ищем ? (введите должность)",
+                                             callback_query.from_user.id, callback_query.message.message_id)
+    elif callback_query.data.split(" ")[1] == "by_patronymic":
+        await callback_query.answer("В разработке")
+    elif callback_query.data.split(" ")[1] == "by_email":
+        await callback_query.answer("В разработке")
+    elif callback_query.data.split(" ")[1] == "telegram_ninckname":
+        await callback_query.answer("В разработке")
+    elif callback_query.data.split(" ")[1] == "by_tag":
+        await callback_query.answer("В разработке")
+    async with state.proxy() as data:
+        data["answer"] = answer.message_id
 
 
-# @dp.message_handler(content_types='text', state=FSM_search_by_name.enter_surname)
+# @dp.message_handler(content_types='text', state=FSM_search.enter_surname)
 async def search_by_surname_step2(message: types.Message, state: FSMContext):
     async with state.proxy() as surname:
         surname['surname'] = message.text
@@ -60,41 +99,55 @@ async def search_by_surname_step2(message: types.Message, state: FSMContext):
         await state.finish()
 
 
-# Состояния для поиска сотрудника по должности -------------------------------------------------------------------------
-class FSM_search_by_title(StatesGroup):
-    enter_title = State()
-
-
-# @dp.callback_query_handler(lambda c: c.data == "search_by_title", state=None)
-async def search_by_title_step1(callback_query: types.CallbackQuery):
-    await FSM_search_by_title.enter_title.set()
-    answer = await bot.edit_message_text("Кого ищем ? (введите должность)",
-                                         callback_query.from_user.id, callback_query.message.message_id)
-    asyncio.create_task(delete_message(answer, sleep_timer))
-
-
-# @dp.message_handler(content_types='text', state=FSM_search_by_title.enter_title)
+# @dp.message_handler(content_types='text', state=FSM_search.enter_title)
 async def search_by_title_step2(message: types.Message, state: FSMContext):
-    async with state.proxy() as title:
-        title['title'] = message.text
-    result = db.find_by_title(title['title'])
+    result = db.find_by_title(message.text)
     await message.delete()
+    async with state.proxy() as data:
+        last_answer = data["answer"]
     if result:
         text = ''
         for i in result:
-            contacts = db.find_contacts_by_id(i["id"])
-            contacts_text = f"  <b>E-mail:</b> {contacts.get('e-mail')}\n" \
-                            f"  <b>Phone:</b> {contacts.get('phone')}"
-            text += f"<b>Имя:</b> {i['first_name']}\n" \
-                    f"<b>Фамилия</b>: {i['surname']}\n" \
-                    f"<b>Должность</b>: {i['job_title']}\n" \
-                    f"<b>Отдел:</b> {db.find_department_by_user_id(i['id'])}\n" \
-                    f"<b>Контакты:</b> \n{contacts_text}\n\n"
+            text += search_message(i["id"], i["first_name"], i["surname"], i["job_title"])
         await message.answer(text=f"<u>Вот кого удалось найти:</u>\n\n{text}\n", parse_mode="html")
         await state.finish()
     else:
-        await message.answer(f"Я не нашел никого с должностью {message.text} T_T")
+        await bot.edit_message_text(f"Я не нашел никого с должностью {message.text} T_T", chat_id=message.from_id,
+                                    message_id=last_answer, parse_mode=types.ParseMode.HTML)
+        partial_search_result = db.partial_search_by_title(message.text)
+        if partial_search_result:
+            text = ''
+            for i in partial_search_result:
+                text += search_message(i["id"], i["first_name"], i["surname"], i["job_title"])
+            await message.answer(text=f"<u>Вот кто частично подходит под твой запрос:</u>\n\n{text}\n",
+                                 parse_mode=types.ParseMode.HTML)
         await state.finish()
+
+
+# @dp.message_handler(content_types='text', state=FSM_search.enter_name)
+async def search_by_name_step2(message: types.Message, state: FSMContext):
+    result = db.find_by_name(message.text)
+    await message.delete()
+    async with state.proxy() as data:
+        last_answer = data["answer"]
+    if result:
+        text = ''
+        for i in result:
+            text += search_message(i["id"], i["first_name"], i["surname"], i["job_title"])
+        await bot.edit_message_text(text=f"<u>Вот кого удалось найти:</u>\n\n{text}\n", chat_id=message.from_id,
+                                    message_id=last_answer, parse_mode="html")
+        await state.finish()
+    else:
+        await bot.edit_message_text(f"Я не нашел никого с именем {message.text} T_T", chat_id=message.from_id,
+                                    message_id=last_answer, parse_mode=types.ParseMode.HTML)
+        partial_search_result = db.partial_search_by_name(message.text)
+        if partial_search_result:
+            text = ''
+            for i in partial_search_result:
+                text += search_message(i["id"], i["first_name"], i["surname"], i["job_title"])
+            await message.answer(text=f"<u>Вот кто частично подходит под твой запрос:</u>\n\n{text}\n",
+                                 parse_mode=types.ParseMode.HTML)
+            await state.finish()
 
 
 # @dp.message_handler(content_types='video')
@@ -363,13 +416,14 @@ async def show_video(callback_query: types.CallbackQuery, state: FSMContext):
 
 
 def register_handlers_other(dp: Dispatcher):
+    dp.register_callback_query_handler(get_document, lambda c: c.data.startswith("get"), state=None)
     dp.register_message_handler(recognizing, content_types='text', state=None)
 
-    dp.register_callback_query_handler(search_by_surname_step1, lambda c: c.data == "search_by_name", state=None)
-    dp.register_message_handler(search_by_surname_step2, content_types='text', state=FSM_search_by_name.enter_surname)
+    dp.register_callback_query_handler(search, lambda c: c.data.startswith("search"), state=None)
+    dp.register_message_handler(search_by_surname_step2, content_types='text', state=FSM_search.enter_surname)
+    dp.register_message_handler(search_by_title_step2, content_types='text', state=FSM_search.enter_title)
+    dp.register_message_handler(search_by_name_step2, content_types='text', state=FSM_search.enter_name)
 
-    dp.register_callback_query_handler(search_by_title_step1, lambda c: c.data == "search_by_title", state=None)
-    dp.register_message_handler(search_by_title_step2, content_types='text', state=FSM_search_by_title.enter_title)
     dp.register_message_handler(got_video, content_types='video')
 
     dp.register_callback_query_handler(first_question, lambda c: c.data.startswith("survey"), state=None)
