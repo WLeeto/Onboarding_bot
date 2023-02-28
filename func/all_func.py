@@ -28,7 +28,7 @@ def recognize_question(question: str, questions: dict):
         if percent > recognized['percent']:
             recognized['id'] = key
             recognized['percent'] = percent
-    if recognized['percent'] <= 49:
+    if recognized['percent'] <= 44:
         print(f"!!! Совпадение запроса '{question} и {recognized['id']}': {recognized['percent']}")
         result = None
     else:

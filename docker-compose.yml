@@ -7,7 +7,7 @@ services:
     container_name: onboarding_bot
     command: python main.py
     ports:
-      - 3000:3000
+      - 3001:3001
     volumes:
       - ./:/app
     env_file:
