@@ -103,7 +103,8 @@ class database:
         Находит отдел сотрудника по его id
         """
         result = self.session.query(Departments).join(Users.department).filter(Users.id == user_id).first()
-        return result.name
+        if result:
+            return result.name
 
     def find_by_title(self, title: str) -> list:
         """
