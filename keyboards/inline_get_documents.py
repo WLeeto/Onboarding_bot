@@ -13,7 +13,7 @@ get_application_for_funds_button = InlineKeyboardButton(text="Скачать з�
                                                         callback_data="get application_for_funds")
 get_teamforce_presentation_button = InlineKeyboardButton(text="Скачать презентацию Teamforce",
                                                          callback_data="get teamforce_presentation")
-get_vacation_at_own_button = InlineKeyboardButton(text="Скачать зачвление на отпуск за свой счет",
+get_vacation_at_own_button = InlineKeyboardButton(text="Скачать заявление на отпуск за свой счет",
                                                   callback_data="get vacation_at_own")
 
 get_annual_leave = InlineKeyboardMarkup(row_width=1).add(get_annual_leave_button)
