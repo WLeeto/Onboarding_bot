@@ -13,9 +13,8 @@ stages:
 
 dev-deploy:
   stage: deploy
-  image: alpine
   tags:
-    - dev-deploy
+    - shell
   only:
     - main
   variables:
