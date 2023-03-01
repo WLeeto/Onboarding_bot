@@ -4,7 +4,9 @@ operator_list = [6126799078, ]  # Лист tg_id операторов
 sleep_timer = 6  # Задержка перед удалением сообщения
 
 # Messages -------------------------------------------------------------------------------------------------------------
-greeting_message = "Приходит приветственное сообщение о начале использования бота"
+greeting_message = "Добро пожаловать в команду ТИМ ФОРС! Я Тимур, бот для онбординга.\n" \
+                   "У меня ты можешь узнать много полезной информации.\n" \
+                   "https://teamforce.ru/"
 
 newbie_greeting = "Потрясающе, в команде пополнение!\n" \
                   "Я бот {bot_name} Помогу тебе быстро адаптироваться в ТИМ ФОРС.\n" \
@@ -15,18 +17,22 @@ newbie_greeting = "Потрясающе, в команде пополнение!
                   "Самое время познакомиться. "
 
 help_message = "В моём меню хранятся полезные команды. \n" \
-               "Чтобы воспользоваться, просто надо нажать на интересующую и следовать моим подсказкам: \n" \
-               "/find - помогу найти сотрудника\n" \
-               "/contacts - Контакты всех отделов \n" \
-               "/vacation - Подготовка к отпуску \n" \
-               "/benefits - Информация о бонусах компании и о способах получения\n" \
+               "/benefits - Информация о бонусах\n" \
+               "/business_trip - Подготовка к командировке\n" \
+               "/contacts - Контакты всех отделов\n" \
                "/docs - Выводит чеклист, что требуется для оформления\n" \
-               "/support - Помогает найти ответственного по вопросу \n" \
+               "/find - Поиск контактных данных сотрудников\n" \
+               "/finance - Вопросы по перечислениям\n" \
+               "/initiative - Сбор инициатив/идей и предложений\n" \
+               "/office - Информация про адрес\n" \
+               "/vacation - Подготовка к отпуску\n" \
+               "/referal - Информация о реферальной программе\n" \
+               "/tf360 - О проекте ТФ360" \
                "/social_media - Ссылки на наши соцсети\n" \
-               "/initiative - Сбор инициатив/ идей и предложений \n" \
-               "/finance - Вопросы по перечислениям \n"
+               "/support - Помогает найти ответственного по вопросу\n" \
 
-for_olds_message = "Привет! Я бот помощник ХХХХ. " \
+
+for_olds_message = "Привет! Я бот помощник Тимур. " \
                    "В ТИМ ФОРС много разных процессов, я создан помогать ориентироваться в рутинных вопросах. " \
                    "Микро план знакомства займет 3 минуты. " \
                    "Сначала давай проверим, знаешь ли ты о ТИМ ФОРС то, что знаю я?"
@@ -38,7 +44,7 @@ we_are_closer_now = "Кажется мы стали чуточку ближе"
 message_dict = {
     "greetings": greeting_message,
     "help": help_message,
-    "greeting_video_id": "BAACAgIAAxkBAAICZGP2BZ7w694CN-2LtEQRbeq7XJetAAIIJwACV--wS1rJTQijj4V0LgQ",
+    "greeting_video_id": "BAACAgIAAxkBAAIJa2P_J6XH2_qBoq2UXfr6Seuy3zoQAAIjKQACOz34S8bdO_PujPlyLgQ",
     "for_olds_message": for_olds_message,
     "for_newbie_message": for_newbie_message,
     "we_are_closer_now": we_are_closer_now,
@@ -46,27 +52,27 @@ message_dict = {
 }
 
 # Start_survey ---------------------------------------------------------------------------------------------------------
-wana_start_yes_button = "Да, вываливай !"
-wana_start_no_button = "Нет, надоели тесты Т_Т"
+wana_start_yes_button = "Да, пройду тест"
+wana_start_no_button = "Нет, не сейчас"
 wana_start_no_message = "Ну и ладно, а я старался, вопросы придумывал Т_Т"
 
-first_question_text = "❔ Чем должен заниматься ночью уважающий себя кот? ❔"
-first_question_answer_1 = "Тыгыдыкать"
-first_question_answer_2 = "Орать"
-first_question_answer_3 = "Шуршать"
-correct_first_answer = "Тыгыдыкать"
+first_question_text = "❔ Год основания ТИМ ФОРС? ❔"
+first_question_answer_1 = "1996"
+first_question_answer_2 = "2019"
+first_question_answer_3 = "2008"
+correct_first_answer = "2008"
 
-second_question_text = "❔ Что является национальным животным Шотландии? ❔"
-second_question_answer_1 = "Лошадь"
-second_question_answer_2 = "Единорог"
-second_question_answer_3 = "Корова"
-correct_second_answer = "Единорог"
+second_question_text = "❔ Какой корпоративный цвет ТИМ ФОРС? ❔"
+second_question_answer_1 = "Черный"
+second_question_answer_2 = "Фиолетовый"
+second_question_answer_3 = "Оранжевый"
+correct_second_answer = "Оранжевый"
 
-third_question_text = "❔ Какая страна производит больше всего кофе в мире? ❔"
-third_question_answer_1 = "Колумбия"
-third_question_answer_2 = "Индонезия"
-third_question_answer_3 = "Бразилия"
-correct_third_answer = "Бразилия"
+third_question_text = "❔ 'Бодрее' нужно говорить бодрее, а ... (продолжите фразу) ❔"
+third_question_answer_1 = "'Громче'-громче"
+third_question_answer_2 = "'Веселее'-веселее"
+third_question_answer_3 = "'Четче'-четче"
+correct_third_answer = "'Веселее'-веселее"
 
 start_survey_dict = {
     "wana_start_yes_button": wana_start_yes_button,
@@ -110,13 +116,45 @@ contacts = "<b>Отдел кадров</b> group_kdp@teamforce.ru\n" \
            "- уточнение свободных вакансий для друзей "
 
 vacation = "Заглушка для команды <b>/vacation</b>"
-benefits = "Заглушка для команды <b>/benefits</b>"
+
+benefits = "Рады представить Вам бенефит-кафе - привилегии для сотрудников ТИМ ФОРС.\n" \
+           "Из бенефит-кафе, раз в год Вы можете выбрать один* понравившийся бенефит из предложенного " \
+           "'меню'(здоровье, образование, путешествия и досуг) на определенную сумму**\n\n" \
+           "*Неиспользованный за год бенефит, сгорает.\n" \
+           "**Ваучер на сумму 23 000 рублей(получить наличными его нельзя) с возможностью выставления счета на ЮЛ.\n\n" \
+           "Для получения дополнительной информации, просьба обращаться к @vkim_teamforce"
+
 docs = "Заглушка для команды <b>/docs</b>"
-support = "Заглушка для команды <b>/support</b>"
-social_media = "Заглушка для команды <b>/social_media</b>"
-initiative = "Заглушка для команды <b>/initiative</b>"
+
+referal = "Заглушка для команды <b>/referal</b>"
+
+tf360 = "Заглушка для команды <b>/tf360</b>"
+
+support = "<b>У Вас остались вопросы?</b>\n" \
+          "Расскажите мне, что Вас интересует?\n" \
+          "@vkim_teamforce"
+
+social_media = "<b>Подробнее о компании Вы можете узнать на сайтах:</b>\n" \
+               "https://smartstaffing.ru\n" \
+               "https://teamforce.ru/\n" \
+               "https://teamforce.ru/welcomebook/\n" \
+               "https://tatmobile.solutions/\n\n" \
+               "Подписывайтесь и следите за нашими новостями!\n" \
+               "https://vk.com/teamforcex\n" \
+               "https://t.me/teamforcex\n" \
+               "https://instagram.com/teamforce.ru\n" \
+               "https://www.facebook.com/teamforceX"
+
+initiative = "Проводим сбор инициатив/идей и предложений"
+
 finance = "Заглушка для команды <b>/finance</b>"
 
+office = "<b>Как к нам попасть:</b>\n" \
+         "Территория Инновационного центра 'Сколково'\n" \
+         "д. Сколково, Большой бульвар, д.42, стр. 1, офис 337, ядро 4"
+
+business_trip = "Вас отправляют в командироку?\n" \
+                "Ознакомьтесь с положением о командировках и заполните следующие документы:\n" \
 
 commands_dict = {
     "contacts": contacts,
@@ -127,4 +165,8 @@ commands_dict = {
     "social_media": social_media,
     "initiative": initiative,
     "finance": finance,
+    "office": office,
+    "business_trip": business_trip,
+    "referal": referal,
+    "tf360": tf360,
 }

@@ -8,6 +8,7 @@ from func.all_func import delete_message
 from dicts.messages import message_dict, commands_dict
 from keyboards.inline_find import search_way
 from keyboards.inline_start_survey import Survey_inlines_keyboards
+from keyboards.inline_get_documents import get_business_trip_docs_keyboard, get_teamforce_presentation_keyboard
 
 from handlers.other import FSM_newbie_questioning
 
@@ -57,7 +58,8 @@ async def vacation(message: types.Message):
 
 # @dp.message_handler(commands='benefits')
 async def benefits(message: types.Message):
-    await message.answer(commands_dict["benefits"], parse_mode=types.ParseMode.HTML)
+    await message.answer(commands_dict["benefits"], parse_mode=types.ParseMode.HTML,
+                         reply_markup=get_teamforce_presentation_keyboard)
 
 
 # @dp.message_handler(commands='docs')
@@ -85,6 +87,27 @@ async def finance(message: types.Message):
     await message.answer(commands_dict["finance"], parse_mode=types.ParseMode.HTML)
 
 
+# @dp.message_handler(commands='office')
+async def office(message: types.Message):
+    await message.answer(commands_dict["office"], parse_mode=types.ParseMode.HTML)
+
+
+# @dp.message_handler(commands='business_trip')
+async def business_trip(message: types.Message):
+    await message.answer(commands_dict["business_trip"], parse_mode=types.ParseMode.HTML,
+                         reply_markup=get_business_trip_docs_keyboard)
+
+
+# @dp.message_handler(commands='referal')
+async def referal(message: types.Message):
+    await message.answer(commands_dict["referal"], parse_mode=types.ParseMode.HTML)
+
+
+# @dp.message_handler(commands='tf360')
+async def tf360(message: types.Message):
+    await message.answer(commands_dict["tf360"], parse_mode=types.ParseMode.HTML)
+
+
 def register_handlers_client(dp: Dispatcher):
     dp.register_message_handler(test, commands='test')
     dp.register_message_handler(start, commands='start')
@@ -98,3 +121,7 @@ def register_handlers_client(dp: Dispatcher):
     dp.register_message_handler(social_media, commands='social_media')
     dp.register_message_handler(initiative, commands='initiative')
     dp.register_message_handler(finance, commands='finance')
+    dp.register_message_handler(office, commands='office')
+    dp.register_message_handler(business_trip, commands='business_trip')
+    dp.register_message_handler(referal, commands='referal')
+    dp.register_message_handler(tf360, commands='tf360')

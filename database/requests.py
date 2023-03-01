@@ -165,6 +165,18 @@ class database:
             })
         return result
 
+    def find_contacts_by_tg_id(self, tg_id: int) -> dict:
+        """
+        Находит ФИО и отдел пользователя по tg_id
+        """
+        result = {}
+        search = self.session.query(Users).filter(Users.tg_id == tg_id).first()
+        result["id"] = search.id
+        result["first_name"] = search.first_name
+        result["surname"] = search.surname
+        result["job_title"] = search.job_title
+        return result
+
     def find_contacts_by_id(self, id: int) -> dict:
         """
         Находит контакты пользователя по id

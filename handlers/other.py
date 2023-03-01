@@ -1,4 +1,6 @@
 import asyncio
+import os
+
 from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
@@ -6,13 +8,16 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 from create_bot import dp, bot, db
 from dicts.messages import sleep_timer, start_survey_dict, message_dict, operator_list
 from func.all_func import question_list, delete_message, recognize_question, start_survey_answers, is_breakes, \
-    is_reply_keyboard, search_message
-from keyboards.inline_operators_markup import Operator_keyboard
+    is_reply_keyboard, search_message, delete_temp_file
 
+from keyboards.inline_operators_markup import Operator_keyboard
 from keyboards.inline_start_survey import Survey_inlines_keyboards
+from keyboards.inline_initiate import yes_no_keyboard
 from keyboards.all_keyboards import all_keyboards
 
 from transliterate import translit
+
+from mailing.mailing import send_vacation_email
 
 
 # @dp.message_handler(content_types='text', state=None)
@@ -36,10 +41,25 @@ async def get_document(callback_query: types.CallbackQuery):
     """
     Тут парсятся все запросы документов
     """
-    file_path = "documents/1_application for annual leave.doc"
-    with open(file_path, "rb") as file:
-        await bot.send_document(chat_id=callback_query.from_user.id, document=file)
-        await callback_query.answer()
+    if callback_query.data.split(" ")[1] == "annual_leave_application":
+        file_path = "documents/1_application for annual leave.doc"
+    elif callback_query.data.split(" ")[1] == "business_trip_regulation":
+        file_path = "documents/2 regulations on official business trips.pdf"
+    elif callback_query.data.split(" ")[1] == "official_memo":
+        file_path = "documents/3 official memo.docx"
+    elif callback_query.data.split(" ")[1] == "application_for_funds":
+        file_path = "documents/4 application for funds.doc"
+    elif callback_query.data.split(" ")[1] == "teamforce_presentation":
+        file_path = "documents/5 teamforce presentation.pdf"
+    elif callback_query.data.split(" ")[1] == "vacation_at_own":
+        file_path = "documents/6 vacation_at_own.doc"
+    else:
+        file_path = None
+
+    if file_path:
+        with open(file_path, "rb") as file:
+            await bot.send_document(chat_id=callback_query.from_user.id, document=file)
+            await callback_query.answer()
 
 
 # Состояния для поиска сотрудника по фамилии ---------------------------------------------------------------------------
@@ -415,6 +435,79 @@ async def show_video(callback_query: types.CallbackQuery, state: FSMContext):
                            reply_markup=keyboard.start_survey())
 
 
+# Состояния для пересылки письма об отпуске ----------------------------------------------------------------------------
+class FSM_send_vacation_email(StatesGroup):
+    enter_vacation_period = State()
+    is_agreed = State()
+    send_doc = State()
+    enter_coordinator = State()
+
+
+# @dp.callback_query_handler(lambda c: c.data.startswith("initiate"), state=None)
+async def initiate_vacation_email(callback_query: types.CallbackQuery, state=None):
+    await callback_query.answer()
+    sender_tg_id = callback_query.from_user.id
+    sender = db.find_contacts_by_tg_id(sender_tg_id)
+    async with state.proxy() as data:
+        data["from_tg_id"] = sender_tg_id
+        data["from_name"] = sender["first_name"]
+        data["from_surname"] = sender["surname"]
+        data["job_title"] = sender["job_title"]
+    await FSM_send_vacation_email.enter_vacation_period.set()
+    await bot.send_message(chat_id=callback_query.from_user.id, text="В какие сроки планируется отпуск?: ")
+
+
+# @dp.message_handler(state=FSM_send_vacation_email.enter_vacation_period)
+async def save_vacaton_period(message: types.Message, state=FSMContext):
+    await FSM_send_vacation_email.is_agreed.set()
+    async with state.proxy() as data:
+        data["vacation_period"] = message.text
+    await bot.send_message(chat_id=message.from_user.id, text="Отпуск согласован с руководителем?: ",
+                           reply_markup=yes_no_keyboard)
+
+
+# @dp.callback_query_handler(lambda c: c.data.startswith("answer"), state=FSM_send_vacation_email.is_agreed)
+async def save_is_agreed(callback_query: types.CallbackQuery, state=FSMContext):
+    await callback_query.answer()
+    await FSM_send_vacation_email.send_doc.set()
+    async with state.proxy() as data:
+        data["is_agreed"] = callback_query.data.split(" ")[1]
+    await bot.send_message(chat_id=callback_query.from_user.id, text="Пришлите фото заполненного заявления: ")
+
+
+# @dp.message_handler(content_types="photo", state=FSM_send_vacation_email.send_doc)
+async def save_doc(message: types.Message, state=FSMContext):
+    async with state.proxy() as data:
+        await FSM_send_vacation_email.enter_coordinator.set()
+        destination = os.getcwd() + "/temp_saves/" + data["from_name"] + " " + data["from_surname"] + ".jpg"
+        data["image_path"] = destination
+        await message.photo[-1].download(destination_file=destination)
+    await bot.send_message(chat_id=message.from_user.id, text="Кто ваш координатор в ТИМ ФОРС: ")
+
+
+# @dp.message_handler(state=FSM_send_vacation_email.enter_coordinator)
+async def save_coordinator(message: types.Message, state=FSMContext):
+    async with state.proxy() as data:
+        data["coordinator"] = message.text
+    from_name = data["from_name"]
+    from_surname = data["from_surname"]
+    job_title = data["job_title"]
+    vacation_period = data["vacation_period"]
+    is_agreed = data["is_agreed"]
+    coordinator_name = data["coordinator"]
+    image_path = data["image_path"]
+    is_ok = asyncio.create_task(send_vacation_email(from_name, from_surname, job_title, vacation_period, is_agreed,
+                                                    coordinator_name, image_path))
+    if is_ok:
+        text = f"Ваше заявление на отпуск в период {data['vacation_period']} отправлено координатору"
+        await asyncio.sleep(10)
+        await asyncio.create_task(delete_temp_file(data["image_path"]))
+    else:
+        text = is_ok
+    await bot.send_message(chat_id=message.from_user.id, text=text)
+    await state.finish()
+
+
 def register_handlers_other(dp: Dispatcher):
     dp.register_callback_query_handler(get_document, lambda c: c.data.startswith("get"), state=None)
     dp.register_message_handler(recognizing, content_types='text', state=None)
@@ -448,3 +541,10 @@ def register_handlers_other(dp: Dispatcher):
     dp.register_callback_query_handler(commit_data,
                                        lambda c: c.data.startswith("answer"), state=FSM_newbie_questioning.commit_data)
     dp.register_callback_query_handler(show_video, lambda c: c.data == "start", state=FSM_newbie_questioning.show_video)
+
+    dp.register_callback_query_handler(initiate_vacation_email, lambda c: c.data.startswith("initiate"), state=None)
+    dp.register_message_handler(save_vacaton_period, state=FSM_send_vacation_email.enter_vacation_period)
+    dp.register_callback_query_handler(save_is_agreed,
+                                       lambda c: c.data.startswith("answer"), state=FSM_send_vacation_email.is_agreed)
+    dp.register_message_handler(save_doc, content_types="photo", state=FSM_send_vacation_email.send_doc)
+    dp.register_message_handler(save_coordinator, state=FSM_send_vacation_email.enter_coordinator)

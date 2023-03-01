@@ -40,11 +40,10 @@ six==1.16.0
 sniffio==1.3.0
 SQLAlchemy==2.0.3
 starlette==0.25.0
+transliterate==1.10.2
 typing_extensions==4.5.0
 ujson==5.7.0
 uvicorn==0.20.0
 watchfiles==0.18.1
 websockets==10.4
 yarl==1.8.2
-
-transliterate~=1.10.2

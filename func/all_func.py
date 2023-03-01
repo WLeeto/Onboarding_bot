@@ -1,4 +1,5 @@
 import asyncio
+import os
 from contextlib import suppress
 from aiogram.utils.exceptions import MessageCantBeDeleted, MessageToDeleteNotFound
 from create_bot import db
@@ -90,3 +91,8 @@ def search_message(id: int, first_name: str, surname: str, job_title: str) -> st
            f"<b>Контакты:</b> \n{contacts_text}\n\n"
 
     return text
+
+
+async def delete_temp_file(filepath):
+    os.remove(filepath)
+    print(f"Фаил {filepath} удален")
