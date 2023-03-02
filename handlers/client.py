@@ -1,6 +1,7 @@
 import asyncio
 
 from aiogram import types, Dispatcher
+from aiogram.dispatcher import FSMContext
 from create_bot import dp, bot, db
 
 from func.all_func import delete_message
@@ -11,7 +12,7 @@ from keyboards.inline_start_survey import Survey_inlines_keyboards
 from keyboards.inline_get_documents import get_business_trip_docs_keyboard, get_teamforce_presentation_keyboard, \
     get_annual_leave
 
-from handlers.other import FSM_newbie_questioning
+from handlers.other import FSM_newbie_questioning, FSM_search, FSMContext, FSM_start_survey, FSM_send_vacation_email
 
 
 # @dp.message_handler(commands=['test'])
@@ -34,6 +35,13 @@ async def start(message: types.Message):
         await message.answer(message_dict["greetings"])
         await message.answer(message_dict["newbie_greeting"].format(bot_name=f"@{me.username}"),
                              reply_markup=keyboard.ok_keyboard())
+
+
+# @dp.message_handler(commands='stop', state=FSM_start_survey.all_states)
+async def stop(message: types.Message, state=FSMContext):
+    await state.finish()
+    answer = await message.answer("Выполнено. Сообщение будет удалено")
+    await asyncio.create_task(delete_message(answer, 3))
 
 
 # @dp.message_handler(commands='help')
@@ -63,9 +71,9 @@ async def benefits(message: types.Message):
                          reply_markup=get_teamforce_presentation_keyboard)
 
 
-# @dp.message_handler(commands='docs')
-async def docs(message: types.Message):
-    await message.answer(commands_dict["docs"], parse_mode=types.ParseMode.HTML)
+# # @dp.message_handler(commands='docs')
+# async def docs(message: types.Message):
+#     await message.answer(commands_dict["docs"], parse_mode=types.ParseMode.HTML)
 
 
 # @dp.message_handler(commands='support')
@@ -117,7 +125,7 @@ def register_handlers_client(dp: Dispatcher):
     dp.register_message_handler(contacts, commands='contacts')
     dp.register_message_handler(vacation, commands='vacation')
     dp.register_message_handler(benefits, commands='benefits')
-    dp.register_message_handler(docs, commands='docs')
+    # dp.register_message_handler(docs, commands='docs')
     dp.register_message_handler(support, commands='support')
     dp.register_message_handler(social_media, commands='social_media')
     dp.register_message_handler(initiative, commands='initiative')

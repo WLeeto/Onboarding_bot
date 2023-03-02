@@ -83,7 +83,7 @@ class database:
         result = self.session.query(Answer).filter(Answer.id == 1).first()
         return result.answer_text
 
-    def find_by_surname(self, surname: str):
+    def find_by_surname(self, surname: str) -> list:
         """
         Поиск сотрудника по фамилии
         """
@@ -96,6 +96,113 @@ class database:
                 "surname": i.surname,
                 "job_title": i.job_title
             })
+        return result
+
+    def partial_search_by_surname(self, surname: str) -> list:
+        """
+        Поиск сотрудника по частичному совпадению фамилии
+        """
+        result = []
+        search = [i for i in self.session.query(Users).filter(Users.surname.ilike(f"%{surname}%")).all()]
+        for i in search:
+            result.append({
+                "id": i.id,
+                "first_name": i.first_name,
+                "surname": i.surname,
+                "job_title": i.job_title
+            })
+        return result
+
+    def find_by_patronymic(self, patronimyc: str) -> list:
+        """
+        Поиск сотрудника по отчеству
+        """
+        result = []
+        search = [i for i in self.session.query(Users).filter(Users.middle_name == patronimyc).all()]
+        for i in search:
+            result.append({
+                "id": i.id,
+                "first_name": i.first_name,
+                "surname": i.surname,
+                "job_title": i.job_title
+            })
+        return result
+
+    def partial_search_by_patronymic(self, patronimyc: str) -> list:
+        """
+        Поиск сотрудника по частичному совпадению отчества
+        """
+        result = []
+        search = [i for i in self.session.query(Users).filter(Users.middle_name.ilike(f"%{patronimyc}%")).all()]
+        for i in search:
+            result.append({
+                "id": i.id,
+                "first_name": i.first_name,
+                "surname": i.surname,
+                "job_title": i.job_title
+            })
+        return result
+
+    def find_by_telegram_ninckname(self, telegram_ninckname: str) -> list:
+        """
+        Поиск сотрудника по telegram_ninckname
+        """
+        result = []
+        search = [i for i in self.session.query(Users).filter(Users.tg_name == telegram_ninckname).all()]
+        for i in search:
+            result.append({
+                "id": i.id,
+                "first_name": i.first_name,
+                "surname": i.surname,
+                "job_title": i.job_title
+            })
+        return result
+
+    def partial_search_by_telegram_ninckname(self, telegram_ninckname: str) -> list:
+        """
+        Поиск сотрудника по частичному совпадению telegram_ninckname
+        """
+        result = []
+        search = [i for i in self.session.query(Users).filter(Users.tg_name.ilike(f"%{telegram_ninckname}%")).all()]
+        for i in search:
+            result.append({
+                "id": i.id,
+                "first_name": i.first_name,
+                "surname": i.surname,
+                "job_title": i.job_title
+            })
+        return result
+
+    def find_by_email(self, email: str) -> list:
+        result = []
+        search = [i for i in self.session.query(Contacts).filter(Contacts.contact_type == "@"). \
+            filter(Contacts.contact == email).all()]
+        for i in search:
+            user = self.__find_user_by_id(i.profile_id)
+            result.append({
+                "id": user.id,
+                "first_name": user.first_name,
+                "surname": user.surname,
+                "job_title": user.job_title
+            })
+        return result
+
+    def partial_search_by_email(self, email: str) -> list:
+        result = []
+        search = [i for i in self.session.query(Contacts).filter(Contacts.contact_type == "@"). \
+            filter(Contacts.contact.ilike(f"%{email}%")).limit(10).all()]
+        for i in search:
+            user = self.__find_user_by_id(i.profile_id)
+            result.append({
+                "id": user.id,
+                "first_name": user.first_name,
+                "surname": user.surname,
+                "job_title": user.job_title
+            })
+        return result
+
+    def __find_user_by_id(self, id: int):
+        result = self.session.query(Users).filter(Users.id == id).first()
         return result
 
     def find_department_by_user_id(self, user_id: int):
@@ -242,4 +349,3 @@ class database:
             return True
         else:
             return False
-
