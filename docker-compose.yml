@@ -13,7 +13,7 @@ services:
       - ../2. Init Database:/docker-entrypoint-initdb.d
       - .:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5442:5442"
   web:
     build: .
     container_name: onboarding_bot
