@@ -1,0 +1,59 @@
+"id","tg_id","tg_name","photo","hired_at","surname","first_name","middle_name","nickname","department_id","organization_id","user_id","fired_at","date_of_birth","job_title","status","timezone"
+1,"436315762","thisisflight","/users_photo/ee4059341b9947e3b10c90a544435c8b.jpg","2022-05-30","Иванченко","Андрей","Геннадьевич","",2,1,1,NULL,NULL,"Backend-разработчик","D",NULL
+3,"1376939445","AnnaKim_TF","users_photo/IMG_20220824_002713_424.jpg",NULL,"Иванова","Анна","Вячеславовна","",2,1,3,NULL,NULL,"Коммерческий директор",NULL,NULL
+4,"1702569497","dgarkushinTF","users_photo/IMG_20220901_092825_707.jpg",NULL,"Гаркушин","Денис","Игоревич","",2,1,4,NULL,NULL,"Руководитель проектов, АХО",NULL,NULL
+5,"1717379535","DTeryaev","",NULL,"Теряев","Дмитрий","Анатольевич","",18,1,5,NULL,NULL,"Руководитель проектов","O",NULL
+6,"393389145","O_Makarova_tf","users_photo/17.jpg",NULL,"Макарова","Ольга","Викторовна","",7,1,6,NULL,NULL,"Руководитель договорного отдела",NULL,NULL
+7,"391502494","tatianadita","",NULL,"Оськина","Татьяна","Николаевна","",2,1,7,NULL,NULL,"",NULL,NULL
+8,"5291953238","vmtmz","",NULL,"Мусин","Виталий","Владимирович","",2,1,8,NULL,NULL,"Разработчик 1С",NULL,NULL
+9,"443075293","evgenyzabroda","users_photo/DSCN3985_2_OSyGjzl.jpg",NULL,"Заброда","Евгений","Николаевич","",17,1,9,NULL,NULL,"Главный юрист",NULL,NULL
+10,"705221157","TeamForceAngelicaB","/users_photo/6083235ee35043ac9142f4443b762585.jpg",NULL,"Бабиева","Анжелика","Георгиевна","",10,1,10,NULL,NULL,"Бухгалтер",NULL,NULL
+13,"183417405","Brukva2","/users_photo/fe083779810a49f78332c27f2f4bafb5.jpg",NULL,"Быстров","Александр","Сергеевич (183417405)","Brukva2",2,1,13,NULL,NULL,"Руководитель отдела разработки","D",NULL
+14,"1313393557","orryon","",NULL,"Пронин","Орион","Юрьевич","",2,1,14,NULL,NULL,"Архитектор",NULL,NULL
+15,"820646247","abuzinaa","users_photo/3912044973.jpeg",NULL,"Марченко","Ирина","Сергеевна","",15,1,15,NULL,NULL,"Ресурсный менеджер",NULL,NULL
+16,"843059374","vovai39","/users_photo/6c7ea8bda55c48e2a07d2b1c0e280901.jpg",NULL,"Игнатов","Владимир","Николаевич","",19,1,16,NULL,NULL,"Финансовый директор",NULL,NULL
+17,"1311582682","MariaTimofeeva2608","users_photo/15.jpg",NULL,"Тимофеева","Мария","Николаевна","",18,1,17,NULL,NULL,"Руководитель проектов",NULL,NULL
+19,"437599716","I_Reznikov","",NULL,"Резников","Иван","Иванович","",2,1,19,NULL,NULL,"Разработчик 1С",NULL,NULL
+20,"158228883","KonstantinGarshin","",NULL,"Гаршин","Константин","Сергеевич","",14,1,20,NULL,NULL,"Руководитель тендерной группы",NULL,NULL
+21,"1842182696","Shakhnov_teamforce","users_photo/katerinkot_98_из_119.jpg",NULL,"Шахнов","Дмитрий","Дмитриевич","",7,1,21,NULL,NULL,"Специалист договорного отдела",NULL,NULL
+22,"1325698316","Teamforce_Nata","/users_photo/e6f91984eb284f9195458ae2a104d0db.jpg",NULL,"Землянко","Наталья","Анатольевна","",10,1,22,NULL,NULL,"Бухгалтер",NULL,NULL
+24,"148785954","rgainanov","/users_photo/16237f319c584e32928651038e3188e6.jpg",NULL,"Гайнанов","Руслан","Шамильевич","",19,1,24,NULL,NULL,"Основатель",NULL,NULL
+25,"1224139005","KolchinaElena_TeamForce","",NULL,"Колчина","Елена","Евгеньевна","",8,1,25,NULL,NULL,"Руководитель отдела кадров",NULL,NULL
+27,"302337090","ZhannaBessonova","/users_photo/9a7a25d0f2ea49ee810200c94e61cc7d.jpeg",NULL,"Бессонова","Жанна","Сергеевна","",12,1,27,NULL,NULL,"Аналитик","D",NULL
+29,"1392974853","dlee_teamforce","",NULL,"Ли","Диана","Юрьевна","",7,1,29,NULL,NULL,"Специалист договорного отдела",NULL,NULL
+30,"1341062023","RozaGainanova","/users_photo/b11bd116ae53466baa6d7ef2b91d8822.jpg",NULL,"Гайнанова","Роза","Ильшотовна","",12,1,30,NULL,NULL,"Зам.генерального директора по проектной и научно-исследовательской работе","D",NULL
+31,"445562463","av_dobroff","",NULL,"Добров","Алексей","Валентинович","",10,1,31,NULL,NULL,"Главный бухгалтер",NULL,NULL
+32,"1063359886","Jvashenko_Tf","",NULL,"Ващенко","Янина","Борисовна","",10,1,32,NULL,NULL,"Бухгалтер по расчету заработной платы",NULL,NULL
+34,"801809240","lilijau7","",NULL,"Гимадиева","Лилия","Юнусовна","",12,1,34,NULL,NULL,"Руководитель проекта ХакерХоум",NULL,NULL
+36,"1772188053","katerina_teamfors","/users_photo/8329c806496a48a78b15cd8a2cc70b97.jpg",NULL,"Водолагина","Екатерина","Александровна","",10,1,36,NULL,NULL,"Бухгалтер",NULL,NULL
+37,"245130821","slavastarik","",NULL,"Старик","Вячеслав","Давидович","",19,1,37,NULL,NULL,"Директор IT",NULL,NULL
+38,"1845327752","TPautkina_TeamForce","",NULL,"Пауткина","Татьяна","Николаевна","",15,1,38,NULL,NULL,"Ресурсный менеджер",NULL,NULL
+39,"980900767","vkim_teamforce","/users_photo/a35c1ee953e04a1bb8524e83761a3126.jpg",NULL,"Ким","Виолетта","Евгеньевна","",12,1,39,NULL,NULL,"Менеджер по персоналу","O",NULL
+43,"1341009238","lesyamesh","",NULL,"Мещерякова","Олеся","","",19,1,43,NULL,NULL,"","D",NULL
+44,"1882444044","Shkv91","/users_photo/6b18033a3d304969a2644cdf690cf8c8.jpg",NULL,"Лыцусь","Кристина","Вадимовна","",18,1,44,NULL,NULL,"Руководитель проектов","O",NULL
+45,"1870005647","alenka_smith","users_photo/2.jpg",NULL,"Кузнецова","Алёна","Александровна","",18,1,45,NULL,NULL,"Руководитель проектов",NULL,NULL
+47,"5186164225","kornelTeamforce","",NULL,"Корнелиу","Лешан","","",2,1,47,NULL,NULL,"",NULL,NULL
+48,"458926263","A_Shapka","",NULL,"Шапка","Алексей","Валерьевич","",19,1,48,NULL,NULL,"Генеральный директор",NULL,NULL
+50,"1428658405","sammyna97","",NULL,"Сватковская","Юлия","Сергеевна","",14,1,50,NULL,NULL,"Специалист тендерного отдела",NULL,NULL
+53,"208371888","selivasha","",NULL,"Селиванова","Дарья","Максимовна","",2,1,53,NULL,NULL,"",NULL,NULL
+55,"709834386","teamforceliss","",NULL,"Михеева","Елизавета","Александровна","",9,1,55,NULL,NULL,"Менеджер партнерского отдела",NULL,NULL
+58,"1927276117","Olga_tf","",NULL,"Конюкова","Ольга","","",16,1,58,NULL,NULL,"Рекрутер",NULL,NULL
+59,"110583462","setixela","/users_photo/ddf56d9671e54a5a9b23f4171a9b7ea7.jpeg",NULL,"Соловьёв","Алекс","Анатольевич","",2,1,59,NULL,"1991-12-30","Разработчик iOS","H",NULL
+64,"381259684","sanvlasova","/users_photo/30a24a7391f54e699433a483eae36e98.jpg",NULL,"Садикова","Александра","Юрьевна","",12,1,64,NULL,NULL,"Маркетолог","D",NULL
+65,"5120778705","ElenaAFilippova","/users_photo/97299192f64b43aaaea305046c2363f6.jpeg",NULL,"Филиппова","Елена","","",12,1,65,NULL,"1988-03-25","Аналитик","D",NULL
+66,"36902834","mekhaga","",NULL,"Агаев","Мехман","","",2,1,66,NULL,NULL,"Дизайнер","D",NULL
+67,"462560202","gapurinov","/users_photo/cfab003b1e4f48d3a26b0b35761ca723.jpeg",NULL,"Гапуринов","Ержан","Макамбетулы","gapurinov",2,1,67,NULL,NULL,"","D",NULL
+68,"1051930736","NyamaMDE","users_photo/rhLL1PEeLMs.jpg","2022-07-28","Малков","Дмитрий","Евгеньевич","NyamaMDE",2,1,68,NULL,NULL,"Android-разработчик","D",NULL
+69,"386386009","Ayazbayev_D","/users_photo/aabc2c6b751d4b5b8a8f486f3a2f883b.jpg",NULL,"Аязбаев","Данат","Аскарович","Ayazbayev_D",2,1,69,NULL,NULL,"Frontend разработчик","D",NULL
+70,"623283446","talgat_356","",NULL,"Бектлеуов","Талгат","","talgat_356",2,1,70,NULL,NULL,"Backend-разработчик",NULL,NULL
+71,"188406189","bulatBurganov","","2015-01-01","Бурганов","Булат","","",2,1,71,NULL,NULL,"Android-разработчик",NULL,NULL
+111,"1101389087","AlexSpooki","","2022-12-05","Воробьев","Александр","","",2,1,111,NULL,NULL,"Frontend разработчик","D",NULL
+131,"1087968824","GroupAnonymousBot","",NULL,"","","","GroupAnonymousBot",NULL,1,131,NULL,NULL,"",NULL,NULL
+133,"389711625","foxpaws","","2022-12-12","Погребной","Андрей","","foxpaws",NULL,1,133,NULL,NULL,"Разработчик",NULL,NULL
+134,"786181061","Danberl","",NULL,"Бергаузен","Даниил","Владиславович","Danberl",2,1,134,NULL,NULL,"Frontend разработчик",NULL,NULL
+135,"5675721801","nborisova_teamforce","",NULL,"Борисова","Наталья","Владимировна","nborisova_teamforce",8,1,135,NULL,NULL,"Специалист отдела кадров","O",NULL
+233,"2060281900","alex_miktadov","","2022-12-07","Миктадов","Алексей","","alex_miktadov",2,1,233,NULL,NULL,"Разработчик  full stack",NULL,NULL
+234,"272367925","dodo101000101","","2022-12-13","Мещерин","Павел","","",1,1,234,NULL,NULL,"",NULL,NULL
+265,"252390058","zuukhraa31","/users_photo/540549659d5c4d6d89214f6f2003001b.jpeg",NULL,"Шагиахметова","Зухра","Мидхатовна","",1,1,265,NULL,NULL,"","D",NULL
+325,"5148438149","WLeeto","","2023-01-15","Марченко","Олег","","",2,1,325,NULL,NULL,"",NULL,NULL
+334,"2109506479","Makek321","","2023-01-16","Калегин","Максим","Андреевич","Максим Калегин",2,1,334,NULL,"2003-04-17","Разработчик Back-end","D",NULL

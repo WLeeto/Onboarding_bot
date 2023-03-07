@@ -39,7 +39,7 @@ class Users(Base):
     __tablename__ = "Users"
 
     id = sq.Column(sq.Integer, primary_key=True)
-    tg_id = sq.Column(sq.Integer, nullable=False)
+    tg_id = sq.Column(sq.BIGINT, nullable=False)
     tg_name = sq.Column(sq.Text)
     photo = sq.Column(sq.Text)
     hired_at = sq.Column(sq.Date)

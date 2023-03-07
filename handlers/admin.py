@@ -9,6 +9,7 @@ from database.requests import database
 import asyncio
 
 from func.all_func import delete_message
+from fill_db_script import fill_db
 
 admins = [5148438149, ]
 
@@ -80,7 +81,7 @@ async def display_all_questions(message: types.Message):
     await message.answer(msg)
 
 
-# @dp.message_handler(commands='_reset_db')
+# @dp.message_handler(commands='_resetdb')
 async def reset_db(message: types.Message):
     if message.from_user.id in admins:
         db.drop_tables()
@@ -88,6 +89,15 @@ async def reset_db(message: types.Message):
         await message.answer('БД была сброшена. Если вы ввели команду случайно, то все плохо.')
     else:
         await message.answer('Эта команда только для администраторов')
+
+
+# @dp.message_handler(commands='_filldb')
+async def filldb(message: types.Message):
+    if message.from_user.id in admins:
+        fill_db()
+        await message.answer("База данных заполнена тестовыми данными")
+    else:
+        await message.answer("Эта команда толко для администраторов")
 
 
 def register_handlers_admin(dp: Dispatcher):
@@ -98,4 +108,5 @@ def register_handlers_admin(dp: Dispatcher):
     dp.register_message_handler(entering_new_question, content_types='text', state=FSM_db_add_question.add_new_question)
     dp.register_message_handler(binding_answer, content_types='text', state=FSM_db_add_question.bind_answer)
     dp.register_message_handler(display_all_questions, commands='allquestions')
-    dp.register_message_handler(reset_db, commands='_reset_db')
+    dp.register_message_handler(reset_db, commands='_resetdb')
+    dp.register_message_handler(filldb, commands='_filldb')

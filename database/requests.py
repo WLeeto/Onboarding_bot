@@ -1,3 +1,5 @@
+import os
+import sqlalchemy
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -6,7 +8,9 @@ from database.models import Base, Answer, Question, Users, Departments, Contacts
 
 class database:
     def __init__(self):
-        self.engine = create_engine(f'sqlite:///{"questions"}')
+        DSN = os.environ.get("ONBOARDING_BOT_DB_DSN")
+        # DSN = 'postgresql://postgres:postgres@localhost:5432/onboarding_bot_db'
+        self.engine = sqlalchemy.create_engine(DSN)
         Session = sessionmaker(bind=self.engine)
         self.session = Session()
 
@@ -212,6 +216,37 @@ class database:
         result = self.session.query(Departments).join(Users.department).filter(Users.id == user_id).first()
         if result:
             return result.name
+
+    def find_department_by_name(self, department: str) -> list:
+        """
+        Ищет отдел по названию
+        """
+        result = []
+        search = [i for i in self.session.query(Departments).filter(Departments.name == department).all()]
+        for i in search:
+            employers = [i for i in self.session.query(Users).filter(Users.department_id == i.id).all()]
+            result.append({
+                "id": i.id,
+                "name": i.name,
+                "employers": [f"{i.first_name} {i.surname}" for i in employers]
+            })
+        return result
+
+    def find_department_particial_by_name(self, department: str) -> list:
+        """
+        Ищет отдел по частичному совпадению названия
+        """
+        result = []
+        search = [i for i in self.session.query(Departments).filter(Departments.name.ilike(f"%{department}%")).all()]
+        for i in search:
+            employers = [i for i in self.session.query(Users).filter(Users.department_id == i.id).all()]
+            result.append({
+                "id": i.id,
+                "name": i.name,
+                "employers": [f"{i.first_name} {i.surname}" for i in employers]
+            })
+        return result
+
 
     def find_by_title(self, title: str) -> list:
         """

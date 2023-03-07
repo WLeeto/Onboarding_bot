@@ -14,3 +14,4 @@ bot = Bot(token=token_tg)
 dp = Dispatcher(bot, storage=storage)
 
 db = database()
+db.create_tables()

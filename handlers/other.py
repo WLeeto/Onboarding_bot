@@ -66,11 +66,10 @@ async def get_document(callback_query: types.CallbackQuery):
 class FSM_search(StatesGroup):
     enter_name = State()
     enter_surname = State()
-
     enter_patronymic = State()
     enter_email = State()
     enter_tg_nickname = State()
-
+    enter_department = State()
     enter_title = State()
 
 
@@ -99,6 +98,10 @@ async def search(callback_query: types.CallbackQuery, state: FSMContext):
     elif callback_query.data.split(" ")[1] == "telegram_ninckname":
         await FSM_search.enter_tg_nickname.set()
         answer = await bot.edit_message_text("Кого ищем ? (введите ник в телеграме)",
+                                             callback_query.from_user.id, callback_query.message.message_id)
+    elif callback_query.data.split(" ")[1] == "by_department":
+        await FSM_search.enter_department.set()
+        answer = await bot.edit_message_text("Какой отдел ищем ? (введите название отдела)",
                                              callback_query.from_user.id, callback_query.message.message_id)
     elif callback_query.data.split(" ")[1] == "by_tag":
         await callback_query.answer("В разработке")
@@ -237,7 +240,7 @@ async def search_by_tg_nickname_step2(message: types.Message, state: FSMContext)
 
 
 # @dp.message_handler(content_types='text', state=FSM_search.enter_email)
-async def search_by_tg_email_step2(message: types.Message, state: FSMContext):
+async def search_by_email_step2(message: types.Message, state: FSMContext):
     result = db.find_by_email(message.text)
     await message.delete()
     async with state.proxy() as data:
@@ -257,6 +260,37 @@ async def search_by_tg_email_step2(message: types.Message, state: FSMContext):
             text = ''
             for i in partial_search_result:
                 text += search_message(i["id"], i["first_name"], i["surname"], i["job_title"])
+            await message.answer(text=f"<u>Вот кто частично подходит под твой запрос:</u>\n\n{text}\n",
+                                 parse_mode=types.ParseMode.HTML)
+        await state.finish()
+
+
+@dp.message_handler(content_types='text', state=FSM_search.enter_department)
+async def search_by_department_step2(message: types.Message, state: FSMContext):
+    result = db.find_department_by_name(message.text)
+    await message.delete()
+    async with state.proxy() as data:
+        last_answer = data["answer"]
+    if result:
+        text = ''
+        for i in result:
+            text += f"{i['name']}:\n" \
+                    f"Сотрудники:\n" \
+                    f"{', '.join(i['employers'])}"
+        await bot.edit_message_text(text=f"<u>Вот что удалось найти:</u>\n\n{text}\n",
+                                    chat_id=message.from_id, message_id=last_answer, parse_mode=types.ParseMode.HTML)
+        await state.finish()
+    else:
+        await bot.edit_message_text(f"Я не нашел отдела {message.text} T_T", chat_id=message.from_id,
+                                    message_id=last_answer, parse_mode=types.ParseMode.HTML)
+        partial_search_result = db.find_department_particial_by_name(message.text)
+        if partial_search_result:
+            text = ''
+            for i in partial_search_result:
+                employers = "\n".join(i['employers'])
+                text += f"<b>{i['name']}:</b>\n" \
+                        f"<b>Сотрудники:</b>\n" \
+                        f"{employers}"
             await message.answer(text=f"<u>Вот кто частично подходит под твой запрос:</u>\n\n{text}\n",
                                  parse_mode=types.ParseMode.HTML)
         await state.finish()
@@ -610,7 +644,7 @@ def register_handlers_other(dp: Dispatcher):
     dp.register_message_handler(search_by_name_step2, content_types='text', state=FSM_search.enter_name)
     dp.register_message_handler(search_by_patronymic_step2, content_types='text', state=FSM_search.enter_patronymic)
     dp.register_message_handler(search_by_tg_nickname_step2, content_types='text', state=FSM_search.enter_tg_nickname)
-    dp.register_message_handler(search_by_tg_email_step2, content_types='text', state=FSM_search.enter_email)
+    dp.register_message_handler(search_by_email_step2, content_types='text', state=FSM_search.enter_email)
 
     dp.register_message_handler(got_video, content_types='video')
 

@@ -17,7 +17,8 @@ from handlers.other import FSM_newbie_questioning, FSM_search, FSMContext, FSM_s
 
 # @dp.message_handler(commands=['test'])
 async def test(message: types.Message):
-    answer = await message.answer('Бот работает. Сообщение будет удалено')
+    answer = await message.answer(f'Ваш id: {message.from_id}\n'
+                                  f'Бот работает. Сообщение будет удалено')
     await delete_message(answer, 3)
 
 
