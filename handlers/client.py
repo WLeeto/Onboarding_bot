@@ -39,7 +39,7 @@ async def start(message: types.Message):
 
 
 # @dp.message_handler(commands='stop', state=FSM_start_survey.all_states)
-async def stop(message: types.Message, state=FSMContext):
+async def stop(message: types.Message, state="*"):
     await state.finish()
     answer = await message.answer("Выполнено. Сообщение будет удалено")
     await asyncio.create_task(delete_message(answer, 3))
