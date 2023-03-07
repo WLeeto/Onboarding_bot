@@ -44,7 +44,7 @@ we_are_closer_now = "Кажется мы стали чуточку ближе"
 message_dict = {
     "greetings": greeting_message,
     "help": help_message,
-    "greeting_video_id": "BAACAgIAAxkBAAMDY_9GdcMH6lEM57to4bG0i9_Q8_0AAvEmAAL8tPhLuTV62eeRxNkuBA",
+    "greeting_video_id": "BAACAgIAAxkBAAILEWQAAXCXK-hny6PxMEFCsLjm50jwUwACBiYAAkLnAUhEeMXYd4w_7i4E",
     "for_olds_message": for_olds_message,
     "for_newbie_message": for_newbie_message,
     "we_are_closer_now": we_are_closer_now,
