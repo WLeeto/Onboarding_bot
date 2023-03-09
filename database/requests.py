@@ -8,9 +8,10 @@ from database.models import Base, Answer, Question, Users, Departments, Contacts
 
 class database:
     def __init__(self):
-        DSN = os.environ.get("ONBOARDING_BOT_DB_DSN")
+        # DSN = os.environ.get("ONBOARDING_BOT_DB_DSN")
         # DSN = 'postgresql://postgres:postgres@localhost:5432/onboarding_bot_db'
-        self.engine = sqlalchemy.create_engine(DSN)
+        # self.engine = sqlalchemy.create_engine(DSN)
+        self.engine = create_engine("sqlite:///questions.db")
         Session = sessionmaker(bind=self.engine)
         self.session = Session()
 
@@ -28,6 +29,7 @@ class database:
         """
         question = self.session.query(Question).filter(Question.id == question_id).first()
         return question.question_text
+
 
     def add_answer(self, answer: str):
         """
