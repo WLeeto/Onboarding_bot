@@ -3,7 +3,7 @@ version: "3"
 
 services:
   postgres:
-    image: postgres:14
+    image: postgres:13.3
     environment:
       POSTGRES_DB: "onboarding_bot_db"
       POSTGRES_USER: "postgres"
