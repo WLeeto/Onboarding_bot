@@ -6,7 +6,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
 from create_bot import dp, bot, db
-from dicts.messages import sleep_timer, start_survey_dict, message_dict, operator_list
+from dicts.messages import sleep_timer, start_survey_dict, message_dict, operator_list, commands_dict
 from func.all_func import question_list, delete_message, recognize_question, start_survey_answers, is_breakes, \
     is_reply_keyboard, search_message, delete_temp_file
 
@@ -20,6 +20,7 @@ from transliterate import translit
 from mailing.mailing import send_vacation_email
 
 
+# todo Перенести функцию поиска в каталог функций
 # @dp.message_handler(content_types='text', state=None)
 async def recognizing(message: types.Message):
     response_id = recognize_question(message.text, question_list)
@@ -29,11 +30,14 @@ async def recognizing(message: types.Message):
         answer = db.no_answer()
 
     check_keyboards = is_reply_keyboard(answer)
-    if len(check_keyboards) == 1:
-        await message.reply(is_breakes(check_keyboards[0]))
+    if check_keyboards:
+        if len(check_keyboards) == 1:
+            await message.reply(is_breakes(check_keyboards[0]), parse_mode=types.ParseMode.HTML)
+        else:
+            keyboard = all_keyboards[check_keyboards[-1]]
+            await message.reply(is_breakes(check_keyboards[0]), reply_markup=keyboard, parse_mode=types.ParseMode.HTML)
     else:
-        keyboard = all_keyboards[check_keyboards[-1]]
-        await message.reply(is_breakes(check_keyboards[0]), reply_markup=keyboard)
+        return
 
 
 # @dp.callback_query_handler(lambda c: c.data.startswith("get"), state=None)
@@ -62,6 +66,17 @@ async def get_document(callback_query: types.CallbackQuery):
             await callback_query.answer()
 
 
+# @dp.callback_query_handler(lambda c: c.data.startswith("contacts"), state=None)
+async def get_contacts(callback_query: types.CallbackQuery):
+    contact_type = callback_query.data.split(" ")[1]
+    if contact_type == "hr":
+        await callback_query.message.edit_text(commands_dict["contacts_hr"], parse_mode=types.ParseMode.HTML)
+    elif contact_type == "contracts":
+        await callback_query.message.edit_text(commands_dict["contacts_contracts"], parse_mode=types.ParseMode.HTML)
+    elif contact_type == "resourses":
+        await callback_query.message.edit_text(commands_dict["contacts_resourses"], parse_mode=types.ParseMode.HTML)
+
+
 # Состояния для поиска сотрудника --------------------------------------------------------------------------------------
 class FSM_search(StatesGroup):
     enter_name = State()
@@ -71,6 +86,7 @@ class FSM_search(StatesGroup):
     enter_tg_nickname = State()
     enter_department = State()
     enter_title = State()
+    enter_phone = State()
 
 
 # @dp.callback_query_handler(lambda c: c.data.startswith("search"), state=None)
@@ -105,8 +121,27 @@ async def search(callback_query: types.CallbackQuery, state: FSMContext):
                                              callback_query.from_user.id, callback_query.message.message_id)
     elif callback_query.data.split(" ")[1] == "by_tag":
         await callback_query.answer("В разработке")
+    elif callback_query.data.split(" ")[1] == "by_phone":
+        await FSM_search.enter_phone.set()
+        answer = await callback_query.message.edit_text("Введите последние 4 цифры телефона (например 4542)")
+        await callback_query.answer()
     async with state.proxy() as data:
         data["answer"] = answer.message_id
+
+
+# @dp.message_handler(content_types="text", state=FSM_search.enter_phone)
+async def search_by_phone_step2(message: types.Message, state: FSMContext):
+    result = db.particial_search_by_phone(message.text)
+    async with state.proxy() as data:
+        last_answer = data["answer"]
+    if result:
+        text = search_message(id=result.id, first_name=result.first_name, surname=result.surname,
+                              job_title=result.job_title)
+    else:
+        text = f"Я не смог никого найти T_T, скорее всего пользователя с таким номером в базе нет"
+    await state.finish()
+    await delete_message(message, 0)
+    await bot.edit_message_text(text, chat_id=message.from_id, message_id=last_answer, parse_mode=types.ParseMode.HTML)
 
 
 # @dp.message_handler(content_types='text', state=FSM_search.enter_name)
@@ -265,7 +300,7 @@ async def search_by_email_step2(message: types.Message, state: FSMContext):
         await state.finish()
 
 
-@dp.message_handler(content_types='text', state=FSM_search.enter_department)
+# @dp.message_handler(content_types='text', state=FSM_search.enter_department)
 async def search_by_department_step2(message: types.Message, state: FSMContext):
     result = db.find_department_by_name(message.text)
     await message.delete()
@@ -635,8 +670,11 @@ async def save_coordinator(message: types.Message, state=FSMContext):
 
 
 def register_handlers_other(dp: Dispatcher):
-    dp.register_callback_query_handler(get_document, lambda c: c.data.startswith("get"), state=None)
     dp.register_message_handler(recognizing, content_types='text', state=None)
+
+    dp.register_callback_query_handler(get_contacts, lambda c: c.data.startswith("contacts"), state=None)
+
+    dp.register_callback_query_handler(get_document, lambda c: c.data.startswith("get"), state=None)
 
     dp.register_callback_query_handler(search, lambda c: c.data.startswith("search"), state=None)
     dp.register_message_handler(search_by_surname_step2, content_types='text', state=FSM_search.enter_surname)
@@ -645,6 +683,8 @@ def register_handlers_other(dp: Dispatcher):
     dp.register_message_handler(search_by_patronymic_step2, content_types='text', state=FSM_search.enter_patronymic)
     dp.register_message_handler(search_by_tg_nickname_step2, content_types='text', state=FSM_search.enter_tg_nickname)
     dp.register_message_handler(search_by_email_step2, content_types='text', state=FSM_search.enter_email)
+    dp.register_message_handler(search_by_department_step2, content_types='text', state=FSM_search.enter_department)
+    dp.register_message_handler(search_by_phone_step2, content_types="text", state=FSM_search.enter_phone)
 
     dp.register_message_handler(got_video, content_types='video')
 

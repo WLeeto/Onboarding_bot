@@ -1,4 +1,6 @@
 import os
+from pprint import pprint
+
 import sqlalchemy
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -11,7 +13,7 @@ class database:
         # DSN = os.environ.get("ONBOARDING_BOT_DB_DSN")
         # DSN = 'postgresql://postgres:postgres@localhost:5432/onboarding_bot_db'
         # self.engine = sqlalchemy.create_engine(DSN)
-        self.engine = create_engine("sqlite:///questions.db")
+        self.engine = create_engine("sqlite:///questions")
         Session = sessionmaker(bind=self.engine)
         self.session = Session()
 
@@ -23,13 +25,22 @@ class database:
         Base.metadata.drop_all(self.engine)
         print('Все таблицы удалены, все пропало !!!')
 
+    def particial_search_by_phone(self, phone: str) -> str or None:
+        result = self.session.query(Contacts).filter(Contacts.contact.ilike(f"%{phone}%")).first()
+        if result:
+            return self.__find_user_by_id(result.profile_id)
+        else:
+            return None
+
     def find_question_by_question_id(self, question_id: int) -> str:
         """
         Находит текст вопроса по его id в БД
         """
         question = self.session.query(Question).filter(Question.id == question_id).first()
-        return question.question_text
-
+        if question:
+            return question.question_text
+        else:
+            return None
 
     def add_answer(self, answer: str):
         """
@@ -67,6 +78,9 @@ class database:
         for i in self.session.query(Question).all():
             result[i.id] = i.question_text
         self.session.close()
+        pprint(f"Переменная запросов обновлена.\n"
+               f"Текущий словарь запросов:\n"
+               f"{result}")
         return result
 
     def add_question(self, question: str, answer_id: int):
@@ -87,7 +101,10 @@ class database:
         """
 
         result = self.session.query(Answer).filter(Answer.id == 1).first()
-        return result.answer_text
+        if result:
+            return result.answer_text
+        else:
+            return None
 
     def find_by_surname(self, surname: str) -> list:
         """
@@ -248,7 +265,6 @@ class database:
                 "employers": [f"{i.first_name} {i.surname}" for i in employers]
             })
         return result
-
 
     def find_by_title(self, title: str) -> list:
         """

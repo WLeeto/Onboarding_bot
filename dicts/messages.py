@@ -101,19 +101,10 @@ start_survey_dict = {
 
 # Commands -------------------------------------------------------------------------------------------------------------
 
-contacts = "<b>Отдел кадров</b> group_kdp@teamforce.ru\n" \
-           "Распространенные обращения:\n" \
-           "- оформление отпуска\n" \
-           "- информирование о больничном\n" \
-           "- запросы расчетных листков\n" \
-           "- подписание трудовых договоров\n\n" \
-           "<b>Договорной отдел</b> group_contracts@teamforce.ru\n" \
-           "Распространенные вопросы:\n" \
-           "- согласование договоров на работы\n" \
-           "- уточнение вопросов по оплатам\n\n" \
-           "<b>Ресурсный отдел</b> smartdev@teamforce.ru\n" \
-           "Распространенные вопросы:\n" \
-           "- уточнение свободных вакансий для друзей "
+contacts = "<b>Какие контакты ищем?</b>"
+contacts_hr = "<b>Отдел кадров</b> group_kdp@teamforce.ru"
+contacts_contracts = "<b>Договорной отдел</b> group_contracts@teamforce.ru"
+contacts_resourses = "<b>Ресурсный отдел</b> smartdev@teamforce.ru"
 
 vacation = "Чтобы взять отпуск следует:\n" \
            "- Согласовать сроки с руководителем проекта за 2 недели до желаемой даты\n" \
@@ -198,4 +189,7 @@ commands_dict = {
     "business_trip": business_trip,
     "referal": referal,
     "tf360": tf360,
+    "contacts_hr": contacts_hr,
+    "contacts_contracts": contacts_contracts,
+    "contacts_resourses": contacts_resourses,
 }

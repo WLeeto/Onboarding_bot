@@ -11,6 +11,7 @@ from keyboards.inline_find import search_way
 from keyboards.inline_start_survey import Survey_inlines_keyboards
 from keyboards.inline_get_documents import get_business_trip_docs_keyboard, get_teamforce_presentation_keyboard, \
     get_annual_leave
+from keyboards.inline_contacts import contacts_keyboard
 
 from handlers.other import FSM_newbie_questioning, FSM_search, FSMContext, FSM_start_survey, FSM_send_vacation_email
 
@@ -58,7 +59,7 @@ async def start_searching(messages: types.Message):
 
 # @dp.message_handler(commands='contacts')
 async def contacts(message: types.Message):
-    await message.answer(commands_dict["contacts"], parse_mode=types.ParseMode.HTML)
+    await message.answer(commands_dict["contacts"], parse_mode=types.ParseMode.HTML, reply_markup=contacts_keyboard)
 
 
 # @dp.message_handler(commands='vacation')
