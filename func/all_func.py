@@ -71,16 +71,16 @@ def is_breakes(message):
     return result
 
 
-def is_reply_keyboard(message):
+def is_reply_keyboard(message: str):
     """
     Проверка есть ли в сообщении прикрепленная клавиатура
     """
-    try:
-        splitted = message.split("#keyboard ")
-        result = [i for i in splitted]
+    splited = message.split("#keyboard ")
+    result = [i for i in splited]
+    if len(result) > 1:
         return result
-    except AttributeError:
-        return
+    else:
+        return None
 
 
 def search_message(id: int, first_name: str, surname: str, job_title: str) -> str:

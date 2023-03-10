@@ -6,7 +6,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
 from create_bot import dp, bot, db
-from dicts.messages import sleep_timer, start_survey_dict, message_dict, operator_list, commands_dict
+from dicts.messages import sleep_timer, start_survey_dict, message_dict, operator_list, commands_dict, project_dict
 from func.all_func import question_list, delete_message, recognize_question, start_survey_answers, is_breakes, \
     is_reply_keyboard, search_message, delete_temp_file
 
@@ -20,7 +20,6 @@ from transliterate import translit
 from mailing.mailing import send_vacation_email
 
 
-# todo Перенести функцию поиска в каталог функций
 # @dp.message_handler(content_types='text', state=None)
 async def recognizing(message: types.Message):
     response_id = recognize_question(message.text, question_list)
@@ -31,13 +30,10 @@ async def recognizing(message: types.Message):
 
     check_keyboards = is_reply_keyboard(answer)
     if check_keyboards:
-        if len(check_keyboards) == 1:
-            await message.reply(is_breakes(check_keyboards[0]), parse_mode=types.ParseMode.HTML)
-        else:
-            keyboard = all_keyboards[check_keyboards[-1]]
-            await message.reply(is_breakes(check_keyboards[0]), reply_markup=keyboard, parse_mode=types.ParseMode.HTML)
+        keyboard = all_keyboards[check_keyboards[-1]]
+        await message.reply(is_breakes(check_keyboards[0]), reply_markup=keyboard, parse_mode=types.ParseMode.HTML)
     else:
-        return
+        await message.reply(is_breakes(answer), parse_mode=types.ParseMode.HTML)
 
 
 # @dp.callback_query_handler(lambda c: c.data.startswith("get"), state=None)
@@ -75,6 +71,27 @@ async def get_contacts(callback_query: types.CallbackQuery):
         await callback_query.message.edit_text(commands_dict["contacts_contracts"], parse_mode=types.ParseMode.HTML)
     elif contact_type == "resourses":
         await callback_query.message.edit_text(commands_dict["contacts_resourses"], parse_mode=types.ParseMode.HTML)
+
+
+@dp.callback_query_handler(lambda c: c.data.startswith("projects"), state=None)
+async def projects(callback_querry: types.CallbackQuery):
+    project_name = callback_querry.data.split(" ")[1]
+    if project_name == "B2BCloud":
+        text = project_dict["B2BCloud"]
+    elif project_name == "Skils_Cloud":
+        text = project_dict["Skils_Cloud"]
+    elif project_name == "1C_ERP":
+        text = project_dict["1C_ERP"]
+    elif project_name == "TF360":
+        text = project_dict["TF360"]
+    elif project_name == "Smart_Back_Office":
+        text = project_dict["Smart_Back_Office"]
+    elif project_name == "Hacker_Home":
+        text = project_dict["Hacker_Home"]
+    elif project_name == "Light":
+        text = project_dict["Light"]
+    await callback_querry.answer()
+    await callback_querry.message.answer(text)
 
 
 # Состояния для поиска сотрудника --------------------------------------------------------------------------------------
@@ -562,12 +579,13 @@ async def commit_data(callback_query: types.CallbackQuery, state: FSMContext):
     if callback_query.data.split(" ")[1] == "correct":
         operator_keyboard = Operator_keyboard()
         async with state.proxy() as data:
-            await bot.send_photo(operator_list[0], data["photo"], 'Нужно проверить нового пользователя:\n\n'
-                                                                  f'{data["surname"]} {data["name"]} {data["patronymic"]}\n'
-                                                                  f'Дата рождения: {data["bdate"]}\n'
-                                                                  f'Телефон: +{data["phone"]}\n'
-                                                                  f'E-mail: {data["email"]}\n'
-                                                                  f'Хобби и увлечения: {data["hobby"]}',
+            await bot.send_photo(operator_list[0], data["photo"],
+                                 'Нужно проверить нового пользователя:\n\n'
+                                 f'{data["surname"]} {data["name"]} {data["patronymic"]}\n'
+                                 f'Дата рождения: {data["bdate"]}\n'
+                                 f'Телефон: +{data["phone"]}\n'
+                                 f'E-mail: {data["email"]}\n'
+                                 f'Хобби и увлечения: {data["hobby"]}',
                                  reply_markup=operator_keyboard.confirm_new_user())
         await FSM_newbie_questioning.next()
         await bot.edit_message_text("Данные отправлены на обработку модератору",

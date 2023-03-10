@@ -8,6 +8,7 @@ from func.all_func import delete_message
 
 from dicts.messages import message_dict, commands_dict
 from keyboards.inline_find import search_way
+from keyboards.inline_projects import projects_keyboard
 from keyboards.inline_start_survey import Survey_inlines_keyboards
 from keyboards.inline_get_documents import get_business_trip_docs_keyboard, get_teamforce_presentation_keyboard, \
     get_annual_leave
@@ -119,7 +120,13 @@ async def tf360(message: types.Message):
     await message.answer(commands_dict["tf360"], parse_mode=types.ParseMode.HTML)
 
 
+# @dp.message_handler(commands='projects')
+async def projects(message: types.Message):
+    await message.answer(commands_dict["projects"], parse_mode=types.ParseMode.HTML, reply_markup=projects_keyboard)
+
+
 def register_handlers_client(dp: Dispatcher):
+    dp.register_message_handler(projects, commands='projects')
     dp.register_message_handler(test, commands='test')
     dp.register_message_handler(start, commands='start')
     dp.register_message_handler(help, commands='help')

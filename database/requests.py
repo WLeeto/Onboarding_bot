@@ -10,10 +10,13 @@ from database.models import Base, Answer, Question, Users, Departments, Contacts
 
 class database:
     def __init__(self):
-        # DSN = os.environ.get("ONBOARDING_BOT_DB_DSN")
+
+        DSN = os.environ.get("ONBOARDING_BOT_DB_DSN")
         # DSN = 'postgresql://postgres:postgres@localhost:5432/onboarding_bot_db'
-        # self.engine = sqlalchemy.create_engine(DSN)
-        self.engine = create_engine("sqlite:///questions")
+        self.engine = sqlalchemy.create_engine(DSN)
+
+        # self.engine = create_engine("sqlite:///questions")
+
         Session = sessionmaker(bind=self.engine)
         self.session = Session()
 
