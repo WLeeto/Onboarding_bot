@@ -1,17 +1,21 @@
 version: "3"
 
+volumes:
+  onboarding_bot_postgres_data: {}
+  onboarding_bot_postgres_data_backups: {}
 
 services:
   postgres:
-    image: postgres:13.3
-    environment:
-      POSTGRES_DB: "onboarding_bot_db"
-      POSTGRES_USER: "postgres"
-      POSTGRES_PASSWORD: "postgres"
-      PGDATA: "/var/lib/postgresql/da ta"
+    build:
+      context: .
+      dockerfile: ./compose/production/postgres/Dockerfile
+    image: onboarding_bot_production_postgres
+    container_name: onboarding_bot_local_postgres
     volumes:
-      - ../Init_Database:/docker-entrypoint-initdb.d
-      - .:/var/lib/postgresql/data
+      - onboarding_bot_postgres_data:/var/lib/postgresql/data
+      - onboarding_bot_postgres_data_backups:/backups
+    env_file:
+      - ./.envs/.local/.postgres
     ports:
       - "5442:5442"
   web:
