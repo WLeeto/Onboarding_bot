@@ -7,7 +7,7 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 
 from create_bot import dp, bot, db
 from dicts.messages import sleep_timer, start_survey_dict, message_dict, operator_list, commands_dict, project_dict
-from func.all_func import question_list, delete_message, recognize_question, start_survey_answers, is_breakes, \
+from func.all_func import delete_message, recognize_question, start_survey_answers, is_breakes, \
     is_reply_keyboard, search_message, delete_temp_file
 from handlers.vacation_handlers import vacation
 
@@ -23,6 +23,7 @@ from mailing.mailing import send_vacation_email
 
 # @dp.message_handler(content_types='text', state=None)
 async def recognizing(message: types.Message):
+    question_list = db.find_all_questions()
     response_id = recognize_question(message.text, question_list)
     if response_id:
         answer = db.find_answer_by_question_id(response_id)
@@ -74,7 +75,7 @@ async def get_contacts(callback_query: types.CallbackQuery):
         await callback_query.message.edit_text(commands_dict["contacts_resourses"], parse_mode=types.ParseMode.HTML)
 
 
-@dp.callback_query_handler(lambda c: c.data.startswith("projects"), state=None)
+# @dp.callback_query_handler(lambda c: c.data.startswith("projects"), state=None)
 async def projects(callback_querry: types.CallbackQuery):
     project_name = callback_querry.data.split(" ")[1]
     if project_name == "B2BCloud":
@@ -623,6 +624,8 @@ async def hr_contacts(callback_query: types.CallbackQuery, state: FSMContext):
 
 def register_handlers_other(dp: Dispatcher):
     vacation.register_handlers_vacation(dp)
+
+    dp.register_callback_query_handler(projects, lambda c: c.data.startswith("projects"), state=None)
 
     dp.register_callback_query_handler(hr_contacts, lambda c: c.data == "hr_contacts")
 

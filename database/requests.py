@@ -27,12 +27,8 @@ class database:
         Base.metadata.drop_all(self.engine)
         print('Все таблицы удалены, все пропало !!!')
 
-    def particial_search_by_phone(self, phone: str) -> str or None:
-        result = self.session.query(Contacts).filter(Contacts.contact.ilike(f"%{phone}%")).first()
-        if result:
-            return self.__find_user_by_id(result.profile_id)
-        else:
-            return None
+    def close_session(self):
+        self.session.close()
 
     def find_question_by_question_id(self, question_id: int) -> str:
         """
@@ -80,9 +76,6 @@ class database:
         for i in self.session.query(Question).all():
             result[i.id] = i.question_text
         self.session.close()
-        pprint(f"Переменная запросов обновлена.\n"
-               f"Текущий словарь запросов:\n"
-               f"{result}")
         return result
 
     def add_question(self, question: str, answer_id: int):
@@ -404,3 +397,28 @@ class database:
             return True
         else:
             return False
+
+    def particial_search_by_phone(self, phone: str) -> str or None:
+        """
+        Поиск по частичному совпадению номера телефона
+        """
+        result = self.session.query(Contacts).filter(Contacts.contact.ilike(f"%{phone}%")).first()
+        if result:
+            return self.__find_user_by_id(result.profile_id)
+        else:
+            return None
+
+    def what_type_of_employment(self, tg_id: int) -> str or None:
+        result = self.session.query(Users).filter(Users.tg_id == tg_id).first()
+        return result.type_of_employment if result.type_of_employment else None
+
+    def change_type_of_employment(self, tg_id: int, type_of_employement: str) -> bool:
+        employer = self.session.query(Users).filter(Users.tg_id == tg_id).first()
+        employer.type_of_employment = type_of_employement
+        self.session.commit()
+        self.session.close()
+        return True
+
+    def is_user(self, tg_id: int) -> bool:
+        result = self.session.query(Users).filter(Users.tg_id == tg_id).first()
+        return True if result else False

@@ -1,5 +1,5 @@
 import sqlalchemy as sq
-from sqlalchemy.orm import declarative_base, relationship
+from sqlalchemy.orm import declarative_base, relationship, mapped_column
 
 Base = declarative_base()
 
@@ -55,6 +55,7 @@ class Users(Base):
     job_title = sq.Column(sq.Text)
     status = sq.Column(sq.Text)
     timezone = sq.Column(sq.Text)
+    type_of_employment = sq.Column(sq.Text)
 
     department = relationship(Departments, backref="Departments")
 
@@ -69,3 +70,14 @@ class Contacts(Base):
     confirmed = sq.Column(sq.Boolean)
 
     user = relationship(Users, backref="Users")
+
+
+class SuperviserEmployer(Base):
+    __tablename__ = "SuperviserEmployer"
+
+    id = sq.Column(sq.Integer, primary_key=True)
+    superviser_id = mapped_column(sq.Integer, sq.ForeignKey("Users.id"))
+    employer_id = mapped_column(sq.Integer, sq.ForeignKey("Users.id"))
+
+    superviser = relationship(Users, foreign_keys=[superviser_id])
+    employer = relationship(Users, foreign_keys=[employer_id])

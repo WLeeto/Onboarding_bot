@@ -10,8 +10,6 @@ from fuzzywuzzy import fuzz
 
 from dicts.messages import start_survey_dict
 
-question_list = db.find_all_questions()  # Лист всех вопросов сохранятся глобально
-
 
 async def delete_message(message: types.Message, sleep_time: int = 0):
     """

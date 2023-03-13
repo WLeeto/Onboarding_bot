@@ -1,5 +1,5 @@
 from aiogram.utils import executor
-from create_bot import dp, db
+from create_bot import dp
 
 
 async def on_startup(_):
@@ -7,7 +7,6 @@ async def on_startup(_):
     Запуск бота
     """
     print('Бот запущен')
-    db.create_tables()
 
 
 async def on_shutdown(_):

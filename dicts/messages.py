@@ -203,11 +203,23 @@ vacation_pay = "<b>Отпускние рассчитываются путем у
                "* Каждый полностью отработанный месяц " \
                "(когда рабочие дни по производственному календарю отработаны полностью) - составляет 29,3 дня"
 
+vacation_more_two_weeks_not_state = "<b>Что нужно сделать:</b>\n" \
+                                    "1. Согласовать сроки с руководителем проекта за 2 недели до желаемой даты\n" \
+                                    "2. Проинформировать команду о предстоящем отпуске\n" \
+                                    "3. Поставить 'отбойник в почте' к кому обращаться"
+
+vacation_less_two_weeks_not_state = "Согласовать сроки с руководителем проекта"
+
 commands_dict = {
     "contacts": contacts,
-    "vacation": vacation,
-    "vacation_more_two_weeks": vacation_more_two_weeks,
-    "vacation_less_two_weeks": vacation_less_two_weeks,
+    "vacation": {
+        "vacation": vacation,
+        "vacation_more_two_weeks": vacation_more_two_weeks,
+        "vacation_less_two_weeks": vacation_less_two_weeks,
+        "vacation_more_two_weeks_not_state": vacation_more_two_weeks_not_state,
+        "vacation_less_two_weeks_not_state": vacation_less_two_weeks_not_state,
+        "vacation_pay": vacation_pay,
+    },
     "benefits": benefits,
     "docs": docs,
     "support": support,
@@ -222,7 +234,6 @@ commands_dict = {
     "contacts_contracts": contacts_contracts,
     "contacts_resourses": contacts_resourses,
     "projects": projects,
-    "vacation_pay": vacation_pay,
 }
 
 # Projects -------------------------------------------------------------------------------------------------------------

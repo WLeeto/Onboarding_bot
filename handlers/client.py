@@ -2,6 +2,8 @@ import asyncio
 
 from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
+from aiogram.dispatcher.filters.state import StatesGroup, State
+
 from create_bot import dp, bot, db
 
 from func.all_func import delete_message
@@ -17,6 +19,44 @@ from keyboards.inline_get_documents import get_business_trip_docs_keyboard, get_
 from keyboards.inline_contacts import contacts_keyboard
 
 from handlers.other import FSM_newbie_questioning, FSM_search, FSMContext, FSM_start_survey
+
+
+# Состояния для ввода типа трудоустройства -----------------------------------------------------------------------------
+class FSM_type_of_employment(StatesGroup):
+    change_type_of_employment = State()
+
+
+# @dp.message_handler(state=FSM_type_of_employment.change_type_of_employment)
+async def change_type_of_employement(message: types.Message, state: FSMContext):
+    types_list = ["штат", "сз", "ип", "гпх"]
+    user_id = message.from_user.id
+    type_of_employement = message.text.lower()
+    if type_of_employement in types_list:
+        db.change_type_of_employment(tg_id=user_id, type_of_employement=type_of_employement)
+        await state.finish()
+        await message.answer(f"Ваш статус трудоустройства был изменен на {type_of_employement}\n"
+                             f"Теперь можно повторить команду =)")
+    else:
+        text = ""
+        for i in types_list:
+            text += f"{i}, "
+        await message.answer(f"Тип занятости может быль только: {text}")
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+# @dp.message_handler(commands='vacation')
+async def vacation(message: types.Message):
+    type_of_employement = db.what_type_of_employment(message.from_id)
+    if type_of_employement:
+        await message.answer(commands_dict["vacation"]["vacation"], parse_mode=types.ParseMode.HTML,
+                             reply_markup=vacation_keyboard)
+    else:
+        await FSM_type_of_employment.change_type_of_employment.set()
+        await message.answer("Я не нашел в своей базе тип твоей занятости в компании Тимфорс.\n"
+                             "Укажи пожалуйста ты оформлен в штат или работаешь по ИП/СЗ/ГПХ ?",
+                             parse_mode=types.ParseMode.HTML)
 
 
 # @dp.message_handler(commands=['test'])
@@ -44,6 +84,7 @@ async def start(message: types.Message):
 
 # @dp.message_handler(commands='stop', state=FSM_start_survey.all_states)
 async def stop(message: types.Message, state="*"):
+    db.close_session()
     await state.finish()
     answer = await message.answer("Выполнено. Сообщение будет удалено")
     await asyncio.create_task(delete_message(answer, 3))
@@ -63,12 +104,6 @@ async def start_searching(messages: types.Message):
 # @dp.message_handler(commands='contacts')
 async def contacts(message: types.Message):
     await message.answer(commands_dict["contacts"], parse_mode=types.ParseMode.HTML, reply_markup=contacts_keyboard)
-
-
-# @dp.message_handler(commands='vacation')
-async def vacation(message: types.Message):
-    await message.answer(commands_dict["vacation"], parse_mode=types.ParseMode.HTML,
-                         reply_markup=vacation_keyboard)
 
 
 # @dp.message_handler(commands='benefits')
@@ -129,6 +164,10 @@ async def projects(message: types.Message):
 
 
 def register_handlers_client(dp: Dispatcher):
+
+    dp.register_message_handler(stop, commands='stop', state="*")
+
+    dp.register_message_handler(change_type_of_employement, state=FSM_type_of_employment.change_type_of_employment)
     dp.register_message_handler(projects, commands='projects')
     dp.register_message_handler(test, commands='test')
     dp.register_message_handler(start, commands='start')

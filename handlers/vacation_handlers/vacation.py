@@ -15,20 +15,36 @@ from mailing.mailing import send_vacation_email
 
 # @dp.callback_query_handler(lambda c: c.data.startswith("vacation"), state=None)
 async def vacation(callback_query: types.CallbackQuery):
-    # todo Сделать проверку на оформление сотрудника
-    if callback_query.data.split(" ")[1] == "more":
+    type_of_employment = db.what_type_of_employment(callback_query.from_user.id)
+    if type_of_employment:
+        if type_of_employment == "штат":
+            if callback_query.data.split(" ")[1] == "more":
+                await callback_query.answer()
+                await callback_query.message.answer(commands_dict["vacation"]["vacation_more_two_weeks"],
+                                                    reply_markup=start_sending_vacation_email_keyboard,
+                                                    parse_mode=types.ParseMode.HTML)
+            elif callback_query.data.split(" ")[1] == "less":
+                await callback_query.answer()
+                await callback_query.message.answer(commands_dict["vacation"]["vacation_less_two_weeks"],
+                                                    reply_markup=start_sending_vacation_email_keyboard_o,
+                                                    parse_mode=types.ParseMode.HTML)
+        else:
+            if callback_query.data.split(" ")[1] == "more":
+                await callback_query.answer()
+                await callback_query.message.answer(commands_dict["vacation"]["vacation_more_two_weeks_not_state"],
+                                                    parse_mode=types.ParseMode.HTML)
+            elif callback_query.data.split(" ")[1] == "less":
+                await callback_query.answer()
+                await callback_query.message.answer(commands_dict["vacation"]["vacation_less_two_weeks_not_state"],
+                                                    reply_markup=start_sending_vacation_email_keyboard_o,
+                                                    parse_mode=types.ParseMode.HTML)
+        if callback_query.data.split(" ")[1] == "pay_info":
+            await callback_query.answer()
+            await callback_query.message.answer(commands_dict["vacation"]["vacation_pay"],
+                                                parse_mode=types.ParseMode.HTML)
+    else:
         await callback_query.answer()
-        await callback_query.message.answer(commands_dict["vacation_more_two_weeks"],
-                                            reply_markup=start_sending_vacation_email_keyboard,
-                                            parse_mode=types.ParseMode.HTML)
-    elif callback_query.data.split(" ")[1] == "less":
-        await callback_query.answer()
-        await callback_query.message.answer(commands_dict["vacation_less_two_weeks"],
-                                            reply_markup=start_sending_vacation_email_keyboard_o,
-                                            parse_mode=types.ParseMode.HTML)
-    elif callback_query.data.split(" ")[1] == "pay_info":
-        await callback_query.answer()
-        await callback_query.message.answer(commands_dict["vacation_pay"],
+        await callback_query.message.answer("Не указан тип трудоустройства",
                                             parse_mode=types.ParseMode.HTML)
 
 
@@ -38,6 +54,7 @@ class FSM_send_vacation_email(StatesGroup):
     is_agreed = State()
     send_doc = State()
     enter_coordinator = State()
+    what_type_of_employement = State()
 
 
 # @dp.callback_query_handler(lambda c: c.data.startswith("initiate"), state=None)
