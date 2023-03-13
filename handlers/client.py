@@ -8,13 +8,15 @@ from func.all_func import delete_message
 
 from dicts.messages import message_dict, commands_dict
 from keyboards.inline_find import search_way
+from keyboards.inline_initiate_vacation import start_sending_vacation_email_button, \
+    start_sending_vacation_email_keyboard, vacation_keyboard
 from keyboards.inline_projects import projects_keyboard
 from keyboards.inline_start_survey import Survey_inlines_keyboards
 from keyboards.inline_get_documents import get_business_trip_docs_keyboard, get_teamforce_presentation_keyboard, \
     get_annual_leave
 from keyboards.inline_contacts import contacts_keyboard
 
-from handlers.other import FSM_newbie_questioning, FSM_search, FSMContext, FSM_start_survey, FSM_send_vacation_email
+from handlers.other import FSM_newbie_questioning, FSM_search, FSMContext, FSM_start_survey
 
 
 # @dp.message_handler(commands=['test'])
@@ -65,7 +67,8 @@ async def contacts(message: types.Message):
 
 # @dp.message_handler(commands='vacation')
 async def vacation(message: types.Message):
-    await message.answer(commands_dict["vacation"], parse_mode=types.ParseMode.HTML, reply_markup=get_annual_leave)
+    await message.answer(commands_dict["vacation"], parse_mode=types.ParseMode.HTML,
+                         reply_markup=vacation_keyboard)
 
 
 # @dp.message_handler(commands='benefits')
