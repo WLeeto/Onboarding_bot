@@ -2,7 +2,6 @@ import os
 from pprint import pprint
 
 import sqlalchemy
-from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from database.models import Base, Answer, Question, Users, Departments, Contacts
