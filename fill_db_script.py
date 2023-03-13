@@ -12,10 +12,10 @@ from database.models import Base, Answer, Question, Users, Departments, Contacts
 
 # Быстрое заполнение тестовой БД ---------------------------------------------------------------------------------------
 
-# DSN = os.environ.get("ONBOARDING_BOT_DB_DSN")
+DSN = os.environ.get("ONBOARDING_BOT_DB_DSN")
 # DSN = 'postgresql://postgres:postgres@localhost:5432/onboarding_bot_db'
-# engine = sqlalchemy.create_engine(DSN)
-engine = create_engine("sqlite:///questions")
+engine = sqlalchemy.create_engine(DSN)
+# engine = create_engine("sqlite:///questions")
 Session = sessionmaker(bind=engine)
 session = Session()
 
@@ -114,12 +114,33 @@ def fill_db():
                 session.add(new)
                 session.commit()
 
-    new_answer = Answer(id=1, answer_text="Ответа на такой вопрос у меня нет. Возможно поможет оператор ?")
-    session.add(new_answer)
-    session.commit()
+    with open("temp/answers.csv", encoding="utf-8") as file:
+        reader = csv.reader(x.replace('\0', '') for x in file)
+        for row in reader:
+            print(row)
+            if row[0] != "id":
+                new = Answer(
+                    id=int(null_or_not(row[0])),
+                    answer_text=null_or_not(row[1]),
+                )
+                session.add(new)
+                session.commit()
 
-    new_question = Question(id=1, question_text="Тестовый вопрос", id_answer=1)
-    session.add(new_question)
-    session.commit()
+    with open("temp/questions.csv", encoding="utf-8") as file:
+        reader = csv.reader(x.replace('\0', '') for x in file)
+        for row in reader:
+            print(row)
+            if row[0] != "id":
+                new = Question(
+                    id=int(null_or_not(row[0])),
+                    question_text=null_or_not(row[1]),
+                    id_answer=null_or_not(row[2]),
+                )
+                session.add(new)
+                session.commit()
 
     session.close()
+
+
+if __name__ == "__main__":
+    fill_db()

@@ -280,3 +280,5 @@ tags
 sandbox.py
 restore
 .envs
+.idea
+pgdata
