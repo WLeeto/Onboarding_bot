@@ -98,3 +98,4 @@ class Operator_questions(Base):
 
     id = sq.Column(sq.Integer, primary_key=True)
     question_text = sq.Column(sq.Text)
+    from_user_id = sq.Column(sq.Integer, nullable=False)

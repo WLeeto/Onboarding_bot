@@ -20,6 +20,8 @@ from keyboards.all_keyboards import all_keyboards
 
 from transliterate import translit
 
+from handlers.operator_handlers.operator import FSM_operator_call
+
 from mailing.mailing import send_vacation_email
 
 
@@ -36,7 +38,7 @@ async def recognizing(message: types.Message):
         else:
             await message.reply(is_breakes(answer), parse_mode=types.ParseMode.HTML)
     else:
-        question_id = db.add_new_operator_question(message.text).id
+        question_id = db.add_new_operator_question(message.text, message.from_id).id
         await message.reply("На такой запрос у меня нет ответа. Хочешь задам его мешку с костями ?",
                             reply_markup=ask_operator(question_id))
 

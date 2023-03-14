@@ -449,11 +449,11 @@ class database:
         result = self.session.query(Projects).filter(Projects.id == project_id).first()
         return result.bot_text if result.bot_text else None
 
-    def add_new_operator_question(self, text: str) -> object:
+    def add_new_operator_question(self, text: str, sender_tg_id: int) -> object:
         """
         Вносит новый вопрос для оператора в БД. Возвращает объект sqlalchemy с вопросом
         """
-        new_question = Operator_questions(question_text=text)
+        new_question = Operator_questions(question_text=text, from_user_id=sender_tg_id)
         self.session.add(new_question)
         self.session.commit()
         return new_question
