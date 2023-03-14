@@ -91,3 +91,10 @@ class Projects(Base):
     project_name = sq.Column(sq.Text, nullable=False)
     bot_text = sq.Column(sq.Text, nullable=False)
     discription = sq.Column(sq.Text)
+
+
+class Operator_questions(Base):
+    __tablename__ = "Operator_questions"
+
+    id = sq.Column(sq.Integer, primary_key=True)
+    question_text = sq.Column(sq.Text)

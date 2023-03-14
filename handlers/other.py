@@ -11,6 +11,8 @@ from func.all_func import delete_message, recognize_question, start_survey_answe
     is_reply_keyboard, search_message, delete_temp_file
 from handlers.vacation_handlers import vacation
 from handlers.projects_handlers import projects
+from handlers.operator_handlers import operator
+from keyboards.inline_operator import ask_operator
 
 from keyboards.inline_operators_markup import Operator_keyboard
 from keyboards.inline_start_survey import Survey_inlines_keyboards
@@ -27,15 +29,16 @@ async def recognizing(message: types.Message):
     response_id = recognize_question(message.text, question_list)
     if response_id:
         answer = db.find_answer_by_question_id(response_id)
+        check_keyboards = is_reply_keyboard(answer)
+        if check_keyboards:
+            keyboard = all_keyboards[check_keyboards[-1]]
+            await message.reply(is_breakes(check_keyboards[0]), reply_markup=keyboard, parse_mode=types.ParseMode.HTML)
+        else:
+            await message.reply(is_breakes(answer), parse_mode=types.ParseMode.HTML)
     else:
-        answer = db.no_answer()
-
-    check_keyboards = is_reply_keyboard(answer)
-    if check_keyboards:
-        keyboard = all_keyboards[check_keyboards[-1]]
-        await message.reply(is_breakes(check_keyboards[0]), reply_markup=keyboard, parse_mode=types.ParseMode.HTML)
-    else:
-        await message.reply(is_breakes(answer), parse_mode=types.ParseMode.HTML)
+        question_id = db.add_new_operator_question(message.text).id
+        await message.reply("На такой запрос у меня нет ответа. Хочешь задам его мешку с костями ?",
+                            reply_markup=ask_operator(question_id))
 
 
 # @dp.callback_query_handler(lambda c: c.data.startswith("get"), state=None)
@@ -604,6 +607,7 @@ async def hr_contacts(callback_query: types.CallbackQuery, state: FSMContext):
 def register_handlers_other(dp: Dispatcher):
     vacation.register_handlers_vacation(dp)
     projects.register_handlers_projects(dp)
+    operator.register_handlers_operator(dp)
 
     dp.register_callback_query_handler(hr_contacts, lambda c: c.data == "hr_contacts")
 

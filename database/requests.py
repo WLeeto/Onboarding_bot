@@ -4,7 +4,7 @@ from pprint import pprint
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker
 
-from database.models import Base, Answer, Question, Users, Departments, Contacts, Projects
+from database.models import Base, Answer, Question, Users, Departments, Contacts, Projects, Operator_questions
 
 
 class database:
@@ -72,6 +72,9 @@ class database:
         return result
 
     def find_all_questions(self):
+        """
+        Отдает словарь со всеми вопросами для функции поиска
+        """
         result = {}
         for i in self.session.query(Question).all():
             result[i.id] = i.question_text
@@ -409,10 +412,16 @@ class database:
             return None
 
     def what_type_of_employment(self, tg_id: int) -> str or None:
+        """
+        Поиск способа трудоустройства
+        """
         result = self.session.query(Users).filter(Users.tg_id == tg_id).first()
         return result.type_of_employment if result.type_of_employment else None
 
     def change_type_of_employment(self, tg_id: int, type_of_employement: str) -> bool:
+        """
+        Изменение типа трудоустройства
+        """
         employer = self.session.query(Users).filter(Users.tg_id == tg_id).first()
         employer.type_of_employment = type_of_employement
         self.session.commit()
@@ -420,13 +429,38 @@ class database:
         return True
 
     def is_user(self, tg_id: int) -> bool:
+        """
+        Проверка существует ли пользователь в БД
+        """
         result = self.session.query(Users).filter(Users.tg_id == tg_id).first()
         return True if result else False
 
     def all_projects(self) -> list:
+        """
+        Список всех проектов. Возвращает список объектов sqlalchemy
+        """
         result = [i for i in self.session.query(Projects).all()]
         return result
 
     def find_project_text_by_id(self, project_id: int) -> str or None:
+        """
+        Ищет проект по id, возвращает текст для вывода в боте
+        """
         result = self.session.query(Projects).filter(Projects.id == project_id).first()
         return result.bot_text if result.bot_text else None
+
+    def add_new_operator_question(self, text: str) -> object:
+        """
+        Вносит новый вопрос для оператора в БД. Возвращает объект sqlalchemy с вопросом
+        """
+        new_question = Operator_questions(question_text=text)
+        self.session.add(new_question)
+        self.session.commit()
+        return new_question
+
+    def find_operator_question_by_id(self, id: int) -> str:
+        """
+        Возвращает текст вопроса оператору по его id
+        """
+        result = self.session.query(Operator_questions).filter(Operator_questions.id == id).first()
+        return result.question_text
