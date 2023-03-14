@@ -9,6 +9,7 @@ class Answer(Base):
 
     id = sq.Column(sq.Integer, primary_key=True)
     answer_text = sq.Column(sq.Text, nullable=True, unique=True)
+    answer_discription = sq.Column(sq.Text)
 
     def __str__(self):
         return f'{self.id}: {self.answer_text}'
@@ -81,3 +82,12 @@ class SuperviserEmployer(Base):
 
     superviser = relationship(Users, foreign_keys=[superviser_id])
     employer = relationship(Users, foreign_keys=[employer_id])
+
+
+class Projects(Base):
+    __tablename__ = "Projects"
+
+    id = sq.Column(sq.Integer, primary_key=True)
+    project_name = sq.Column(sq.Text, nullable=False)
+    bot_text = sq.Column(sq.Text, nullable=False)
+    discription = sq.Column(sq.Text)

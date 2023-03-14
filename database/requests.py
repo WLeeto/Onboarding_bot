@@ -4,7 +4,7 @@ from pprint import pprint
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker
 
-from database.models import Base, Answer, Question, Users, Departments, Contacts
+from database.models import Base, Answer, Question, Users, Departments, Contacts, Projects
 
 
 class database:
@@ -422,3 +422,11 @@ class database:
     def is_user(self, tg_id: int) -> bool:
         result = self.session.query(Users).filter(Users.tg_id == tg_id).first()
         return True if result else False
+
+    def all_projects(self) -> list:
+        result = [i for i in self.session.query(Projects).all()]
+        return result
+
+    def find_project_text_by_id(self, project_id: int) -> str or None:
+        result = self.session.query(Projects).filter(Projects.id == project_id).first()
+        return result.bot_text if result.bot_text else None

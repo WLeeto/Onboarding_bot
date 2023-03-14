@@ -10,10 +10,10 @@ from dicts.messages import sleep_timer, start_survey_dict, message_dict, operato
 from func.all_func import delete_message, recognize_question, start_survey_answers, is_breakes, \
     is_reply_keyboard, search_message, delete_temp_file
 from handlers.vacation_handlers import vacation
+from handlers.projects_handlers import projects
 
 from keyboards.inline_operators_markup import Operator_keyboard
 from keyboards.inline_start_survey import Survey_inlines_keyboards
-from keyboards.inline_initiate_vacation import yes_no_keyboard
 from keyboards.all_keyboards import all_keyboards
 
 from transliterate import translit
@@ -73,27 +73,6 @@ async def get_contacts(callback_query: types.CallbackQuery):
         await callback_query.message.edit_text(commands_dict["contacts_contracts"], parse_mode=types.ParseMode.HTML)
     elif contact_type == "resourses":
         await callback_query.message.edit_text(commands_dict["contacts_resourses"], parse_mode=types.ParseMode.HTML)
-
-
-# @dp.callback_query_handler(lambda c: c.data.startswith("projects"), state=None)
-async def projects(callback_querry: types.CallbackQuery):
-    project_name = callback_querry.data.split(" ")[1]
-    if project_name == "B2BCloud":
-        text = project_dict["B2BCloud"]
-    elif project_name == "Skils_Cloud":
-        text = project_dict["Skils_Cloud"]
-    elif project_name == "1C_ERP":
-        text = project_dict["1C_ERP"]
-    elif project_name == "TF360":
-        text = project_dict["TF360"]
-    elif project_name == "Smart_Back_Office":
-        text = project_dict["Smart_Back_Office"]
-    elif project_name == "Hacker_Home":
-        text = project_dict["Hacker_Home"]
-    elif project_name == "Light":
-        text = project_dict["Light"]
-    await callback_querry.answer()
-    await callback_querry.message.answer(text)
 
 
 # Состояния для поиска сотрудника --------------------------------------------------------------------------------------
@@ -624,8 +603,7 @@ async def hr_contacts(callback_query: types.CallbackQuery, state: FSMContext):
 
 def register_handlers_other(dp: Dispatcher):
     vacation.register_handlers_vacation(dp)
-
-    dp.register_callback_query_handler(projects, lambda c: c.data.startswith("projects"), state=None)
+    projects.register_handlers_projects(dp)
 
     dp.register_callback_query_handler(hr_contacts, lambda c: c.data == "hr_contacts")
 
