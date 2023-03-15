@@ -23,7 +23,7 @@ async def delete_message(message: types.Message, sleep_time: int = 0):
 def recognize_question(question: str, questions: dict):
     recognized = {'id': '', 'percent': 0}
     for key, value in questions.items():
-        percent = fuzz.ratio(question, value)
+        percent = fuzz.ratio(question.lower(), value.lower())
         if percent > recognized['percent']:
             recognized['id'] = key
             recognized['percent'] = percent

@@ -9,6 +9,7 @@ from create_bot import dp, bot, db
 from func.all_func import delete_message
 
 from dicts.messages import message_dict, commands_dict
+from keyboards.inline_finance import finance_staff_choose_kb
 from keyboards.inline_find import search_way
 from keyboards.inline_initiate_vacation import start_sending_vacation_email_button, \
     start_sending_vacation_email_keyboard, vacation_keyboard
@@ -134,7 +135,8 @@ async def initiative(message: types.Message):
 
 # @dp.message_handler(commands='finance')
 async def finance(message: types.Message):
-    await message.answer(commands_dict["finance"], parse_mode=types.ParseMode.HTML)
+    await message.answer("Как вы оформлены в компании ?", reply_markup=finance_staff_choose_kb,
+                         parse_mode=types.ParseMode.HTML)
 
 
 # @dp.message_handler(commands='office')

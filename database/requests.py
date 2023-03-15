@@ -58,13 +58,23 @@ class database:
         return answers.id
 
     def find_answer_by_question_id(self, question_id):
+        """
+        Принимает id вопроса, возвращает текст ответа
+        """
         result = self.session.query(Answer).join(Question).filter(Question.id == question_id).first()
         self.session.close()
         return result.answer_text
 
+    def find_answer_by_answer_id(self, answer_id: int) -> object or None:
+        """
+        Находит ответ по его id, возвращает объект sqlalchemy
+        """
+        result = self.session.query(Answer).filter(Answer.id == answer_id).first()
+        return result if result else None
+
     def find_all_answers(self):
         """
-        Выводит список всех вопросов с их id
+        Выводит словарь всех вопросов с их id
         """
         result = {}
         for answer in self.session.query(Answer).all():
