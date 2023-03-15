@@ -39,9 +39,14 @@ async def recognizing(message: types.Message):
         else:
             await message.reply(is_breakes(answer), parse_mode=types.ParseMode.HTML)
     else:
-        question_id = db.add_new_operator_question(message.text, message.from_id).id
+        question = db.add_new_operator_question(question_text=message.text,
+                                                sender_tg_id=message.from_id,
+                                                message_id=message.message_id)
+        question_id = question.id
+        question_from_user = question.from_user_id
+        question_message_id = question.message_id
         await message.reply("На такой запрос у меня нет ответа. Хочешь задам его мешку с костями ?",
-                            reply_markup=ask_operator(question_id))
+                            reply_markup=ask_operator(question_id, question_from_user, question_message_id))
 
 
 # @dp.callback_query_handler(lambda c: c.data.startswith("get"), state=None)

@@ -459,11 +459,11 @@ class database:
         result = self.session.query(Projects).filter(Projects.id == project_id).first()
         return result.bot_text if result.bot_text else None
 
-    def add_new_operator_question(self, text: str, sender_tg_id: int) -> object:
+    def add_new_operator_question(self, question_text: str, sender_tg_id: int, message_id: int) -> object:
         """
         Вносит новый вопрос для оператора в БД. Возвращает объект sqlalchemy с вопросом
         """
-        new_question = Operator_questions(question_text=text, from_user_id=sender_tg_id)
+        new_question = Operator_questions(question_text=question_text, from_user_id=sender_tg_id, message_id=message_id)
         self.session.add(new_question)
         self.session.commit()
         return new_question
@@ -474,3 +474,10 @@ class database:
         """
         result = self.session.query(Operator_questions).filter(Operator_questions.id == id).first()
         return result.question_text
+
+    def all_answers(self) -> list or None:
+        """
+        Список всех объектов sqlalchemy ответов для генерации клавиатуры быстрых ответов
+        """
+        result = [i for i in self.session.query(Answer).all()]
+        return result if result else None
