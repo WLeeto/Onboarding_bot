@@ -21,13 +21,14 @@ async def delete_message(message: types.Message, sleep_time: int = 0):
 
 
 def recognize_question(question: str, questions: dict):
+    sensitivity = 55
     recognized = {'id': '', 'percent': 0}
     for key, value in questions.items():
         percent = fuzz.ratio(question.lower(), value.lower())
         if percent > recognized['percent']:
             recognized['id'] = key
             recognized['percent'] = percent
-    if recognized['percent'] <= 55:
+    if recognized['percent'] <= sensitivity:
         print(f"!!! Совпадение запроса '{question} и {db.find_question_by_question_id(recognized['id'])}':"
               f" {recognized['percent']}")
         result = None
