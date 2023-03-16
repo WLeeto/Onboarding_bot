@@ -10,7 +10,7 @@ class Answer(Base):
     id = sq.Column(sq.Integer, primary_key=True)
     answer_text = sq.Column(sq.Text, nullable=True, unique=True)
     answer_discription = sq.Column(sq.Text)
-    added_by_tg_id =sq.Column(sq.BIGINT)
+    added_by_tg_id = sq.Column(sq.BIGINT)
 
     def __str__(self):
         return f'{self.id}: {self.answer_text}'

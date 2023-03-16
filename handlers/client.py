@@ -169,7 +169,7 @@ async def projects(message: types.Message):
 
 # @dp.message_handler(commands='about')
 async def about(message: types.Message):
-    about_text = commands_dict["about"]
+    about_text = db.find_answer_by_answer_id(27)
     await message.answer(is_breakes(about_text), parse_mode=types.ParseMode.HTML)
 
 

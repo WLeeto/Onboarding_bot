@@ -10,9 +10,9 @@ from database.models import Base, Answer, Question, Users, Departments, Contacts
 class database:
     def __init__(self):
 
-        # DSN = os.environ.get("ONBOARDING_BOT_DB_DSN")
+        DSN = os.environ.get("ONBOARDING_BOT_DB_DSN")
 
-        DSN = 'postgresql://postgres:postgres@localhost:5432/onboarding_bot_db'
+        # DSN = 'postgresql://postgres:postgres@localhost:5432/onboarding_bot_db'
 
         self.engine = sqlalchemy.create_engine(DSN)
         Session = sessionmaker(bind=self.engine)
@@ -38,11 +38,6 @@ class database:
             return question.question_text
         else:
             return None
-
-    def test(self):
-        id_answer = max([i.id for i in self.session.query(Answer).all()])
-        print(id_answer)
-        return id_answer
 
     def add_new_question_and_answer(self, question_text: str, answer_text: str, added_by_tg_id: int) -> None:
         """

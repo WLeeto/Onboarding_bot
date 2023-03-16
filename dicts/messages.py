@@ -214,7 +214,7 @@ vacation_more_two_weeks_not_state = "<b>Что нужно сделать:</b>\n"
 
 vacation_less_two_weeks_not_state = "Согласовать сроки с руководителем проекта"
 
-about = db.find_answer_by_answer_id(27).answer_text if db.find_answer_by_answer_id(27) else "Не найден ответ по id 27"
+about = "Не найден ответ по id 27"
 
 commands_dict = {
     "contacts": contacts,
