@@ -10,6 +10,7 @@ class Answer(Base):
     id = sq.Column(sq.Integer, primary_key=True)
     answer_text = sq.Column(sq.Text, nullable=True, unique=True)
     answer_discription = sq.Column(sq.Text)
+    added_by_tg_id =sq.Column(sq.BIGINT)
 
     def __str__(self):
         return f'{self.id}: {self.answer_text}'
@@ -21,6 +22,7 @@ class Question(Base):
     id = sq.Column(sq.Integer, primary_key=True)
     question_text = sq.Column(sq.Text, nullable=False, unique=True)
     id_answer = sq.Column(sq.Integer, sq.ForeignKey("Answer.id"), nullable=False)
+    added_by_tg_id = sq.Column(sq.BIGINT)
 
     answer = relationship(Answer, backref="Question")
 

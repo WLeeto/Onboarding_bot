@@ -16,7 +16,8 @@ class FSM_operator_call(StatesGroup):
     operator_choiсe = State()
     send_manual_answer = State()
     send_auto_answer = State()
-    add_new_question = State()
+    add_new_auto_question = State()
+    add_new_manual_question = State()
 
 
 # @dp.callback_query_handler(lambda c: c.data.startswith("call_operator"))
@@ -70,13 +71,14 @@ async def operator_send_auto_answer(callback_query: types.CallbackQuery, state: 
                                 f"{question_text}\n\n"
                                 f"Ответ оператора:\n"
                                 f"{is_breakes(text)}")
-    await FSM_operator_call.add_new_question.set()
+    await FSM_operator_call.add_new_auto_question.set()
     await callback_query.message.answer("Добавить вопрос пользователя в БД ?",
                                         reply_markup=operator_add_new_question_kb_gen())
 
 
-@dp.callback_query_handler(lambda c: c.data.startswith("add_answer"), state=FSM_operator_call.add_new_question)
-async def operator_adds_new_question(callback_query: types.CallbackQuery, state: FSMContext):
+# @dp.callback_query_handler(lambda c: c.data.startswith("add_answer"),
+# state=FSM_operator_call.add_new_auto_question)
+async def operator_adds_new_auto_question(callback_query: types.CallbackQuery, state: FSMContext):
     await callback_query.answer()
     async with state.proxy() as data:
         answer_id = data["answer_id"]
@@ -94,12 +96,24 @@ async def operator_manual_answer(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         chat_id = data["question_from_user"]
         question_text = data['question_text']
+        data["manual_answer_text"] = message.text
     await bot.send_message(chat_id=chat_id,
                            text=f"Оператор ответил на ваш вопрос:\n"
                                 f"{question_text}\n\n"
                                 f"Ответ оператора:\n"
                                 f"{answer}")
-    await state.finish()
+    await message.answer("Добавить вопрос пользователя и ваш ответ в БД ?\n"
+                         "В этом случае в следующий раз я смогу ответить самостоятельно",
+                         reply_markup=operator_add_new_question_kb_gen)
+    await FSM_operator_call.add_new_manual_question.set()
+
+
+@dp.callback_query_handler(lambda c: c.data.startswith("add_answer"), state=FSM_operator_call.add_new_manual_question)
+async def operator_adds_new_manual_question(callback_query: types.CallbackQuery, state: FSMContext):
+    if callback_query.data.split(" ")[1]:
+        pass
+    else:
+        pass
 
 
 def register_handlers_operator(dp: Dispatcher):
@@ -112,3 +126,6 @@ def register_handlers_operator(dp: Dispatcher):
     dp.register_callback_query_handler(operator_send_auto_answer,
                                        lambda c: c.data.startswith("auto_answer"),
                                        state=FSM_operator_call.send_auto_answer)
+    dp.register_callback_query_handler(operator_adds_new_auto_question,
+                                       lambda c: c.data.startswith("add_answer"),
+                                       state=FSM_operator_call.add_new_auto_question)

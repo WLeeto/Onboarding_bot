@@ -172,7 +172,9 @@ finance = "Правила выплаты заработной платы для 
 
 office = "<b>Как к нам попасть:</b>\n" \
          "Территория Инновационного центра 'Сколково'\n" \
-         "д. Сколково, Большой бульвар, д.42, стр. 1, офис 337, ядро 4"
+         "д. Сколково, Большой бульвар, д.42, стр. 1, офис 337, ядро 4\n" \
+         "(видео: https://disk.yandex.ru/i/v2GaULdsHJyCLg)\n\n" \
+         "По ссылке Вы можете увидеть карту проезда и схему парковок: https://sk.ru/transport/"
 
 business_trip = "Вас отправляют в командироку?\n" \
                 "Ознакомьтесь с положением о командировках и заполните следующие документы:\n" \
@@ -210,6 +212,8 @@ vacation_more_two_weeks_not_state = "<b>Что нужно сделать:</b>\n"
 
 vacation_less_two_weeks_not_state = "Согласовать сроки с руководителем проекта"
 
+about = db.find_answer_by_answer_id(27).answer_text if db.find_answer_by_answer_id(27) else "Не найден ответ по id 27"
+
 commands_dict = {
     "contacts": contacts,
     "vacation": {
@@ -234,6 +238,7 @@ commands_dict = {
     "contacts_contracts": contacts_contracts,
     "contacts_resourses": contacts_resourses,
     "projects": projects,
+    "about": about,
 }
 
 # Projects -------------------------------------------------------------------------------------------------------------

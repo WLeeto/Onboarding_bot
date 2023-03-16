@@ -6,7 +6,7 @@ from aiogram.dispatcher.filters.state import StatesGroup, State
 
 from create_bot import dp, bot, db
 
-from func.all_func import delete_message
+from func.all_func import delete_message, is_breakes
 
 from dicts.messages import message_dict, commands_dict
 from keyboards.inline_finance import finance_staff_choose_kb
@@ -167,12 +167,19 @@ async def projects(message: types.Message):
                          reply_markup=projects_kb.create_kb())
 
 
+# @dp.message_handler(commands='about')
+async def about(message: types.Message):
+    about_text = commands_dict["about"]
+    await message.answer(is_breakes(about_text), parse_mode=types.ParseMode.HTML)
+
+
 def register_handlers_client(dp: Dispatcher):
 
     dp.register_message_handler(stop, commands='stop', state="*")
 
     dp.register_message_handler(change_type_of_employement, state=FSM_type_of_employment.change_type_of_employment)
     dp.register_message_handler(projects, commands='projects')
+    dp.register_message_handler(about, commands='about')
     dp.register_message_handler(test, commands='test')
     dp.register_message_handler(start, commands='start')
     dp.register_message_handler(help, commands='help')
