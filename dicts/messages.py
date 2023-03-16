@@ -47,6 +47,8 @@ message_dict = {
     "greetings": greeting_message,
     "help": help_message,
     "greeting_video_id": "BAACAgIAAxkBAAILEWQAAXCXK-hny6PxMEFCsLjm50jwUwACBiYAAkLnAUhEeMXYd4w_7i4E",
+    # BAACAgIAAxkBAAIEs2QS5x_ZNP-mVaEWYNfWcr2SXoB2AAK_KAACr3iYSOxofi9-8pdULwQ - для теста
+    # BAACAgIAAxkBAAILEWQAAXCXK-hny6PxMEFCsLjm50jwUwACBiYAAkLnAUhEeMXYd4w_7i4E - для прода
     "for_olds_message": for_olds_message,
     "for_newbie_message": for_newbie_message,
     "we_are_closer_now": we_are_closer_now,
