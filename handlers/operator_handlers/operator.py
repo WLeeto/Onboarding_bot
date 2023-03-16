@@ -96,7 +96,7 @@ async def operator_manual_answer(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         chat_id = data["question_from_user"]
         question_text = data['question_text']
-        data["manual_answer_text"] = message.text
+        data["manual_answer_text"] = answer
     await bot.send_message(chat_id=chat_id,
                            text=f"Оператор ответил на ваш вопрос:\n"
                                 f"{question_text}\n\n"
@@ -104,16 +104,29 @@ async def operator_manual_answer(message: types.Message, state: FSMContext):
                                 f"{answer}")
     await message.answer("Добавить вопрос пользователя и ваш ответ в БД ?\n"
                          "В этом случае в следующий раз я смогу ответить самостоятельно",
-                         reply_markup=operator_add_new_question_kb_gen)
+                         reply_markup=operator_add_new_question_kb_gen())
     await FSM_operator_call.add_new_manual_question.set()
 
 
-@dp.callback_query_handler(lambda c: c.data.startswith("add_answer"), state=FSM_operator_call.add_new_manual_question)
+# @dp.callback_query_handler(lambda c: c.data.startswith("add_answer"), state=FSM_operator_call.add_new_manual_question)
 async def operator_adds_new_manual_question(callback_query: types.CallbackQuery, state: FSMContext):
+    await callback_query.answer()
     if callback_query.data.split(" ")[1]:
-        pass
+        async with state.proxy() as data:
+            question_text = data["question_text"]
+            answer_text = data["manual_answer_text"]
+        operator_id = callback_query.message.from_id
+        db.add_new_question_and_answer(question_text=question_text,
+                                       answer_text=answer_text,
+                                       added_by_tg_id=operator_id)
+        await callback_query.message.answer(f"Я добавил вопрос:\n"
+                                            f"{question_text}\n"
+                                            f"С ответом:\n"
+                                            f"{answer_text}\n"
+                                            f"В свою БД. В следующий раз на подобный вопрос я отвечу сам")
     else:
-        pass
+        await callback_query.message.answer("Ок =)")
+    await state.finish()
 
 
 def register_handlers_operator(dp: Dispatcher):
@@ -129,3 +142,6 @@ def register_handlers_operator(dp: Dispatcher):
     dp.register_callback_query_handler(operator_adds_new_auto_question,
                                        lambda c: c.data.startswith("add_answer"),
                                        state=FSM_operator_call.add_new_auto_question)
+    dp.register_callback_query_handler(operator_adds_new_manual_question,
+                                       lambda c: c.data.startswith("add_answer"),
+                                       state=FSM_operator_call.add_new_manual_question)

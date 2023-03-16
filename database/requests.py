@@ -10,9 +10,9 @@ from database.models import Base, Answer, Question, Users, Departments, Contacts
 class database:
     def __init__(self):
 
-        DSN = os.environ.get("ONBOARDING_BOT_DB_DSN")
+        # DSN = os.environ.get("ONBOARDING_BOT_DB_DSN")
 
-        # DSN = 'postgresql://postgres:postgres@localhost:5432/onboarding_bot_db'
+        DSN = 'postgresql://postgres:postgres@localhost:5432/onboarding_bot_db'
 
         self.engine = sqlalchemy.create_engine(DSN)
         Session = sessionmaker(bind=self.engine)
@@ -39,16 +39,28 @@ class database:
         else:
             return None
 
+    def test(self):
+        id_answer = max([i.id for i in self.session.query(Answer).all()])
+        print(id_answer)
+        return id_answer
+
     def add_new_question_and_answer(self, question_text: str, answer_text: str, added_by_tg_id: int) -> None:
         """
         Добавляет в БД новый вопрос и ответ на него (для функции добавления вопроса оператором)
         """
-        new_answer = Answer(answer_text=answer_text, added_by_tg_id=added_by_tg_id)
-        new_question = Question(question_text=question_text, added_by_tg_id=added_by_tg_id, answer=new_answer)
+        id_answer = max([i.id for i in self.session.query(Answer).all()]) + 1
+        new_answer = Answer(id=id_answer,
+                            answer_text=answer_text,
+                            added_by_tg_id=added_by_tg_id)
+        id_question = max([i.id for i in self.session.query(Question).all()]) + 1
+        new_question = Question(id=id_question,
+                                question_text=question_text,
+                                added_by_tg_id=added_by_tg_id,
+                                answer=new_answer)
         self.session.add(new_question, new_answer)
         self.session.commit()
-        self.session.close()
         print(f"В БД были добавлены вопрос {new_answer.answer_text} и ответ {new_question.question_text}")
+        self.session.close()
 
     def add_answer(self, answer: str):
         """
