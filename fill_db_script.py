@@ -143,4 +143,29 @@ def fill_db():
 
 
 if __name__ == "__main__":
-    fill_db()
+    with open("temp/answers.csv", encoding="utf-8") as file:
+        reader = csv.reader(x.replace('\0', '') for x in file)
+        for row in reader:
+            print(row)
+            if row[0] != "id":
+                new = Answer(
+                    id=int(null_or_not(row[0])),
+                    answer_text=null_or_not(row[1]),
+                )
+                session.add(new)
+                session.commit()
+
+    with open("temp/questions.csv", encoding="utf-8") as file:
+        reader = csv.reader(x.replace('\0', '') for x in file)
+        for row in reader:
+            print(row)
+            if row[0] != "id":
+                new = Question(
+                    id=int(null_or_not(row[0])),
+                    question_text=null_or_not(row[1]),
+                    id_answer=null_or_not(row[2]),
+                )
+                session.add(new)
+                session.commit()
+
+    session.close()

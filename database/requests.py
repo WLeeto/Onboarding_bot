@@ -11,11 +11,10 @@ class database:
     def __init__(self):
 
         DSN = os.environ.get("ONBOARDING_BOT_DB_DSN")
+
         # DSN = 'postgresql://postgres:postgres@localhost:5432/onboarding_bot_db'
+
         self.engine = sqlalchemy.create_engine(DSN)
-
-        # self.engine = create_engine("sqlite:///questions")
-
         Session = sessionmaker(bind=self.engine)
         self.session = Session()
 
@@ -39,6 +38,17 @@ class database:
             return question.question_text
         else:
             return None
+
+    def add_new_question_and_answer(self, question_text: str, answer_text: str, added_by_tg_id: int) -> None:
+        """
+        Добавляет в БД новый вопрос и ответ на него (для функции добавления вопроса оператором)
+        """
+        new_answer = Answer(answer_text=answer_text, added_by_tg_id=added_by_tg_id)
+        new_question = Question(question_text=question_text, added_by_tg_id=added_by_tg_id, answer=new_answer)
+        self.session.add(new_question, new_answer)
+        self.session.commit()
+        self.session.close()
+        print(f"В БД были добавлены вопрос {new_answer.answer_text} и ответ {new_question.question_text}")
 
     def add_answer(self, answer: str):
         """
