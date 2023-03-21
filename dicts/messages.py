@@ -43,6 +43,8 @@ for_newbie_message = ""
 
 we_are_closer_now = "Кажется мы стали чуточку ближе"
 
+not_in_db = "Я не смог найти вас в БД. Вы у нас работаете ?"
+
 message_dict = {
     "greetings": greeting_message,
     "help": help_message,
@@ -53,6 +55,7 @@ message_dict = {
     "for_newbie_message": for_newbie_message,
     "we_are_closer_now": we_are_closer_now,
     "newbie_greeting": newbie_greeting,
+    "not_in_db": not_in_db,
 }
 
 # Start_survey ---------------------------------------------------------------------------------------------------------

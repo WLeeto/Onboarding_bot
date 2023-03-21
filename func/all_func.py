@@ -10,6 +10,10 @@ from fuzzywuzzy import fuzz
 
 from dicts.messages import start_survey_dict
 
+from datetime import datetime
+
+from email_validate import validate
+
 
 async def delete_message(message: types.Message, sleep_time: int = 0):
     """
@@ -98,3 +102,44 @@ def search_message(id: int, first_name: str, surname: str, job_title: str) -> st
 async def delete_temp_file(filepath):
     os.remove(filepath)
     print(f"Фаил {filepath} удален")
+
+
+def validate_bday(date: str) -> bool:
+    repl1 = date.replace("/", ".").replace("г", "").replace("Г", "").replace("г.", "")
+    if len(repl1.split(".")) == 3:
+        try:
+            datetime.strptime(repl1, "%d.%m.%Y")
+            result = True
+        except ValueError as ex:
+            print(ex)
+            result = False
+    else:
+        result = False
+    return result
+
+
+def validate_phone(phone: str) -> bool:
+    replace_spaces = phone.replace(" ", "").replace("+", "")
+    if len(replace_spaces) == 11:
+        result = True
+    else:
+        result = False
+    return result
+
+
+def validate_email(email: str) -> bool:
+    result = validate(email,
+                      check_format=True,
+                      check_blacklist=True,
+                      check_dns=False,
+                      dns_timeout=10,
+                      check_smtp=False,  # Проверка действительно ли существует почта, инициировав SMTP-диалог
+                      smtp_debug=False)
+    return result
+
+
+if __name__ == "__main__":
+    correct = "leeto4848@gmail.com"
+    incorrect = "nonon@mail.ru"
+    print(validate_email(correct))
+    print(validate_email(incorrect))

@@ -44,3 +44,9 @@ def operator_add_new_question_kb_gen():
     operator_add_new_question_kb = InlineKeyboardMarkup(row_width=1).add(button_1, button_2)
     return operator_add_new_question_kb
 
+
+def confirm_new_user():
+    button_1 = InlineKeyboardButton(text="Все ок", callback_data="new_user ok")
+    button_2 = InlineKeyboardButton(text="Что то не так", callback_data="new_user not_ok")
+    new_user = InlineKeyboardMarkup(row_width=1).add(button_1, button_2)
+    return new_user

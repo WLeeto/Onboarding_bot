@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import sqlalchemy as sq
 from sqlalchemy.orm import declarative_base, relationship, mapped_column
 
@@ -102,3 +104,30 @@ class Operator_questions(Base):
     question_text = sq.Column(sq.Text)
     from_user_id = sq.Column(sq.BIGINT, nullable=False)
     message_id = sq.Column(sq.Integer, nullable=False)
+
+
+class Newbie(Base):
+    __tablename__ = "Newbie"
+
+    id = sq.Column(sq.Integer, primary_key=True)
+    newbie_tg_id = sq.Column(sq.BIGINT, nullable=False, unique=True)
+    added_by_tg_id = sq.Column(sq.BIGINT)
+    created_at = sq.Column(sq.DateTime, default=datetime.now)
+    updated_at = sq.Column(sq.DateTime, default=datetime.now, onupdate=datetime.now)
+
+
+class New_User(Base):
+    __tablename__ = "New_User"
+
+    id = sq.Column(sq.Integer, primary_key=True)
+    tg_id = sq.Column(sq.BIGINT)
+    first_name = sq.Column(sq.Text)
+    surname = sq.Column(sq.Text)
+    middle_name = sq.Column(sq.Text)
+    job_title = sq.Column(sq.Text)
+    tg_name = sq.Column(sq.Text)
+    date_of_birth = sq.Column(sq.Date)
+    hired_at = sq.Column(sq.Date)
+    type_of_employment = sq.Column(sq.Text)
+    phone = sq.Column(sq.Text)
+    email = sq.Column(sq.Text)

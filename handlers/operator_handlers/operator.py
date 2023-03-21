@@ -4,10 +4,15 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 
 from create_bot import dp, bot, db
 
+from States.states import FSM_newbie_questioning
+
 from dicts.messages import operator_list
 from func.all_func import is_breakes
 from keyboards.inline_operator import operator_choice_kb_gen, operator_start_answering, auto_answers_kb_gen, \
     operator_add_new_question_kb_gen
+from keyboards.inline_type_of_employement import type_of_employement_kb
+
+from datetime import date
 
 
 # Состояния для общение с оператором -----------------------------------------------------------------------------------
@@ -129,7 +134,116 @@ async def operator_adds_new_manual_question(callback_query: types.CallbackQuery,
     await state.finish()
 
 
+# ----------------------------------------------------------------------------------------------------------------------
+# @dp.callback_query_handler(lambda c: c.data.startswith("new_user"), state=FSM_newbie_questioning.accept_new_user)
+async def catch_new_user(callback_query: types.CallbackQuery, state=FSMContext):
+    async with state.proxy() as data:
+        confirming_user = db.find_one_confirming_user()
+        data["confirming_user_id"] = confirming_user.id
+        data["confirming_user_tg_name"] = confirming_user.tg_name
+        data["confirming_user_tg_id"] = confirming_user.tg_id
+        data["confirming_user_phone"] = confirming_user.phone
+        data["confirming_user_email"] = confirming_user.email
+        data["confirming_user_first_name"] = confirming_user.first_name
+        data["confirming_user_surname"] = confirming_user.surname
+        data["confirming_user_middle_name"] = confirming_user.middle_name
+        data["confirming_user_bdate"] = confirming_user.date_of_birth
+        db.clear_newbee_confirming(data["confirming_user_id"])
+    await callback_query.answer()
+    if callback_query.data.split(" ")[1] == "ok":
+        await FSM_newbie_questioning.save_job_title.set()
+        await callback_query.message.answer(f"Отлично, давай тогда добавим несколько данных"
+                                            f" по этому сотруднику и внесем его в базу:\n"
+                                            f"Введи должность нового сотрудника")
+    else:
+        await FSM_newbie_questioning.confirm_failed.set()
+        await callback_query.message.answer("Введите комментарий для анкеты. "
+                                            "Я отправлю его пользователю с просьбой заполнить анкету заново:")
+
+
+# @dp.message_handler(state=FSM_newbie_questioning.confirm_failed)
+async def send_comfirm_failed_message(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        chat_id = data["confirming_user_tg_id"]
+    comment = message.text
+    await bot.send_message(chat_id=chat_id, text=f"Администратор отклонил вашу анкету с комментарием:\n"
+                                                 f"<b>{comment}</b>\n"
+                                                 "Пожалуйста используйте /start чтобы заполнить анкету заново.",
+                           parse_mode=types.ParseMode.HTML)
+    await message.answer("Комментарий отправлен пользователю")
+    await state.finish()
+
+
+# @dp.message_handler(state=FSM_newbie_questioning.save_job_title)
+async def save_job_title(message: types.Message, state: FSMContext):
+    await FSM_newbie_questioning.save_type_of_employement.set()
+    async with state.proxy() as data:
+        data["job_title"] = message.text
+    await message.answer("Какой тип трудоустройства у сотрудника ?:", reply_markup=type_of_employement_kb)
+
+
+# @dp.callback_query_handler(lambda c: c.data.startswith("type_of_emp"),
+#                            state=FSM_newbie_questioning.save_type_of_employement)
+async def add_new_user_to_db(callback_query: types.CallbackQuery, state: FSMContext):
+    async with state.proxy() as data:
+        if callback_query.data.split(" ")[1] == "state":
+            data["type_of_employement"] = "штат"
+        elif callback_query.data.split(" ")[1] == "ip":
+            data["type_of_employement"] = "ип"
+        elif callback_query.data.split(" ")[1] == "gph":
+            data["type_of_employement"] = "гпх"
+        elif callback_query.data.split(" ")[1] == "sz":
+            data["type_of_employement"] = "сз"
+
+    async with state.proxy() as data:
+        confirming_user_tg_id = data["confirming_user_tg_id"]
+        confirming_user_tg_name = data["confirming_user_tg_name"]
+        confirming_user_phone = data["confirming_user_phone"]
+        confirming_user_email = data["confirming_user_email"]
+        confirming_user_first_name = data["confirming_user_first_name"]
+        confirming_user_surname = data["confirming_user_surname"]
+        confirming_user_middle_name = data["confirming_user_middle_name"]
+        confirming_user_bdate = data["confirming_user_bdate"]
+
+    db.add_new_user(
+        tg_id=confirming_user_tg_id,
+        first_name=confirming_user_first_name,
+        surname=confirming_user_surname,
+        job_title=data["job_title"],
+        tg_name=confirming_user_tg_name,
+        hired_at=date.today(),
+        middle_name=confirming_user_middle_name,
+        type_of_employment=data["type_of_employement"],
+        date_of_birth=confirming_user_bdate,
+    )
+
+    new_user_id = db.find_by_tg_id(confirming_user_tg_id).id
+    new_phone = db.add_new_contact(profile_id=new_user_id,
+                                   contact_type="P",
+                                   contact=confirming_user_phone
+                                   )
+    new_email = db.add_new_contact(
+        profile_id=new_user_id,
+        contact_type="@",
+        contact=confirming_user_email
+    )
+
+    await state.finish()
+    if new_phone and new_email:
+        await callback_query.message.answer("Отлично ! Я добавил нового сотрудника в БД")
+    else:
+        await callback_query.message.answer("Что-то пошло не так, пользователь не был добавлен")
+
+
 def register_handlers_operator(dp: Dispatcher):
+    dp.register_callback_query_handler(catch_new_user,
+                                       lambda c: c.data.startswith("new_user"),
+                                       state=FSM_newbie_questioning.accept_new_user)
+    dp.register_message_handler(send_comfirm_failed_message, state=FSM_newbie_questioning.confirm_failed)
+    dp.register_message_handler(save_job_title, state=FSM_newbie_questioning.save_job_title)
+    dp.register_callback_query_handler(add_new_user_to_db, lambda c: c.data.startswith("type_of_emp"),
+                                       state=FSM_newbie_questioning.save_type_of_employement)
+
     dp.register_callback_query_handler(call_operator, lambda c: c.data.startswith("call_operator"))
     dp.register_callback_query_handler(operator_choiсe, lambda c: c.data.startswith("help_with_answer"), state=None)
     dp.register_callback_query_handler(operator_answer,

@@ -8,7 +8,7 @@ from create_bot import dp, bot, db
 
 from func.all_func import delete_message, is_breakes
 
-from dicts.messages import message_dict, commands_dict
+from dicts.messages import message_dict, commands_dict, operator_list
 from keyboards.inline_finance import finance_staff_choose_kb
 from keyboards.inline_find import search_way
 from keyboards.inline_initiate_vacation import start_sending_vacation_email_button, \
@@ -18,6 +18,7 @@ from keyboards.inline_start_survey import Survey_inlines_keyboards
 from keyboards.inline_get_documents import get_business_trip_docs_keyboard, get_teamforce_presentation_keyboard, \
     get_annual_leave
 from keyboards.inline_contacts import contacts_keyboard
+from keyboards.inline_type_of_employement import type_of_employement_kb
 
 from handlers.other import FSM_newbie_questioning, FSM_search, FSMContext, FSM_start_survey
 
@@ -27,21 +28,27 @@ class FSM_type_of_employment(StatesGroup):
     change_type_of_employment = State()
 
 
-# @dp.message_handler(state=FSM_type_of_employment.change_type_of_employment)
-async def change_type_of_employement(message: types.Message, state: FSMContext):
-    types_list = ["штат", "сз", "ип", "гпх"]
-    user_id = message.from_user.id
-    type_of_employement = message.text.lower()
-    if type_of_employement in types_list:
-        db.change_type_of_employment(tg_id=user_id, type_of_employement=type_of_employement)
-        await state.finish()
-        await message.answer(f"Ваш статус трудоустройства был изменен на {type_of_employement}\n"
-                             f"Теперь можно повторить команду =)")
-    else:
-        text = ""
-        for i in types_list:
-            text += f"{i}, "
-        await message.answer(f"Тип занятости может быль только: {text}")
+# @dp.callback_query_handler(lambda c: c.data.startswith("type_of_emp"),
+#                            state=FSM_type_of_employment.change_type_of_employment)
+async def change_type_of_employement(callback_query: types.CallbackQuery, state: FSMContext):
+    await callback_query.answer()
+    user_id = callback_query.from_user.id
+    type_of_employement = None
+    if callback_query.data.split(" ")[1] == "state":
+        type_of_employement = "штат"
+    elif callback_query.data.split(" ")[1] == "ip":
+        type_of_employement = "ип"
+    elif callback_query.data.split(" ")[1] == "gph":
+        type_of_employement = "гпх"
+    elif callback_query.data.split(" ")[1] == "sz":
+        type_of_employement = "сз"
+    db.change_type_of_employment(tg_id=user_id, type_of_employement=type_of_employement)
+    await state.finish()
+    await callback_query.message.answer(
+        f"Ваш статус трудоустройства был изменен на <u>'{type_of_employement.capitalize()}'</u>\n"
+        f"Теперь можно повторить команду =)",
+        parse_mode=types.ParseMode.HTML
+    )
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -49,15 +56,19 @@ async def change_type_of_employement(message: types.Message, state: FSMContext):
 
 # @dp.message_handler(commands='vacation')
 async def vacation(message: types.Message):
-    type_of_employement = db.what_type_of_employment(message.from_id)
-    if type_of_employement:
-        await message.answer(commands_dict["vacation"]["vacation"], parse_mode=types.ParseMode.HTML,
-                             reply_markup=vacation_keyboard)
+    if db.is_user(message.from_id):
+        type_of_employement = db.what_type_of_employment(message.from_id)
+        if type_of_employement:
+            await message.answer(commands_dict["vacation"]["vacation"], parse_mode=types.ParseMode.HTML,
+                                 reply_markup=vacation_keyboard)
+        else:
+            await FSM_type_of_employment.change_type_of_employment.set()
+            await message.answer("Я не нашел в своей базе тип твоей занятости в компании Тимфорс.\n"
+                                 "Укажи пожалуйста ты оформлен в штат или работаешь по ИП/СЗ/ГПХ ?",
+                                 reply_markup=type_of_employement_kb,
+                                 parse_mode=types.ParseMode.HTML)
     else:
-        await FSM_type_of_employment.change_type_of_employment.set()
-        await message.answer("Я не нашел в своей базе тип твоей занятости в компании Тимфорс.\n"
-                             "Укажи пожалуйста ты оформлен в штат или работаешь по ИП/СЗ/ГПХ ?",
-                             parse_mode=types.ParseMode.HTML)
+        await message.answer("Я не смог найти вас в БД. Вы у нас работаете ?")
 
 
 # @dp.message_handler(commands=['test'])
@@ -68,7 +79,9 @@ async def test(message: types.Message):
 
 
 # @dp.message_handler(commands=['start'])
-async def start(message: types.Message):
+async def start(message: types.Message, state=FSMContext):
+    db.close_session()
+    await state.finish()
     keyboard = Survey_inlines_keyboards()
     me = await bot.get_me()
     if db.is_tg_id_in_base(message.from_id):
@@ -76,15 +89,17 @@ async def start(message: types.Message):
         await message.answer_video(message_dict["greeting_video_id"])
         await asyncio.sleep(3)
         await message.answer(message_dict['for_olds_message'], reply_markup=keyboard.start_survey())
-    else:
+    elif db.is_tg_id_in_newbie_base(message.from_id):
         await FSM_newbie_questioning.newbie_questioning_start.set()
         await message.answer(message_dict["greetings"])
         await message.answer(message_dict["newbie_greeting"].format(bot_name=f"@{me.username}"),
                              reply_markup=keyboard.ok_keyboard())
+    else:
+        await message.answer(message_dict["not_in_db"])
 
 
 # @dp.message_handler(commands='stop', state=FSM_start_survey.all_states)
-async def stop(message: types.Message, state="*"):
+async def stop(message: types.Message, state=FSMContext):
     db.close_session()
     await state.finish()
     answer = await message.answer("Выполнено. Сообщение будет удалено")
@@ -97,9 +112,12 @@ async def help(message: types.Message):
 
 
 # @dp.message_handler(commands='find')
-async def start_searching(messages: types.Message):
-    await messages.answer("Вот клавиатура для поиска:", reply_markup=search_way)
-    await messages.delete()
+async def start_searching(message: types.Message):
+    if db.is_user(message.from_user.id):
+        await message.answer("Вот клавиатура для поиска:", reply_markup=search_way)
+        await message.delete()
+    else:
+        await message.answer(message_dict["not_in_db"])
 
 
 # @dp.message_handler(commands='contacts')
@@ -173,11 +191,49 @@ async def about(message: types.Message):
     await message.answer(is_breakes(about_text), parse_mode=types.ParseMode.HTML)
 
 
-def register_handlers_client(dp: Dispatcher):
+# Добавление новенького ------------------------------------------------------------------------------------------------
+class FSM_newbie_adding(StatesGroup):
+    add_tg_id = State()
 
+
+# @dp.message_handler(commands='adduser')
+async def adduser(message: types.Message):
+    if message.from_id in operator_list:
+        await FSM_newbie_adding.add_tg_id.set()
+        await message.answer("Ура! У нас новенький ! Введи id в телеграмме чтобы добавить в БД новеньких:")
+    else:
+        await message.answer("Эта команда только для операторов")
+
+
+# @dp.message_handler(state=FSM_newbie_adding.add_tg_id)
+async def add_newbie_tg_id(message: types.Message, state: FSMContext):
+    try:
+        newbie_tg_id = int(message.text)
+        result = db.add_newbie(newbie_tg_id=newbie_tg_id, added_by_tg_id=message.from_id)
+        if result:
+            await state.finish()
+            await message.answer(f"Пользователь с id {newbie_tg_id} добавлен в БД пользователей\n"
+                                 f"Теперь он может начать со мной разговор чтобы пройти регистрацию")
+        else:
+            await state.finish()
+            await message.answer(f"Пользователь с id {newbie_tg_id} уже существует в БД новеньких\n"
+                                 f"Он может начать со мной разговор чтобы пройти регистрацию")
+    except ValueError:
+        await message.answer(f"'{message.text}' не является целым числом,\n"
+                             f"telegram_id могут быть только целые числа\n"
+                             f"Напишите корректное telegramm id или используйте /stop для выхода")
+
+
+def register_handlers_client(dp: Dispatcher):
     dp.register_message_handler(stop, commands='stop', state="*")
 
-    dp.register_message_handler(change_type_of_employement, state=FSM_type_of_employment.change_type_of_employment)
+    dp.register_message_handler(adduser, commands='adduser')
+    dp.register_message_handler(add_newbie_tg_id, state=FSM_newbie_adding.add_tg_id)
+
+    dp.register_callback_query_handler(change_type_of_employement,
+                                       lambda c: c.data.startswith("type_of_emp"),
+                                       state=FSM_type_of_employment.change_type_of_employment
+                                       )
     dp.register_message_handler(projects, commands='projects')
     dp.register_message_handler(about, commands='about')
     dp.register_message_handler(test, commands='test')

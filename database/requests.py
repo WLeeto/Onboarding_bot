@@ -3,8 +3,10 @@ from pprint import pprint
 
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.exc import IntegrityError
 
-from database.models import Base, Answer, Question, Users, Departments, Contacts, Projects, Operator_questions
+from database.models import Base, Answer, Question, Users, Departments, Contacts, Projects, Operator_questions, Newbie, \
+    New_User
 
 
 class database:
@@ -43,7 +45,10 @@ class database:
         """
         Добавляет в БД новый вопрос и ответ на него (для функции добавления вопроса оператором)
         """
-        id_answer = max([i.id for i in self.session.query(Answer).all()]) + 1
+        try:
+            id_answer = max([i.id for i in self.session.query(Answer).all()]) + 1
+        except ValueError:
+            id_answer = 1
         new_answer = Answer(id=id_answer,
                             answer_text=answer_text,
                             added_by_tg_id=added_by_tg_id)
@@ -175,6 +180,13 @@ class database:
                 "job_title": i.job_title
             })
         return result
+
+    def find_by_tg_id(self, tg_id: int) -> object or False:
+        """
+        Поиск сотрудника по tg_id
+        """
+        result = self.session.query(Users).filter(Users.tg_id == tg_id).first()
+        return result if result is not None else False
 
     def partial_search_by_patronymic(self, patronimyc: str) -> list:
         """
@@ -395,28 +407,43 @@ class database:
     def add_new_user(self, tg_id: int, first_name: str, surname: str, job_title: str, tg_name: str = None,
                      photo: str = None, hired_at: str = None, middle_name: str = None, nickname: str = None,
                      department_id: int = None, organization_id: int = None, user_id: int = None, fired_at: str = None,
-                     date_of_birth: str = None, status: str = None, timezone: str = None):
-        new_user = Users(
-            tg_id=tg_id,
-            first_name=first_name,
-            surname=surname,
-            job_title=job_title,
-            tg_name=tg_name,
-            photo=photo,
-            hired_at=hired_at,
-            middle_name=middle_name,
-            nickname=nickname,
-            department_id=department_id,
-            organization_id=organization_id,
-            user_id=user_id,
-            fired_at=fired_at,
-            date_of_birth=date_of_birth,
-            status=status,
-            timezone=timezone
-        )
-        self.session.add(new_user)
-        self.session.commit()
-        return f"Добавлен пользователь: {new_user.tg_id}"
+                     date_of_birth: str = None, status: str = None, timezone: str = None,
+                     type_of_employment: str = None) -> bool:
+
+        try:
+            id = max([i.id for i in self.session.query(Users).all()]) + 1
+        except ValueError:
+            id = 1
+
+        try:
+            new_user = Users(
+                id=id,
+                tg_id=tg_id,
+                first_name=first_name,
+                surname=surname,
+                job_title=job_title,
+                tg_name=tg_name,
+                photo=photo,
+                hired_at=hired_at,
+                middle_name=middle_name,
+                nickname=nickname,
+                department_id=department_id,
+                organization_id=organization_id,
+                user_id=user_id,
+                fired_at=fired_at,
+                date_of_birth=date_of_birth,
+                status=status,
+                timezone=timezone,
+                type_of_employment=type_of_employment
+            )
+            self.session.add(new_user)
+            self.session.commit()
+            self.session.close()
+            return True
+        except IntegrityError as ex:
+            self.session.close()
+            print(ex)
+            return False
 
     def is_tg_id_in_base(self, tg_id: int) -> bool:
         """
@@ -457,7 +484,7 @@ class database:
 
     def is_user(self, tg_id: int) -> bool:
         """
-        Проверка существует ли пользователь в БД
+        Проверка существует ли пользователь в БД по id телеграм
         """
         result = self.session.query(Users).filter(Users.tg_id == tg_id).first()
         return True if result else False
@@ -498,3 +525,82 @@ class database:
         """
         result = [i for i in self.session.query(Answer).all()]
         return result if result else None
+
+    def add_newbie(self, newbie_tg_id: int, added_by_tg_id: int) -> bool:
+        """
+        Добавляет tg_id в список новеньких
+        """
+        try:
+            id = max([i.id for i in self.session.query(Newbie).all()]) + 1
+        except ValueError:
+            id = 1
+        try:
+            newbie = Newbie(id=id, newbie_tg_id=newbie_tg_id, added_by_tg_id=added_by_tg_id)
+            self.session.add(newbie)
+            self.session.commit()
+            self.session.close()
+            return True
+        except IntegrityError as ex:
+            print(ex)
+            self.session.close()
+            return False
+
+    def is_tg_id_in_newbie_base(self, tg_id: int) -> bool:
+        result = self.session.query(Newbie).filter(Newbie.newbie_tg_id == tg_id).first()
+        return True if result else False
+
+    def add_new_contact(self, profile_id: int, contact_type: str, contact: str):
+
+        try:
+            id = max([i.id for i in self.session.query(Contacts).all()]) + 1
+        except ValueError:
+            id = 1
+        try:
+            new_contact = Contacts(
+                id=id,
+                profile_id=profile_id,
+                contact_type=contact_type,
+                contact=contact
+            )
+            self.session.add(new_contact)
+            self.session.commit()
+            self.session.close()
+            return new_contact
+        except IntegrityError as ex:
+            self.session.close()
+            print(ex)
+            return False
+
+    def add_newbie_for_confirming(self, **kwargs):
+        newbee = New_User(
+            tg_id=kwargs.get("tg_id"),
+            first_name=kwargs.get("first_name"),
+            surname=kwargs.get("surname"),
+            middle_name=kwargs.get("middle_name"),
+            job_title=kwargs.get("job_title"),
+            tg_name=kwargs.get("tg_name"),
+            date_of_birth=kwargs.get("date_of_birth"),
+            hired_at=kwargs.get("hired_at"),
+            type_of_employment=kwargs.get("type_of_employment"),
+            phone=kwargs.get("phone"),
+            email=kwargs.get("email"),
+        )
+        self.session.add(newbee)
+        self.session.commit()
+        self.session.close()
+
+    def find_one_confirming_user(self):
+        """
+        Найти пользователя в New_User для передачи данных от пользователя оператору
+        """
+        result = self.session.query(New_User).all()
+        return result[-1]
+
+    def clear_newbee_confirming(self, id: int):
+        """
+        Удаляет временную запись о новом сотруднике
+        """
+        to_delete = self.session.query(New_User).filter(New_User.id == id).first()
+        self.session.delete(to_delete)
+        self.session.commit()
+

@@ -1,29 +1,26 @@
 import asyncio
-import os
+from datetime import date
 
 from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
 from create_bot import dp, bot, db
-from dicts.messages import sleep_timer, start_survey_dict, message_dict, operator_list, commands_dict, project_dict
+from dicts.messages import start_survey_dict, message_dict, operator_list, commands_dict
 from func.all_func import delete_message, recognize_question, start_survey_answers, is_breakes, \
-    is_reply_keyboard, search_message, delete_temp_file
+    is_reply_keyboard, search_message, validate_bday, validate_phone, validate_email
 from handlers.vacation_handlers import vacation
 from handlers.projects_handlers import projects
 from handlers.operator_handlers import operator
 from handlers.finance_handlers import finance
-from keyboards.inline_operator import ask_operator
+from keyboards.inline_operator import ask_operator, confirm_new_user
 
-from keyboards.inline_operators_markup import Operator_keyboard
 from keyboards.inline_start_survey import Survey_inlines_keyboards
 from keyboards.all_keyboards import all_keyboards
 
 from transliterate import translit
 
-from handlers.operator_handlers.operator import FSM_operator_call
-
-from mailing.mailing import send_vacation_email
+from States.states import FSM_newbie_questioning
 
 
 # @dp.message_handler(content_types='text', state=None)
@@ -100,6 +97,7 @@ class FSM_search(StatesGroup):
 
 # @dp.callback_query_handler(lambda c: c.data.startswith("search"), state=None)
 async def search(callback_query: types.CallbackQuery, state: FSMContext):
+    global answer
     if callback_query.data.split(" ")[1] == "by_name":
         await FSM_search.enter_name.set()
         answer = await bot.edit_message_text("Кого ищем ? (введи имя):",
@@ -431,24 +429,10 @@ async def answers(callback_query: types.CallbackQuery, state: FSMContext):
 
 
 # Состояния для заполнения анкеты новичком -----------------------------------------------------------------------------
-class FSM_newbie_questioning(StatesGroup):
-    newbie_questioning_start = State()
-    asking_surname = State()
-    email_creating = State()
-    asking_surname_eng = State()
-    asking_bday = State()
-    asking_phone = State()
-    asking_email = State()
-    asking_photo = State()
-    asking_hobby = State()
-    commit_data = State()
-    show_video = State()
-
-
 # @dp.callback_query_handler(lambda c: c.data == "start",
 #                            state=FSM_newbie_questioning.newbie_questioning_start)
 async def questioning_start(callback_query: types.CallbackQuery, state: FSMContext):
-    msg_todel = await callback_query.message.answer("Введи свое ФИО (Например Пупкин Иван Александрович):")
+    msg_todel = await callback_query.message.answer("Введи свое ФИО (Например: Пупкин Иван Александрович):")
     async with state.proxy() as data:
         data["to_delete"] = []
         data["to_delete"].append(msg_todel.message_id)
@@ -457,22 +441,30 @@ async def questioning_start(callback_query: types.CallbackQuery, state: FSMConte
 
 # @dp.message_handler(state=FSM_newbie_questioning.asking_surname)
 async def load_surname(message: types.Message, state: FSMContext):
-    name = message.text.split(" ")[1]
-    surname = message.text.split(" ")[0]
-    patronymic = message.text.split(" ")[2]
-
-    await FSM_newbie_questioning.next()
-    keyboard = Survey_inlines_keyboards()
-    msg_todel = await message.answer("Я правильно написал твою фамилию на английском ?:\n "
-                                     f"<b>{translit(surname, language_code='ru', reversed=True)}</b>\n"
-                                     "Эта формулировка будет использована в создании почты", parse_mode="html",
-                                     reply_markup=keyboard.is_ok())
-    async with state.proxy() as data:
-        data["name"] = name
-        data["patronymic"] = patronymic
-        data["surname"] = surname
-        data["to_delete"].append(msg_todel.message_id)
-        data["to_delete"].append(message.message_id)
+    try:
+        name = message.text.split(" ")[1]
+        surname = message.text.split(" ")[0]
+        patronymic = message.text.split(" ")[2]
+        await FSM_newbie_questioning.next()
+        keyboard = Survey_inlines_keyboards()
+        msg_todel = await message.answer("Я правильно написал твою фамилию на английском ?:\n "
+                                         f"<b>{translit(surname, language_code='ru', reversed=True)}</b>\n"
+                                         "Эта формулировка будет использована в создании почты", parse_mode="html",
+                                         reply_markup=keyboard.is_ok())
+        async with state.proxy() as data:
+            data["name"] = name
+            data["patronymic"] = patronymic
+            data["surname"] = surname
+            data["tg_id"] = message.from_id
+            data["tg_name"] = message.from_user.username
+            data["to_delete"].append(msg_todel.message_id)
+            data["to_delete"].append(message.message_id)
+    except IndexError:
+        msg_todel = await message.answer("Необходимо ввести фамилию имя и отчество, три слова через пробел.\n"
+                                         "Введи свое ФИО (Например: Пупкин Иван Александрович):")
+        async with state.proxy() as data:
+            data["to_delete"].append(msg_todel.message_id)
+            data["to_delete"].append(message.message_id)
 
 
 # @dp.callback_query_handler(lambda c: c.data.startswith("answer"),
@@ -504,35 +496,56 @@ async def load_eng_surname(message: types.Message, state: FSMContext):
 
 # @dp.message_handler(state=FSM_newbie_questioning.asking_bday)
 async def load_bdate(message: types.Message, state: FSMContext):
-    # todo сделать валидатор для даты формат dd.mm.yyyy
-    await FSM_newbie_questioning.next()
-    msg_todel = await message.answer("Теперь введи свой телефон для связи (формат 7 ХХХ ХХХ ХХХХ): ")
-    async with state.proxy() as data:
-        data["bdate"] = message.text
-        data["to_delete"].append(msg_todel.message_id)
-        data["to_delete"].append(message.message_id)
+    validator = validate_bday(message.text)
+    if validator:
+        await FSM_newbie_questioning.next()
+        msg_todel = await message.answer("Теперь введи свой телефон для связи (формат 7 ХХХ ХХХ ХХХХ): ")
+        async with state.proxy() as data:
+            data["bdate"] = message.text
+            data["to_delete"].append(msg_todel.message_id)
+            data["to_delete"].append(message.message_id)
+    else:
+        msg_todel = await message.answer("Необходимо ввести дату в формате dd.mm.yyyy\n"
+                                         "(Например 28.07.1989):")
+        async with state.proxy() as data:
+            data["to_delete"].append(msg_todel.message_id)
+            data["to_delete"].append(message.message_id)
 
 
 # @dp.message_handler(state=FSM_newbie_questioning.asking_phone)
 async def load_phone(message: types.Message, state: FSMContext):
-    # todo сделать валидатор для телефона формат 7 ХХХ ХХХ ХХХХ
-    await FSM_newbie_questioning.next()
-    msg_todel = await message.answer("Укажи свой e-mail (для отправки документов): ")
-    async with state.proxy() as data:
-        data["phone"] = message.text
-        data["to_delete"].append(msg_todel.message_id)
-        data["to_delete"].append(message.message_id)
+    validator = validate_phone(message.text)
+    if validator:
+        await FSM_newbie_questioning.next()
+        msg_todel = await message.answer("Укажи свой e-mail (для отправки документов): ")
+        async with state.proxy() as data:
+            data["phone"] = message.text
+            data["to_delete"].append(msg_todel.message_id)
+            data["to_delete"].append(message.message_id)
+    else:
+        msg_todel = await message.answer("Необходимо ввести телефон в формате 7 ХХХ ХХХ ХХХХ\n"
+                                         "Например 7 917 233 4567")
+        async with state.proxy() as data:
+            data["to_delete"].append(msg_todel.message_id)
+            data["to_delete"].append(message.message_id)
 
 
 # @dp.message_handler(state=FSM_newbie_questioning.asking_email)
 async def load_email(message: types.Message, state: FSMContext):
-    # todo сделать валидатор для email формат {name}@{domen}.{restr}
-    await FSM_newbie_questioning.next()
-    msg_todel = await message.answer("Загрузи свое фото (просто перетащи фото сюда): ")
-    async with state.proxy() as data:
-        data["email"] = message.text
-        data["to_delete"].append(msg_todel.message_id)
-        data["to_delete"].append(message.message_id)
+    validator = validate_email(message.text)
+    if validator:
+        await FSM_newbie_questioning.next()
+        msg_todel = await message.answer("Загрузи свое фото (просто перетащи фото сюда): ")
+        async with state.proxy() as data:
+            data["email"] = message.text
+            data["to_delete"].append(msg_todel.message_id)
+            data["to_delete"].append(message.message_id)
+    else:
+        msg_todel = await message.answer("Почта введена некорректно.\n"
+                                         "Введите корректную почту:")
+        async with state.proxy() as data:
+            data["to_delete"].append(msg_todel.message_id)
+            data["to_delete"].append(message.message_id)
 
 
 # @dp.message_handler(content_types="photo", state=FSM_newbie_questioning.asking_photo)
@@ -569,8 +582,17 @@ async def load_hobby(message: types.Message, state: FSMContext):
 async def commit_data(callback_query: types.CallbackQuery, state: FSMContext):
     keyboard = Survey_inlines_keyboards()
     if callback_query.data.split(" ")[1] == "correct":
-        operator_keyboard = Operator_keyboard()
         async with state.proxy() as data:
+            db.add_newbie_for_confirming(
+                tg_id=data["tg_id"],
+                first_name=data["name"],
+                surname=data["surname"],
+                middle_name=data["patronymic"],
+                tg_name=data["tg_name"],
+                date_of_birth=data["bdate"],
+                phone=data["phone"],
+                email=data["email"],
+            )
             await bot.send_photo(operator_list[0], data["photo"],
                                  'Нужно проверить нового пользователя:\n\n'
                                  f'{data["surname"]} {data["name"]} {data["patronymic"]}\n'
@@ -578,7 +600,9 @@ async def commit_data(callback_query: types.CallbackQuery, state: FSMContext):
                                  f'Телефон: +{data["phone"]}\n'
                                  f'E-mail: {data["email"]}\n'
                                  f'Хобби и увлечения: {data["hobby"]}',
-                                 reply_markup=operator_keyboard.confirm_new_user())
+                                 reply_markup=confirm_new_user())
+        current_operator_state = dp.current_state(chat=operator_list[0], user=operator_list[0])
+        await current_operator_state.set_state(FSM_newbie_questioning.accept_new_user)
         await FSM_newbie_questioning.next()
         await bot.edit_message_text("Данные отправлены на обработку модератору",
                                     callback_query.from_user.id,
@@ -606,10 +630,11 @@ async def show_video(callback_query: types.CallbackQuery, state: FSMContext):
                            reply_markup=keyboard.start_survey())
 
 
+# ----------------------------------------------------------------------------------------------------------------------
 # @dp.callback_query_handler(lambda c: c.data == "hr_contacts")
-async def hr_contacts(callback_query: types.CallbackQuery, state: FSMContext):
+async def hr_contacts(callback_query: types.CallbackQuery):
     await callback_query.answer()
-    await callback_query.message.answer(commands_dict["contacts_hr"])
+    await callback_query.message.answer(commands_dict["contacts_hr"], parse_mode=types.ParseMode.HTML)
 
 
 def register_handlers_other(dp: Dispatcher):
