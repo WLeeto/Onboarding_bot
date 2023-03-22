@@ -5,6 +5,8 @@ from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
+from aiogram.utils.exceptions import CantInitiateConversation
+
 from create_bot import dp, bot, db
 from dicts.messages import start_survey_dict, message_dict, operator_list, commands_dict
 from func.all_func import delete_message, recognize_question, start_survey_answers, is_breakes, \
@@ -501,7 +503,7 @@ async def load_bdate(message: types.Message, state: FSMContext):
         await FSM_newbie_questioning.next()
         msg_todel = await message.answer("Теперь введи свой телефон для связи (формат 7 ХХХ ХХХ ХХХХ): ")
         async with state.proxy() as data:
-            data["bdate"] = message.text
+            data["bdate"] = validator
             data["to_delete"].append(msg_todel.message_id)
             data["to_delete"].append(message.message_id)
     else:
@@ -519,7 +521,7 @@ async def load_phone(message: types.Message, state: FSMContext):
         await FSM_newbie_questioning.next()
         msg_todel = await message.answer("Укажи свой e-mail (для отправки документов): ")
         async with state.proxy() as data:
-            data["phone"] = message.text
+            data["phone"] = validator
             data["to_delete"].append(msg_todel.message_id)
             data["to_delete"].append(message.message_id)
     else:
@@ -593,14 +595,18 @@ async def commit_data(callback_query: types.CallbackQuery, state: FSMContext):
                 phone=data["phone"],
                 email=data["email"],
             )
-            await bot.send_photo(operator_list[0], data["photo"],
-                                 'Нужно проверить нового пользователя:\n\n'
-                                 f'{data["surname"]} {data["name"]} {data["patronymic"]}\n'
-                                 f'Дата рождения: {data["bdate"]}\n'
-                                 f'Телефон: +{data["phone"]}\n'
-                                 f'E-mail: {data["email"]}\n'
-                                 f'Хобби и увлечения: {data["hobby"]}',
-                                 reply_markup=confirm_new_user())
+            try:
+                await bot.send_photo(operator_list[0], data["photo"],
+                                     'Нужно проверить нового пользователя:\n\n'
+                                     f'{data["surname"]} {data["name"]} {data["patronymic"]}\n'
+                                     f'Дата рождения: {data["bdate"]}\n'
+                                     f'Телефон: +{data["phone"]}\n'
+                                     f'E-mail: {data["email"]}\n'
+                                     f'Хобби и увлечения: {data["hobby"]}',
+                                     reply_markup=confirm_new_user())
+            except CantInitiateConversation:
+                await callback_query.message.answer("Оператор не смог ответить, так как не начал чат с ботом.\n"
+                                                    "Перешлите пожалуйста эту ошибку отделу кадров")
         current_operator_state = dp.current_state(chat=operator_list[0], user=operator_list[0])
         await current_operator_state.set_state(FSM_newbie_questioning.accept_new_user)
         await FSM_newbie_questioning.next()

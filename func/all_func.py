@@ -10,6 +10,7 @@ from fuzzywuzzy import fuzz
 
 from dicts.messages import start_survey_dict
 
+import time
 from datetime import datetime
 
 from email_validate import validate
@@ -108,8 +109,8 @@ def validate_bday(date: str) -> bool:
     repl1 = date.replace("/", ".").replace("г", "").replace("Г", "").replace("г.", "")
     if len(repl1.split(".")) == 3:
         try:
-            datetime.strptime(repl1, "%d.%m.%Y")
-            result = True
+            date = datetime.strptime(repl1, "%d.%m.%Y")
+            result = date
         except ValueError as ex:
             print(ex)
             result = False
@@ -119,9 +120,9 @@ def validate_bday(date: str) -> bool:
 
 
 def validate_phone(phone: str) -> bool:
-    replace_spaces = phone.replace(" ", "").replace("+", "")
-    if len(replace_spaces) == 11:
-        result = True
+    replace = phone.replace(" ", "").replace("+", "")
+    if len(replace) == 11:
+        result = replace
     else:
         result = False
     return result
