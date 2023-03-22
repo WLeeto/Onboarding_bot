@@ -137,10 +137,3 @@ def validate_email(email: str) -> bool:
                       check_smtp=False,  # Проверка действительно ли существует почта, инициировав SMTP-диалог
                       smtp_debug=False)
     return result
-
-
-if __name__ == "__main__":
-    correct = "leeto4848@gmail.com"
-    incorrect = "nonon@mail.ru"
-    print(validate_email(correct))
-    print(validate_email(incorrect))

@@ -108,7 +108,8 @@ async def stop(message: types.Message, state=FSMContext):
 
 # @dp.message_handler(commands='help')
 async def help(message: types.Message):
-    await message.answer(message_dict["help"])
+    text = db.find_answer_by_answer_id(31).answer_text
+    await message.answer(is_breakes(text), parse_mode=types.ParseMode.HTML)
 
 
 # @dp.message_handler(commands='find')
@@ -127,7 +128,8 @@ async def contacts(message: types.Message):
 
 # @dp.message_handler(commands='benefits')
 async def benefits(message: types.Message):
-    await message.answer(commands_dict["benefits"], parse_mode=types.ParseMode.HTML,
+    text = db.find_answer_by_answer_id(17).answer_text
+    await message.answer(is_breakes(text), parse_mode=types.ParseMode.HTML,
                          reply_markup=get_teamforce_presentation_keyboard)
 
 
@@ -138,17 +140,20 @@ async def benefits(message: types.Message):
 
 # @dp.message_handler(commands='support')
 async def support(message: types.Message):
-    await message.answer(commands_dict["support"], parse_mode=types.ParseMode.HTML)
+    text = db.find_answer_by_answer_id(18).answer_text
+    await message.answer(is_breakes(text), parse_mode=types.ParseMode.HTML)
 
 
 # @dp.message_handler(commands='social_media')
 async def social_media(message: types.Message):
-    await message.answer(commands_dict["social_media"], parse_mode=types.ParseMode.HTML)
+    text = db.find_answer_by_answer_id(19).answer_text
+    await message.answer(is_breakes(text), parse_mode=types.ParseMode.HTML)
 
 
 # @dp.message_handler(commands='initiative')
 async def initiative(message: types.Message):
-    await message.answer(commands_dict["initiative"], parse_mode=types.ParseMode.HTML)
+    text = db.find_answer_by_answer_id(20).answer_text
+    await message.answer(text, parse_mode=types.ParseMode.HTML)
 
 
 # @dp.message_handler(commands='finance')
@@ -159,7 +164,8 @@ async def finance(message: types.Message):
 
 # @dp.message_handler(commands='office')
 async def office(message: types.Message):
-    await message.answer(commands_dict["office"], parse_mode=types.ParseMode.HTML)
+    text = db.find_answer_by_answer_id(22).answer_text
+    await message.answer(is_breakes(text), parse_mode=types.ParseMode.HTML)
 
 
 # @dp.message_handler(commands='business_trip')
@@ -170,12 +176,14 @@ async def business_trip(message: types.Message):
 
 # @dp.message_handler(commands='referal')
 async def referal(message: types.Message):
-    await message.answer(commands_dict["referal"], parse_mode=types.ParseMode.HTML)
+    text = db.find_answer_by_answer_id(26).answer_text
+    await message.answer(is_breakes(26), parse_mode=types.ParseMode.HTML)
 
 
 # @dp.message_handler(commands='tf360')
 async def tf360(message: types.Message):
-    await message.answer(commands_dict["tf360"], parse_mode=types.ParseMode.HTML)
+    text = db.find_answer_by_answer_id(25).answer_text
+    await message.answer(is_breakes(25), parse_mode=types.ParseMode.HTML)
 
 
 # @dp.message_handler(commands='projects')
@@ -187,7 +195,7 @@ async def projects(message: types.Message):
 
 # @dp.message_handler(commands='about')
 async def about(message: types.Message):
-    about_text = db.find_answer_by_answer_id(27)
+    about_text = db.find_answer_by_answer_id(27).answer_text
     await message.answer(is_breakes(about_text), parse_mode=types.ParseMode.HTML)
 
 
