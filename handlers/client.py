@@ -11,16 +11,14 @@ from func.all_func import delete_message, is_breakes
 from dicts.messages import message_dict, commands_dict, operator_list
 from keyboards.inline_finance import finance_staff_choose_kb
 from keyboards.inline_find import search_way
-from keyboards.inline_initiate_vacation import start_sending_vacation_email_button, \
-    start_sending_vacation_email_keyboard, vacation_keyboard
+from keyboards.inline_initiate_vacation import vacation_keyboard
 from keyboards.inline_projects import Projects_keyboard
 from keyboards.inline_start_survey import Survey_inlines_keyboards
-from keyboards.inline_get_documents import get_business_trip_docs_keyboard, get_teamforce_presentation_keyboard, \
-    get_annual_leave
+from keyboards.inline_get_documents import get_business_trip_docs_keyboard, get_teamforce_presentation_keyboard
 from keyboards.inline_contacts import contacts_keyboard
 from keyboards.inline_type_of_employement import type_of_employement_kb
 
-from handlers.other import FSM_newbie_questioning, FSM_search, FSMContext, FSM_start_survey
+from handlers.other import FSM_newbie_questioning, FSMContext
 
 
 # Состояния для ввода типа трудоустройства -----------------------------------------------------------------------------

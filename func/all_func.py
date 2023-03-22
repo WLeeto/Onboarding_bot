@@ -34,13 +34,16 @@ def recognize_question(question: str, questions: dict):
             recognized['id'] = key
             recognized['percent'] = percent
     if recognized['percent'] <= sensitivity:
-        print(f"!!! Совпадение запроса '{question} и {db.find_question_by_question_id(recognized['id'])}':"
-              f" {recognized['percent']}")
+        result_text = f"Совпадение слишком маленькое, вопрос не найден\n" \
+                      f"Ближайшее совпадение '{question}' и '{db.find_question_by_question_id(recognized['id'])}':" \
+                      f"{recognized['percent']}\n"
         result = None
     else:
-        print(f"Совпадение запроса '{question}' и {db.find_question_by_question_id(recognized['id'])}:"
-              f" {recognized['percent']}")
+        result_text = f"Совпадение запроса '{question}' и '{db.find_question_by_question_id(recognized['id'])}':" \
+                      f"{recognized['percent']}\n"
         result = recognized['id']
+    print(result_text)
+    add_recognize_log(text=result_text)
     return result
 
 
@@ -137,3 +140,9 @@ def validate_email(email: str) -> bool:
                       check_smtp=False,  # Проверка действительно ли существует почта, инициировав SMTP-диалог
                       smtp_debug=False)
     return result
+
+
+def add_recognize_log(**kwargs):
+    text = kwargs.get("text")
+    with open("recognize_log.txt", "a", encoding="utf-8") as log:
+        log.write(text)

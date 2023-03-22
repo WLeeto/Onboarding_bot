@@ -279,6 +279,7 @@ tags
 # Mine
 sandbox.py
 restore
+recognize_log.txt
 .envs
 .idea
 pgdata
