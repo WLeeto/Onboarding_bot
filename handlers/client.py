@@ -177,13 +177,13 @@ async def business_trip(message: types.Message):
 # @dp.message_handler(commands='referal')
 async def referal(message: types.Message):
     text = db.find_answer_by_answer_id(26).answer_text
-    await message.answer(is_breakes(26), parse_mode=types.ParseMode.HTML)
+    await message.answer(is_breakes(text), parse_mode=types.ParseMode.HTML)
 
 
 # @dp.message_handler(commands='tf360')
 async def tf360(message: types.Message):
     text = db.find_answer_by_answer_id(25).answer_text
-    await message.answer(is_breakes(25), parse_mode=types.ParseMode.HTML)
+    await message.answer(is_breakes(text), parse_mode=types.ParseMode.HTML)
 
 
 # @dp.message_handler(commands='projects')
