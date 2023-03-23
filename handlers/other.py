@@ -24,6 +24,7 @@ from transliterate import translit
 
 from States.states import FSM_newbie_questioning
 
+#
 
 # @dp.message_handler(content_types='text', state=None)
 async def recognizing(message: types.Message):
