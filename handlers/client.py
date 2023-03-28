@@ -131,11 +131,6 @@ async def benefits(message: types.Message):
                          reply_markup=get_teamforce_presentation_keyboard)
 
 
-# # @dp.message_handler(commands='docs')
-# async def docs(message: types.Message):
-#     await message.answer(commands_dict["docs"], parse_mode=types.ParseMode.HTML)
-
-
 # @dp.message_handler(commands='support')
 async def support(message: types.Message):
     text = db.find_answer_by_answer_id(18).answer_text
@@ -156,8 +151,21 @@ async def initiative(message: types.Message):
 
 # @dp.message_handler(commands='finance')
 async def finance(message: types.Message):
-    await message.answer("Как вы оформлены в компании ?", reply_markup=finance_staff_choose_kb,
-                         parse_mode=types.ParseMode.HTML)
+    if db.is_user(message.from_id):
+        type_of_employment = db.what_type_of_employment(message.from_id)
+        if type_of_employment:
+            if type_of_employment == "штат":
+                text = db.find_answer_by_answer_id(28).answer_text
+                await message.answer(is_breakes(text), parse_mode=types.ParseMode.HTML)
+            else:
+                text = db.find_answer_by_answer_id(29).answer_text
+                await message.answer(is_breakes(text), parse_mode=types.ParseMode.HTML)
+        else:
+            await FSM_type_of_employment.change_type_of_employment.set()
+            await message.answer("Почему то у вас не указан тип трудоустройства, давайте это исправим.\n"
+                                 "Как вы оформлены в компании ?", reply_markup=type_of_employement_kb)
+    else:
+        await message.answer(message_dict["not_in_db"])
 
 
 # @dp.message_handler(commands='office')
@@ -168,8 +176,11 @@ async def office(message: types.Message):
 
 # @dp.message_handler(commands='business_trip')
 async def business_trip(message: types.Message):
-    await message.answer(commands_dict["business_trip"], parse_mode=types.ParseMode.HTML,
-                         reply_markup=get_business_trip_docs_keyboard)
+    if db.is_user(message.from_id):
+        await message.answer(commands_dict["business_trip"], parse_mode=types.ParseMode.HTML,
+                             reply_markup=get_business_trip_docs_keyboard)
+    else:
+        await message.answer(message_dict["not_in_db"])
 
 
 # @dp.message_handler(commands='referal')
