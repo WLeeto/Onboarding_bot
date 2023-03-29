@@ -120,7 +120,7 @@ async def save_coordinator(message: types.Message, state=FSMContext):
                                                     coordinator_name, image_path))
     if is_ok:
         text = f"Ваше заявление на отпуск в период {data['vacation_period']} отправлено координатору"
-        await asyncio.sleep(10)
+        await asyncio.sleep(5)
         await asyncio.create_task(delete_temp_file(data["image_path"]))
     else:
         text = is_ok

@@ -49,7 +49,7 @@ async def send_biz_trip_email(**kwargs):
     """
     sender = os.environ.get("SENDER_EMAIL")
     password = os.environ.get("SENDER_PASSWORD")
-    recipient = os.environ.get("RECIPIENT_EMAIL")  # todo поменять получателя, запросить у Розы
+    recipient = os.environ.get("BIZ_TRIP_RECIPIENT_EMAIL")
 
     server = smtplib.SMTP("smtp.gmail.com", 587)
     server.starttls()

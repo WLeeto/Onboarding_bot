@@ -1,3 +1,4 @@
+import asyncio
 import os
 
 from create_bot import dp, bot, db
@@ -8,6 +9,7 @@ from aiogram.dispatcher import FSMContext
 from States.states import FSM_business_trip_form_sending
 
 from dicts.messages import message_dict
+from func.all_func import delete_temp_file
 from keyboards.inline_biz_trip import biz_trip_form_send_kb
 from mailing.mailing import send_biz_trip_email
 
@@ -98,7 +100,7 @@ async def form_confirm(callback_query: types.CallbackQuery, state=FSMContext):
     if callback_query.data.split(" ")[1] == "True":
         await callback_query.message.answer("Отправляю письмо о командировке")
         async with state.proxy() as data:
-            sending = await send_biz_trip_email(
+            sending = asyncio.create_task(send_biz_trip_email(
                 name=data['from_name'],
                 surname=data['from_surname'],
                 purpose=data['purpose'],
@@ -106,11 +108,16 @@ async def form_confirm(callback_query: types.CallbackQuery, state=FSMContext):
                 note_path=data['note_path'],
                 advance_path=data['advance_path'],
                 tickets_path=data['tickets_path'],
-                checks_path=data['checks_path']
+                checks_path=data['checks_path'])
             )
         if sending:
             await state.finish()
             await callback_query.message.answer("Сообщение отправлено, доставлено, все ок")
+            await asyncio.sleep(5)
+            await asyncio.create_task(delete_temp_file(data["note_path"]))
+            await asyncio.create_task(delete_temp_file(data["advance_path"]))
+            await asyncio.create_task(delete_temp_file(data["tickets_path"]))
+            await asyncio.create_task(delete_temp_file(data["checks_path"]))
         else:
             await callback_query.message.answer("Я не смог отправить сообщение, обратитесь к администратору")
     else:
