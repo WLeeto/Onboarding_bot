@@ -15,6 +15,7 @@ from handlers.vacation_handlers import vacation
 from handlers.projects_handlers import projects
 from handlers.operator_handlers import operator
 from handlers.finance_handlers import finance
+from handlers.business_trip_handlers import business_trip
 from keyboards.inline_operator import ask_operator, confirm_new_user
 
 from keyboards.inline_start_survey import Survey_inlines_keyboards
@@ -648,6 +649,7 @@ def register_handlers_other(dp: Dispatcher):
     projects.register_handlers_projects(dp)
     operator.register_handlers_operator(dp)
     finance.register_handlers_finance(dp)
+    business_trip.register_handlers_business_trip(dp)
 
     dp.register_callback_query_handler(hr_contacts, lambda c: c.data == "hr_contacts")
 

@@ -163,7 +163,7 @@ commands_dict = {
     },
     "docs": docs,
     "finance": finance,
-    "business_trip": business_trip,
+    "bt": business_trip,
     "contacts_hr": contacts_hr,
     "contacts_contracts": contacts_contracts,
     "contacts_resourses": contacts_resourses,

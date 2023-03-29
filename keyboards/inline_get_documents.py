@@ -15,10 +15,14 @@ get_teamforce_presentation_button = InlineKeyboardButton(text="Скачать п
                                                          callback_data="get teamforce_presentation")
 get_vacation_at_own_button = InlineKeyboardButton(text="Скачать заявление на отпуск за свой счет",
                                                   callback_data="get vacation_at_own")
+start_bt_form_sending = InlineKeyboardButton(text="Отправить заявление на командировку",
+                                             callback_data="start_bt_form")
+
 
 get_annual_leave = InlineKeyboardMarkup(row_width=1).add(get_annual_leave_button)
 get_business_trip_docs_keyboard = InlineKeyboardMarkup(row_width=1).add(get_business_trip_regulation_button,
                                                                         get_official_memo_button,
-                                                                        get_application_for_funds_button)
+                                                                        get_application_for_funds_button,
+                                                                        start_bt_form_sending)
 get_teamforce_presentation_keyboard = InlineKeyboardMarkup(row_width=1).add(get_teamforce_presentation_button)
 get_get_vacation_at_own_keyboard = InlineKeyboardMarkup(row_width=1).add(get_vacation_at_own_button)

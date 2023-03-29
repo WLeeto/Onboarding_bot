@@ -174,10 +174,10 @@ async def office(message: types.Message):
     await message.answer(is_breakes(text), parse_mode=types.ParseMode.HTML)
 
 
-# @dp.message_handler(commands='business_trip')
+# @dp.message_handler(commands='bt')
 async def business_trip(message: types.Message):
     if db.is_user(message.from_id):
-        await message.answer(commands_dict["business_trip"], parse_mode=types.ParseMode.HTML,
+        await message.answer(commands_dict["bt"], parse_mode=types.ParseMode.HTML,
                              reply_markup=get_business_trip_docs_keyboard)
     else:
         await message.answer(message_dict["not_in_db"])
@@ -266,6 +266,6 @@ def register_handlers_client(dp: Dispatcher):
     dp.register_message_handler(initiative, commands='initiative')
     dp.register_message_handler(finance, commands='finance')
     dp.register_message_handler(office, commands='office')
-    dp.register_message_handler(business_trip, commands='business_trip')
+    dp.register_message_handler(business_trip, commands='bt')
     dp.register_message_handler(referal, commands='referal')
     dp.register_message_handler(tf360, commands='tf360')

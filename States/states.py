@@ -17,3 +17,13 @@ class FSM_newbie_questioning(StatesGroup):
     save_job_title = State()
     save_type_of_employement = State()
     confirm_failed = State()
+
+
+class FSM_business_trip_form_sending(StatesGroup):
+    start_business_trip_form = State()
+    enter_dates = State()
+    save_note = State()
+    save_advance = State()
+    save_tickets = State()
+    save_checks = State()
+    send_form = State()
