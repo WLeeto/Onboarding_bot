@@ -27,3 +27,7 @@ class FSM_business_trip_form_sending(StatesGroup):
     save_tickets = State()
     save_checks = State()
     send_form = State()
+
+
+class FSM_type_of_employment(StatesGroup):
+    change_type_of_employment = State()

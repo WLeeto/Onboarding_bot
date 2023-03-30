@@ -13,6 +13,7 @@ from keyboards.inline_finance import finance_staff_choose_kb
 from keyboards.inline_find import search_way
 from keyboards.inline_initiate_vacation import vacation_keyboard
 from keyboards.inline_projects import Projects_keyboard
+from keyboards.inline_sick_leave import sick_leave_kb
 from keyboards.inline_start_survey import Survey_inlines_keyboards
 from keyboards.inline_get_documents import get_business_trip_docs_keyboard, get_teamforce_presentation_keyboard
 from keyboards.inline_contacts import contacts_keyboard
@@ -20,10 +21,7 @@ from keyboards.inline_type_of_employement import type_of_employement_kb
 
 from handlers.other import FSM_newbie_questioning, FSMContext
 
-
-# Состояния для ввода типа трудоустройства -----------------------------------------------------------------------------
-class FSM_type_of_employment(StatesGroup):
-    change_type_of_employment = State()
+from States.states import FSM_type_of_employment
 
 
 # @dp.callback_query_handler(lambda c: c.data.startswith("type_of_emp"),
@@ -206,6 +204,14 @@ async def projects(message: types.Message):
 async def about(message: types.Message):
     about_text = db.find_answer_by_answer_id(27).answer_text
     await message.answer(is_breakes(about_text), parse_mode=types.ParseMode.HTML)
+
+
+@dp.message_handler(commands='sick_leave')
+async def sick_leave(message: types.Message):
+    if db.is_user(message.from_id):
+        await message.answer("Что конкретно про больничный вы хотели бы узнать?:", reply_markup=sick_leave_kb)
+    else:
+        await message.answer(message_dict["not_in_db"])
 
 
 # Добавление новенького ------------------------------------------------------------------------------------------------

@@ -4,6 +4,7 @@ from keyboards.inline_get_documents import get_annual_leave, get_get_vacation_at
 from keyboards.inline_initiate_vacation import start_sending_vacation_email_keyboard
 from keyboards.inline_contacts import start_search_by_phone
 from keyboards.inline_finance import finance_staff_choose_kb
+from keyboards.inline_sick_leave import sick_leave_kb
 
 """
 Словарь со всеми клавиатурами для вызова из БД
@@ -18,4 +19,5 @@ all_keyboards = {
     "get_teamforce_presentation_keyboard": get_teamforce_presentation_keyboard,
     "get_business_trip_docs_keyboard": get_business_trip_docs_keyboard,
     "finance_staff_choose_kb": finance_staff_choose_kb,
+    "sick_leave_kb": sick_leave_kb,
 }

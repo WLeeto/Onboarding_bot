@@ -470,7 +470,10 @@ class database:
         Поиск способа трудоустройства
         """
         result = self.session.query(Users).filter(Users.tg_id == tg_id).first()
-        return result.type_of_employment if result.type_of_employment else None
+        try:
+            return result.type_of_employment
+        except AttributeError:
+            return None
 
     def change_type_of_employment(self, tg_id: int, type_of_employement: str) -> bool:
         """

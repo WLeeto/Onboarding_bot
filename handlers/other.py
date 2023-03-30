@@ -16,6 +16,7 @@ from handlers.projects_handlers import projects
 from handlers.operator_handlers import operator
 from handlers.finance_handlers import finance
 from handlers.business_trip_handlers import business_trip
+from handlers.sick_leave_handlers import sick_leave
 from keyboards.inline_operator import ask_operator, confirm_new_user
 
 from keyboards.inline_start_survey import Survey_inlines_keyboards
@@ -645,6 +646,7 @@ async def hr_contacts(callback_query: types.CallbackQuery):
 
 
 def register_handlers_other(dp: Dispatcher):
+    sick_leave.register_handlers_sick_leave(dp)
     vacation.register_handlers_vacation(dp)
     projects.register_handlers_projects(dp)
     operator.register_handlers_operator(dp)
