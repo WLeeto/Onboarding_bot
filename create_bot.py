@@ -6,6 +6,8 @@ from os import environ
 
 from database.requests import database
 
+from aiogram import types
+
 storage = MemoryStorage()
 
 token_tg = environ.get("TOKEN_ONBOARDING_BOT")

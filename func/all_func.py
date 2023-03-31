@@ -10,10 +10,29 @@ from fuzzywuzzy import fuzz
 
 from dicts.messages import start_survey_dict
 
-import time
 from datetime import datetime
 
 from email_validate import validate
+
+
+async def set_default_commands(dp):
+    await dp.bot.set_my_commands([
+        types.BotCommand("contacts", "контакты всех отделов"),
+        types.BotCommand("vacation", "Подготовка к отпуску "),
+        types.BotCommand("benefits", "Информация о бонусах компании и о способах получения"),
+        types.BotCommand("support", "Помогает найти ответственного по вопросу"),
+        types.BotCommand("social_media", "Ссылки на наши соцсети"),
+        types.BotCommand("initiative", "Сбор инициатив/идей и предложений"),
+        types.BotCommand("finance", "Вопросы по перечислениям"),
+        types.BotCommand("bt", "Подготовка к командировке"),
+        types.BotCommand("find", "Поиск контактных данных по фио, должности"),
+        types.BotCommand("referal", "Информация о реферальной программе"),
+        types.BotCommand("office", "Информация про офис"),
+        types.BotCommand("tf360", "О проекте ТФ360"),
+        types.BotCommand("projects", "Краткая информация о проектах"),
+        types.BotCommand("about", "Информация о Тим Форс"),
+        types.BotCommand("sick_leave", "Информация о больничном"),
+    ])
 
 
 async def delete_message(message: types.Message, sleep_time: int = 0):
