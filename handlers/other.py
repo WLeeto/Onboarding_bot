@@ -429,7 +429,8 @@ async def answers(callback_query: types.CallbackQuery, state: FSMContext):
     await asyncio.sleep(3)
     await callback_query.message.answer(message_dict["we_are_closer_now"])
     await asyncio.sleep(3)
-    await callback_query.message.answer(message_dict["help"])
+    text = db.find_answer_by_answer_id(31).answer_text
+    await callback_query.message.answer(is_breakes(text), parse_mode=types.ParseMode.HTML)
 
 
 # Состояния для заполнения анкеты новичком -----------------------------------------------------------------------------
