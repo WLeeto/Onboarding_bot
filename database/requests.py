@@ -118,12 +118,15 @@ class database:
         Принимает текст вопроса и id ответа, добавляет вопрос в базу
         """
         answer = self.session.query(Answer).filter(Answer.id == answer_id).first()
-
-        new_question = Question(question_text=question, id_answer=answer.id)
+        try:
+            id_answer = max([i.id for i in self.session.query(Question).all()]) + 1
+        except ValueError:
+            id_answer = 1
+        new_question = Question(id=id_answer, question_text=question, id_answer=answer.id)
         self.session.add(new_question)
         self.session.commit()
         print(f'В БД добавлен вопрос "{question}" с id ответа {answer}')
-        return f'В БД добавлен вопрос "{question}" с id ответа {answer}'
+        return True
 
     def no_answer(self):
         """

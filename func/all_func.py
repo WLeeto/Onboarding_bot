@@ -17,7 +17,7 @@ from email_validate import validate
 
 async def set_default_commands(dp):
     await dp.bot.set_my_commands([
-        types.BotCommand("contacts", "контакты всех отделов"),
+        types.BotCommand("contacts", "Контакты всех отделов"),
         types.BotCommand("vacation", "Подготовка к отпуску "),
         types.BotCommand("benefits", "Информация о бонусах компании и о способах получения"),
         types.BotCommand("support", "Помогает найти ответственного по вопросу"),
@@ -45,8 +45,8 @@ async def delete_message(message: types.Message, sleep_time: int = 0):
 
 
 def recognize_question(question: str, questions: dict):
-    sensitivity = 55
-    recognized = {'id': '', 'percent': 0}
+    sensitivity = 57
+    recognized = {'id': '1', 'percent': 0}
     for key, value in questions.items():
         percent = fuzz.ratio(question.lower(), value.lower())
         if percent > recognized['percent']:

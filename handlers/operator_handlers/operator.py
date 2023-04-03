@@ -1,3 +1,4 @@
+import asyncio
 from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
@@ -7,7 +8,8 @@ from create_bot import dp, bot, db
 from States.states import FSM_newbie_questioning
 
 from dicts.messages import operator_list
-from func.all_func import is_breakes
+from func.all_func import is_breakes, delete_message, is_reply_keyboard
+from keyboards.all_keyboards import all_keyboards
 from keyboards.inline_operator import operator_choice_kb_gen, operator_start_answering, auto_answers_kb_gen, \
     operator_add_new_question_kb_gen
 from keyboards.inline_type_of_employement import type_of_employement_kb
@@ -27,6 +29,10 @@ class FSM_operator_call(StatesGroup):
 
 # @dp.callback_query_handler(lambda c: c.data.startswith("call_operator"))
 async def call_operator(callback_querry: types.CallbackQuery, state: FSMContext):
+    await bot.edit_message_text(text="Вопрос отправлен оператору",
+                                chat_id=callback_querry.from_user.id,
+                                message_id=callback_querry.message.message_id)
+
     question_text = db.find_operator_question_by_id(callback_querry.data.split(" ")[1])
     question_id = callback_querry.data.split(" ")[1]
     question_from_user = callback_querry.data.split(" ")[2]
@@ -39,6 +45,8 @@ async def call_operator(callback_querry: types.CallbackQuery, state: FSMContext)
 
 # @dp.callback_query_handler(lambda c: c.data.startswith("help_with_answer"), state=None)
 async def operator_choiсe(callback_query: types.CallbackQuery, state=FSMContext):
+    await callback_query.message.delete()
+
     await FSM_operator_call.operator_choiсe.set()
     async with state.proxy() as data:
         data['question_text'] = db.find_operator_question_by_id(callback_query.data.split(" ")[1])
@@ -50,10 +58,14 @@ async def operator_choiсe(callback_query: types.CallbackQuery, state=FSMContext
 
 # @dp.callback_query_handler(lambda c: c.data.startswith("choice"), state=FSM_operator_call.operator_choiсe)
 async def operator_answer(callback_query: types.CallbackQuery, state: FSMContext):
+    await callback_query.message.delete()
+
     await callback_query.answer()
     if callback_query.data.split(" ")[1] == "manual":
         await FSM_operator_call.send_manual_answer.set()
-        await callback_query.message.answer("Введите ответ, который перешлем пользователю:")
+        to_delete = await callback_query.message.answer("Введите ответ, который перешлем пользователю:")
+        async with state.proxy() as data:
+            data["to_delete"] = to_delete.message_id
     else:
         await FSM_operator_call.send_auto_answer.set()
         await callback_query.message.answer("Выбери из списка что ответим:\n", reply_markup=auto_answers_kb_gen())
@@ -61,29 +73,65 @@ async def operator_answer(callback_query: types.CallbackQuery, state: FSMContext
 
 # @dp.callback_query_handler(lambda c: c.data.startswith("auto_answer"), state=FSM_operator_call.send_auto_answer)
 async def operator_send_auto_answer(callback_query: types.CallbackQuery, state: FSMContext):
+    await callback_query.message.delete()
+
     if callback_query.data.split(" ")[1] == "manual":
         await FSM_operator_call.send_manual_answer.set()
-        await callback_query.message.answer("Введите ответ, который перешлем пользователю:")
-        return
+        to_delete = await callback_query.message.answer("Введите ответ, который перешлем пользователю:")
+        async with state.proxy() as data:
+            data["to_delete"] = to_delete.message_id
+    else:
+        async with state.proxy() as data:
+            chat_id = data["question_from_user"]
+            question_text = data['question_text']
+            data["answer_id"] = callback_query.data.split(" ")[1]
+        answer_id = data["answer_id"]
+        text = db.find_answer_by_answer_id(answer_id).answer_text
+        answer_shortkey = db.find_answer_by_answer_id(answer_id).answer_discription
+        check_keyboards = is_reply_keyboard(text)
+        if check_keyboards:
+            keyboard = all_keyboards[check_keyboards[-1]]
+            await bot.send_message(chat_id=chat_id,
+                                   text=f"<b>Оператор ответил на ваш вопрос:</b>\n"
+                                        f"{question_text}\n\n"
+                                        f"<b>Ответ оператора:</b>\n"
+                                        f"{is_breakes(check_keyboards[0])}", parse_mode=types.ParseMode.HTML,
+                                   reply_markup=keyboard)
+        else:
+            await bot.send_message(chat_id=chat_id,
+                                   text=f"<b>Оператор ответил на ваш вопрос:</b>\n"
+                                        f"{question_text}\n\n"
+                                        f"<b>Ответ оператора:</b>\n"
+                                        f"{is_breakes(text)}", parse_mode=types.ParseMode.HTML)
+        await callback_query.message.answer(f"Я отправил ответ:\n\n"
+                                            f"{text}\n\n"
+                                            f"Пользователю", parse_mode=types.ParseMode.HTML)
+        await callback_query.message.answer(f"Привязать вопрос {question_text} к быстрому ответу {answer_shortkey} ?",
+                                            reply_markup=operator_add_new_question_kb_gen())
+        await FSM_operator_call.add_new_auto_question.set()
+
+
+# @dp.callback_query_handler(lambda c: c.data.startswith("add_answer"),
+#                            state=FSM_operator_call.add_new_auto_question)
+async def add_new_auto_question(callback_query: types.CallbackQuery, state: FSMContext):
+    await callback_query.message.delete()
     async with state.proxy() as data:
-        chat_id = data["question_from_user"]
         question_text = data['question_text']
-        data["answer_id"] = callback_query.data.split(" ")[1]
-    answer_id = data["answer_id"]
-    text = db.find_answer_by_answer_id(answer_id).answer_text
-    await bot.send_message(chat_id=chat_id,
-                           text=f"Оператор ответил на ваш вопрос:\n"
-                                f"{question_text}\n\n"
-                                f"Ответ оператора:\n"
-                                f"{is_breakes(text)}")
-    await FSM_operator_call.add_new_auto_question.set()
-    await callback_query.message.answer("Добавить вопрос пользователя в БД ?",
-                                        reply_markup=operator_add_new_question_kb_gen())
+        answer_id = data["answer_id"]
+    if callback_query.data.split(" ")[1] == "yes":
+        add_question = db.add_question(question=question_text, answer_id=answer_id)
+        if add_question:
+            await callback_query.message.answer("Я привязал вопрос пользователя к ответу, "
+                                                "в следующий раз отвечу на него сам")
+    else:
+        await callback_query.message.answer(F"Я отправил ответ пользователю. В БД ничего не добавлял.")
+    await state.finish()
 
 
 # @dp.callback_query_handler(lambda c: c.data.startswith("add_answer"),
 # state=FSM_operator_call.add_new_auto_question)
 async def operator_adds_new_auto_question(callback_query: types.CallbackQuery, state: FSMContext):
+    await callback_query.message.delete()
     await callback_query.answer()
     async with state.proxy() as data:
         answer_id = data["answer_id"]
@@ -97,15 +145,18 @@ async def operator_adds_new_auto_question(callback_query: types.CallbackQuery, s
 
 # @dp.message_handler(state=FSM_operator_call.send_manual_answer)
 async def operator_manual_answer(message: types.Message, state: FSMContext):
+    await message.delete()
     answer = message.text
     async with state.proxy() as data:
         chat_id = data["question_from_user"]
-        question_text = data['question_text']
+        question_text = data["question_text"]
         data["manual_answer_text"] = answer
+        to_delete = data["to_delete"]
+    await bot.delete_message(message.from_id, to_delete)
     await bot.send_message(chat_id=chat_id,
-                           text=f"Оператор ответил на ваш вопрос:\n"
+                           text=f"<b>Оператор ответил на ваш вопрос:</b>\n"
                                 f"{question_text}\n\n"
-                                f"Ответ оператора:\n"
+                                f"<b>Ответ оператора:</b>\n"
                                 f"{answer}")
     await message.answer("Добавить вопрос пользователя и ваш ответ в БД ?\n"
                          "В этом случае в следующий раз я смогу ответить самостоятельно",
@@ -115,11 +166,14 @@ async def operator_manual_answer(message: types.Message, state: FSMContext):
 
 # @dp.callback_query_handler(lambda c: c.data.startswith("add_answer"), state=FSM_operator_call.add_new_manual_question)
 async def operator_adds_new_manual_question(callback_query: types.CallbackQuery, state: FSMContext):
+    await callback_query.message.delete()
+
     await callback_query.answer()
+    async with state.proxy() as data:
+        question_text = data["question_text"]
+        answer_text = data["manual_answer_text"]
     if callback_query.data.split(" ")[1] == "yes":
-        async with state.proxy() as data:
-            question_text = data["question_text"]
-            answer_text = data["manual_answer_text"]
+
         operator_id = callback_query.message.from_id
         db.add_new_question_and_answer(question_text=question_text,
                                        answer_text=answer_text,
@@ -130,7 +184,7 @@ async def operator_adds_new_manual_question(callback_query: types.CallbackQuery,
                                             f"{answer_text}\n"
                                             f"В свою БД. В следующий раз на подобный вопрос я отвечу сам")
     else:
-        await callback_query.message.answer("Ок =)")
+        await callback_query.message.answer(f"Ок. Я отправил ответ {answer_text} пользователю")
     await state.finish()
 
 
@@ -255,6 +309,8 @@ def register_handlers_operator(dp: Dispatcher):
                                        state=FSM_operator_call.send_auto_answer)
     dp.register_callback_query_handler(operator_adds_new_auto_question,
                                        lambda c: c.data.startswith("add_answer"),
+                                       state=FSM_operator_call.add_new_auto_question)
+    dp.register_callback_query_handler(add_new_auto_question, lambda c: c.data.startswith("add_answer"),
                                        state=FSM_operator_call.add_new_auto_question)
     dp.register_callback_query_handler(operator_adds_new_manual_question,
                                        lambda c: c.data.startswith("add_answer"),

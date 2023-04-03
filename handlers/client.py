@@ -206,7 +206,7 @@ async def about(message: types.Message):
     await message.answer(is_breakes(about_text), parse_mode=types.ParseMode.HTML)
 
 
-@dp.message_handler(commands='sick_leave')
+# @dp.message_handler(commands='sick_leave')
 async def sick_leave(message: types.Message):
     if db.is_user(message.from_id):
         await message.answer("Что конкретно про больничный вы хотели бы узнать?:", reply_markup=sick_leave_kb)
@@ -247,6 +247,11 @@ async def add_newbie_tg_id(message: types.Message, state: FSMContext):
                              f"Напишите корректное telegramm id или используйте /stop для выхода")
 
 
+@dp.message_handler(commands='operator')
+async def call_operator(message: types.Message):
+    await message.answer("Введите вопрос, который будет передан оператору:")
+
+
 def register_handlers_client(dp: Dispatcher):
     dp.register_message_handler(stop, commands='stop', state="*")
 
@@ -275,3 +280,4 @@ def register_handlers_client(dp: Dispatcher):
     dp.register_message_handler(business_trip, commands='bt')
     dp.register_message_handler(referal, commands='referal')
     dp.register_message_handler(tf360, commands='tf360')
+    dp.register_message_handler(sick_leave, commands='sick_leave')

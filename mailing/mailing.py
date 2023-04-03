@@ -1,9 +1,7 @@
 import smtplib
 import os
-import asyncio
 
 from email.mime.text import MIMEText
-from email.header import Header
 
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
@@ -41,7 +39,8 @@ async def send_vacation_email(from_name, from_surname, job_title, vacation_perio
         print("Message was sent")
         return True
     except Exception as _ex:
-        return f"{_ex}\nMessage wasn't sent !!!"
+        print(_ex)
+        return False
 
 
 async def send_biz_trip_email(**kwargs):
