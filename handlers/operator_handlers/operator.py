@@ -116,7 +116,7 @@ async def operator_manual_answer(message: types.Message, state: FSMContext):
 # @dp.callback_query_handler(lambda c: c.data.startswith("add_answer"), state=FSM_operator_call.add_new_manual_question)
 async def operator_adds_new_manual_question(callback_query: types.CallbackQuery, state: FSMContext):
     await callback_query.answer()
-    if callback_query.data.split(" ")[1]:
+    if callback_query.data.split(" ")[1] == "yes":
         async with state.proxy() as data:
             question_text = data["question_text"]
             answer_text = data["manual_answer_text"]

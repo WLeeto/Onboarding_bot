@@ -46,7 +46,7 @@ async def recognizing(message: types.Message):
         question_id = question.id
         question_from_user = question.from_user_id
         question_message_id = question.message_id
-        await message.reply("На такой запрос у меня нет ответа. Хочешь задам его мешку с костями ?",
+        await message.reply("На такой запрос у меня нет ответа. Передать вопрос оператору ?",
                             reply_markup=ask_operator(question_id, question_from_user, question_message_id))
 
 
