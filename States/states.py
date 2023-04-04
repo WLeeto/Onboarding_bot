@@ -31,3 +31,10 @@ class FSM_business_trip_form_sending(StatesGroup):
 
 class FSM_type_of_employment(StatesGroup):
     change_type_of_employment = State()
+
+
+class FSM_meeting(StatesGroup):
+    start = State()
+    step_2 = State()
+    step_3 = State()
+    end = State()

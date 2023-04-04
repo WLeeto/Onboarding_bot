@@ -21,7 +21,7 @@ from keyboards.inline_type_of_employement import type_of_employement_kb
 
 from handlers.other import FSM_newbie_questioning, FSMContext
 
-from States.states import FSM_type_of_employment
+from States.states import FSM_type_of_employment, FSM_meeting
 
 
 # @dp.callback_query_handler(lambda c: c.data.startswith("type_of_emp"),
@@ -249,7 +249,15 @@ async def add_newbie_tg_id(message: types.Message, state: FSMContext):
 
 @dp.message_handler(commands='operator')
 async def call_operator(message: types.Message):
-    await message.answer("Введите вопрос, который будет передан оператору:")
+    await message.answer("Тут должна быть логика для связи с оператором, но она еще не готова. Приходите позже")
+
+
+# @dp.message_handler(commands='meeting')
+async def meeting(message: types.Message):
+    await message.answer("Давай соберем людей на созвон !\n"
+                         "Напишите описание встречи и ссылку (если требуется)\n\n"
+                         "Чтобы отменить создание встречи используйте /stop", parse_mode=types.ParseMode.HTML)
+    await FSM_meeting.start.set()
 
 
 def register_handlers_client(dp: Dispatcher):
@@ -262,6 +270,7 @@ def register_handlers_client(dp: Dispatcher):
                                        lambda c: c.data.startswith("type_of_emp"),
                                        state=FSM_type_of_employment.change_type_of_employment
                                        )
+    dp.register_message_handler(meeting, commands='meeting')
     dp.register_message_handler(projects, commands='projects')
     dp.register_message_handler(about, commands='about')
     dp.register_message_handler(test, commands='test')

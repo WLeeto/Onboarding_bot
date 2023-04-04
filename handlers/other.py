@@ -11,6 +11,7 @@ from create_bot import dp, bot, db
 from dicts.messages import start_survey_dict, message_dict, operator_list, commands_dict
 from func.all_func import delete_message, recognize_question, start_survey_answers, is_breakes, \
     is_reply_keyboard, search_message, validate_bday, validate_phone, validate_email
+from handlers.meeting_handlers import meeting
 from handlers.vacation_handlers import vacation
 from handlers.projects_handlers import projects
 from handlers.operator_handlers import operator
@@ -647,6 +648,7 @@ async def hr_contacts(callback_query: types.CallbackQuery):
 
 
 def register_handlers_other(dp: Dispatcher):
+    meeting.register_handlers_meeting(dp)
     sick_leave.register_handlers_sick_leave(dp)
     vacation.register_handlers_vacation(dp)
     projects.register_handlers_projects(dp)

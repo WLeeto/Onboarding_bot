@@ -1,4 +1,3 @@
-import asyncio
 from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
@@ -8,7 +7,7 @@ from create_bot import dp, bot, db
 from States.states import FSM_newbie_questioning
 
 from dicts.messages import operator_list
-from func.all_func import is_breakes, delete_message, is_reply_keyboard
+from func.all_func import is_breakes, is_reply_keyboard
 from keyboards.all_keyboards import all_keyboards
 from keyboards.inline_operator import operator_choice_kb_gen, operator_start_answering, auto_answers_kb_gen, \
     operator_add_new_question_kb_gen
@@ -28,15 +27,15 @@ class FSM_operator_call(StatesGroup):
 
 
 # @dp.callback_query_handler(lambda c: c.data.startswith("call_operator"))
-async def call_operator(callback_querry: types.CallbackQuery, state: FSMContext):
+async def call_operator(callback_query: types.CallbackQuery):
     await bot.edit_message_text(text="Вопрос отправлен оператору",
-                                chat_id=callback_querry.from_user.id,
-                                message_id=callback_querry.message.message_id)
+                                chat_id=callback_query.from_user.id,
+                                message_id=callback_query.message.message_id)
 
-    question_text = db.find_operator_question_by_id(callback_querry.data.split(" ")[1])
-    question_id = callback_querry.data.split(" ")[1]
-    question_from_user = callback_querry.data.split(" ")[2]
-    await callback_querry.answer()
+    question_text = db.find_operator_question_by_id(callback_query.data.split(" ")[1])
+    question_id = callback_query.data.split(" ")[1]
+    question_from_user = callback_query.data.split(" ")[2]
+    await callback_query.answer()
     await bot.send_message(chat_id=operator_list[0],
                            text=f"Вам новый вопрос от пользователя: {question_text},\n"
                                 f"Ответишь на него ?",
