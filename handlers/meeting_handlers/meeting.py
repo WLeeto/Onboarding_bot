@@ -15,7 +15,7 @@ from datetime import datetime
 from datetime import timedelta
 
 
-@dp.message_handler(state=FSM_meeting.start)
+# @dp.message_handler(state=FSM_meeting.start)
 async def save_header(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data["header"] = message.text
@@ -23,7 +23,7 @@ async def save_header(message: types.Message, state: FSMContext):
     await FSM_meeting.step_2.set()
 
 
-@dp.message_handler(state=FSM_meeting.step_2)
+# @dp.message_handler(state=FSM_meeting.step_2)
 async def save_contacts(message: types.Message, state: FSMContext):
     pattern = r"@(\w*)"
     recipient_list = re.findall(pattern, message.text)
@@ -38,7 +38,7 @@ async def save_contacts(message: types.Message, state: FSMContext):
                              "Или используйте /stop для выхода")
 
 
-@dp.message_handler(state=FSM_meeting.step_3)
+# @dp.message_handler(state=FSM_meeting.step_3)
 async def save_date_time(message: types.Message, state: FSMContext):
     pattern = r"((\d\d).(\d\d).(\d\d\d\d))[\s\S]*((\d\d).(\d\d))"
     try:
@@ -62,7 +62,7 @@ async def save_date_time(message: types.Message, state: FSMContext):
                              "Или используй /stop чтобы прекратить заполнение")
 
 
-@dp.callback_query_handler(lambda c: c.data.startswith("meeting"), state=FSM_meeting.end)
+# @dp.callback_query_handler(lambda c: c.data.startswith("meeting"), state=FSM_meeting.end)
 async def send_invites(callback_query: types.CallbackQuery, scheduler: AsyncIOScheduler, state=FSMContext, ):
     await callback_query.answer()
     if callback_query.data.split(" ")[1] == "yes":
@@ -99,4 +99,7 @@ async def send_invites(callback_query: types.CallbackQuery, scheduler: AsyncIOSc
 
 
 def register_handlers_meeting(dp: Dispatcher):
-    pass
+    dp.register_message_handler(save_header, state=FSM_meeting.start)
+    dp.register_message_handler(save_contacts, state=FSM_meeting.step_2)
+    dp.register_message_handler(save_date_time, state=FSM_meeting.step_3)
+    dp.register_callback_query_handler(send_invites, lambda c: c.data.startswith("meeting"), state=FSM_meeting.end)

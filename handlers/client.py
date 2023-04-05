@@ -137,7 +137,7 @@ async def benefits(message: types.Message):
     if check_keyboards:
         keyboard = all_keyboards[check_keyboards[-1]]
         await message.answer(is_breakes(check_keyboards[0]), parse_mode=types.ParseMode.HTML,
-                         reply_markup=keyboard)
+                             reply_markup=keyboard)
     else:
         await message.answer(is_breakes(text), parse_mode=types.ParseMode.HTML,
                              reply_markup=get_teamforce_presentation_keyboard)
