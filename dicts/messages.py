@@ -26,7 +26,7 @@ for_newbie_message = ""
 
 we_are_closer_now = "Кажется мы стали чуточку ближе"
 
-not_in_db = "Я не смог найти вас в БД. Вы у нас работаете ?"
+not_in_db = "Я не смог найти вас в БД. Передайте свой tg_id администратору, он вас добавит ^_^"
 
 message_dict = {
     "greetings": greeting_message,

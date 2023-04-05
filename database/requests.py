@@ -221,6 +221,10 @@ class database:
             })
         return result
 
+    def find_user_by_telegram_nickname(self, telegram_nickname: str) -> object or None:
+        result = self.session.query(Users).filter(Users.tg_name == telegram_nickname).first()
+        return result if result else None
+
     def partial_search_by_telegram_ninckname(self, telegram_ninckname: str) -> list:
         """
         Поиск сотрудника по частичному совпадению telegram_ninckname

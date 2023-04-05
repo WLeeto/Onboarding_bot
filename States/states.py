@@ -38,3 +38,7 @@ class FSM_meeting(StatesGroup):
     step_2 = State()
     step_3 = State()
     end = State()
+
+
+class FSM_scheldule_test(StatesGroup):
+    start = State()

@@ -1,4 +1,5 @@
 import asyncio
+from datetime import datetime, timedelta
 
 from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
@@ -6,9 +7,11 @@ from aiogram.dispatcher.filters.state import StatesGroup, State
 
 from create_bot import dp, bot, db
 
-from func.all_func import delete_message, is_breakes
+from func.all_func import delete_message, is_breakes, is_reply_keyboard
 
 from dicts.messages import message_dict, commands_dict, operator_list
+from func.scheldule import send_schelduled_message
+from keyboards.all_keyboards import all_keyboards
 from keyboards.inline_finance import finance_staff_choose_kb
 from keyboards.inline_find import search_way
 from keyboards.inline_initiate_vacation import vacation_keyboard
@@ -21,7 +24,11 @@ from keyboards.inline_type_of_employement import type_of_employement_kb
 
 from handlers.other import FSM_newbie_questioning, FSMContext
 
-from States.states import FSM_type_of_employment, FSM_meeting
+from States.states import FSM_type_of_employment, FSM_meeting, FSM_scheldule_test
+
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+
+import re
 
 
 # @dp.callback_query_handler(lambda c: c.data.startswith("type_of_emp"),
@@ -125,8 +132,15 @@ async def contacts(message: types.Message):
 # @dp.message_handler(commands='benefits')
 async def benefits(message: types.Message):
     text = db.find_answer_by_answer_id(17).answer_text
-    await message.answer(is_breakes(text), parse_mode=types.ParseMode.HTML,
-                         reply_markup=get_teamforce_presentation_keyboard)
+
+    check_keyboards = is_reply_keyboard(text)
+    if check_keyboards:
+        keyboard = all_keyboards[check_keyboards[-1]]
+        await message.answer(is_breakes(check_keyboards[0]), parse_mode=types.ParseMode.HTML,
+                         reply_markup=keyboard)
+    else:
+        await message.answer(is_breakes(text), parse_mode=types.ParseMode.HTML,
+                             reply_markup=get_teamforce_presentation_keyboard)
 
 
 # @dp.message_handler(commands='support')
@@ -258,6 +272,42 @@ async def meeting(message: types.Message):
                          "Напишите описание встречи и ссылку (если требуется)\n\n"
                          "Чтобы отменить создание встречи используйте /stop", parse_mode=types.ParseMode.HTML)
     await FSM_meeting.start.set()
+
+
+# async def pprint(message: types.Message):
+#     await message.answer("Отправвлено")
+#
+#
+# @dp.message_handler(commands='schtest')
+# async def schtest(message: types.Message, scheduler: AsyncIOScheduler):
+#     await message.answer("Введи дату и время в формате дд.мм.гггг чч:мм")
+#     await FSM_scheldule_test.start.set()
+#     # scheduler.add_job(pprint, 'interval', seconds=3, args=(message,))
+#
+#
+# @dp.message_handler(state=FSM_scheldule_test)
+# async def save_date(message: types.Message, scheduler: AsyncIOScheduler, state: FSMContext):
+#     pattern = r"((\d\d).(\d\d).(\d\d\d\d))[\s\S]*((\d\d).(\d\d))"
+#     try:
+#         year = re.match(pattern, message.text).group(4)
+#         month = re.match(pattern, message.text).group(3)
+#         day = re.match(pattern, message.text).group(2)
+#         hour = re.match(pattern, message.text).group(6)
+#         minute = re.match(pattern, message.text).group(7)
+#         await message.answer(f"Год: {year}\n"
+#                              f"Месяц: {month}\n"
+#                              f"День: {day}\n"
+#                              f"Часов: {hour}\n"
+#                              f"Минут: {minute}")
+#         insert_date = datetime(int(year), int(month), int(day), int(hour), int(minute)) + timedelta(hours=-3, seconds=3)
+#         print(insert_date)
+#         asyncio.create_task(send_schelduled_message(scheduler=scheduler,
+#                                                     run_date=insert_date,
+#                                                     text="Тест отправки расписания",
+#                                                     chat_id=message.from_id))
+#         await state.finish()
+#     except AttributeError:
+#         await message.answer("Не могу обработать дату, убедитесь что дата введена по шаблону: дд.мм.гггг чч:мм")
 
 
 def register_handlers_client(dp: Dispatcher):
