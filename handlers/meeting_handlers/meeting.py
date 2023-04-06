@@ -98,7 +98,7 @@ async def send_invites(callback_query: types.CallbackQuery, scheduler: AsyncIOSc
                                                 f"{', '.join(found_users)}")
         if not_found_users:
             await callback_query.message.answer("Вот этих пользователей я не смог найти в БД: "
-                                                f"{', '.join(found_users)}")
+                                                f"{', '.join(not_found_users)}")
         await state.finish()
     else:
         await callback_query.message.answer("Давай начнем все с начала\n"
