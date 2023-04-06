@@ -18,5 +18,5 @@ async def send_schelduled_message(scheduler: AsyncIOScheduler, **kwargs):
     """
     scheduler.add_job(_send_message, trigger="date",
                       run_date=kwargs["run_date"],
-                      args=(kwargs["chat_id"], kwargs["text"] + " " + kwargs["run_date"].str))
+                      args=(kwargs["chat_id"], kwargs["text"] + " " + kwargs["run_date"].strftime("%d.%m.%Y %H:%M")))
     print(f"Добавлена новая отсроченная отправка на {kwargs['run_date']} для {kwargs['chat_id']}")
