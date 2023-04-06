@@ -254,6 +254,15 @@ class database:
             })
         return result
 
+    def find_email_by_user_id(self, id: int) -> str or None:
+        """
+        Находит email пользователя по его id
+        """
+        result = self.session.query(Contacts)\
+            .filter(Contacts.profile_id == id)\
+            .filter(Contacts.contact_type == "@").first()
+        return result.contact if result else None
+
     def partial_search_by_email(self, email: str) -> list:
         result = []
         search = [i for i in self.session.query(Contacts).filter(Contacts.contact_type == "@"). \

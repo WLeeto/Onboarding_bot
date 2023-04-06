@@ -14,6 +14,8 @@ import re
 from datetime import datetime
 from datetime import timedelta
 
+from mailing.mailing import send_meeting_email
+
 
 # @dp.message_handler(state=FSM_meeting.start)
 async def save_header(message: types.Message, state: FSMContext):
@@ -70,6 +72,9 @@ async def send_invites(callback_query: types.CallbackQuery, scheduler: AsyncIOSc
             datetime = data["datetime"]
             recipient_list = data["recipient_list"]
             header = data["header"]
+        from_user = db.find_by_tg_id(tg_id=callback_query.from_user.id)
+        full_sender_name = f"{from_user.surname} {from_user.first_name}"
+        datetime_to_send = datetime.strftime("%d.%m.%Y %H:%M")
         found_users = []
         not_found_users = []
         for recipient in recipient_list:
@@ -80,6 +85,11 @@ async def send_invites(callback_query: types.CallbackQuery, scheduler: AsyncIOSc
                                                             text=f"Напоминаю о собрании:\n"
                                                                  f"{header}",
                                                             chat_id=user.tg_id))
+                recipient_email = db.find_email_by_user_id(user.id)
+                asyncio.create_task(send_meeting_email(from_name=full_sender_name,
+                                                       title=header,
+                                                       date=datetime_to_send,
+                                                       recipient=recipient_email))
                 found_users.append(recipient)
             else:
                 not_found_users.append(f"@{user}")

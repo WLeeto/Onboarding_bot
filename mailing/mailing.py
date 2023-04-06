@@ -96,3 +96,34 @@ async def send_biz_trip_email(**kwargs):
     except Exception as _ex:
         print(_ex)
         return False
+
+
+async def send_meeting_email(**kwargs):
+    sender = os.environ.get("SENDER_EMAIL")
+    password = os.environ.get("SENDER_PASSWORD")
+    recipient = kwargs.get("recipient")
+
+    server = smtplib.SMTP("smtp.gmail.com", 587)
+    server.starttls()
+
+    text = f"Добрый день!\n" \
+           f"{kwargs.get('from_name')} приглашает вас принять участие во встрече:\n" \
+           f"{kwargs.get('title')}\n" \
+           f"Дата встречи:\n" \
+           f"{kwargs.get('date')}\n\n" \
+           f"Также уведомление придет вам в телеграм за 5 минут до начала"
+    subject = f"Приглашение на встречу: {kwargs.get('title')}"
+
+    msg = MIMEMultipart()
+    msg['Subject'] = subject
+    part = MIMEText(text)
+    msg.attach(part)
+
+    try:
+        server.login(sender, password)
+        server.sendmail(sender, recipient, msg.as_string())
+        print("Message was sent")
+        return True
+    except Exception as _ex:
+        print(_ex)
+        return False

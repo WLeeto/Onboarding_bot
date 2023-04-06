@@ -168,7 +168,6 @@ async def search_by_name_step2(message: types.Message, state: FSMContext):
             text += search_message(i["id"], i["first_name"], i["surname"], i["job_title"])
         await bot.edit_message_text(text=f"<u>Вот кого удалось найти:</u>\n\n{text}\n", chat_id=message.from_id,
                                     message_id=last_answer, parse_mode="html")
-        await state.finish()
     else:
         await bot.edit_message_text(f"Я не нашел никого с именем {message.text} T_T", chat_id=message.from_id,
                                     message_id=last_answer, parse_mode=types.ParseMode.HTML)
@@ -179,7 +178,7 @@ async def search_by_name_step2(message: types.Message, state: FSMContext):
                 text += search_message(i["id"], i["first_name"], i["surname"], i["job_title"])
             await message.answer(text=f"<u>Вот кто частично подходит под твой запрос:</u>\n\n{text}\n",
                                  parse_mode=types.ParseMode.HTML)
-            await state.finish()
+    await state.finish()
 
 
 # @dp.message_handler(content_types='text', state=FSM_search.enter_surname)
