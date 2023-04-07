@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
+from aiogram.utils.exceptions import WrongFileIdentifier
 
 from create_bot import dp, bot, db
 
@@ -88,8 +89,12 @@ async def start(message: types.Message, state=FSMContext):
     keyboard = Survey_inlines_keyboards()
     me = await bot.get_me()
     if db.is_tg_id_in_base(message.from_id):
-        await message.answer(f"{message_dict['greetings']}")
-        await message.answer_video(message_dict["greeting_video_id"])
+        await message.answer(message_dict['greetings'], parse_mode=types.ParseMode.HTML)
+        try:
+            await message.answer_video(message_dict["greeting_video_id"])
+        except WrongFileIdentifier as ex:
+            print(f"Не удалось загрузить видео:\n"
+                  f"{ex}")
         await asyncio.sleep(3)
         await message.answer(message_dict['for_olds_message'], reply_markup=keyboard.start_survey())
     elif db.is_tg_id_in_newbie_base(message.from_id):
@@ -98,7 +103,7 @@ async def start(message: types.Message, state=FSMContext):
         await message.answer(message_dict["newbie_greeting"].format(bot_name=f"@{me.username}"),
                              reply_markup=keyboard.ok_keyboard())
     else:
-        await message.answer(message_dict["not_in_db"])
+        await message.answer(message_dict["start_not_in_db"])
 
 
 # @dp.message_handler(commands='stop', state=FSM_start_survey.all_states)
@@ -118,7 +123,7 @@ async def help(message: types.Message):
 # @dp.message_handler(commands='find')
 async def start_searching(message: types.Message):
     if db.is_user(message.from_user.id):
-        await message.answer("Вот клавиатура для поиска:", reply_markup=search_way)
+        await message.answer("Клавиатура для поиска:", reply_markup=search_way)
         await message.delete()
     else:
         await message.answer(message_dict["not_in_db"])

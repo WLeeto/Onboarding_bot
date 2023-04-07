@@ -86,10 +86,10 @@ async def send_invites(callback_query: types.CallbackQuery, scheduler: AsyncIOSc
                                                                  f"{header}",
                                                             chat_id=user.tg_id))
                 recipient_email = db.find_email_by_user_id(user.id)
-                asyncio.create_task(send_meeting_email(from_name=full_sender_name,
-                                                       title=header,
-                                                       date=datetime_to_send,
-                                                       recipient=recipient_email))
+                asyncio.run(send_meeting_email(from_name=full_sender_name,
+                                               title=header,
+                                               date=datetime_to_send,
+                                               recipient=recipient_email))
                 found_users.append(recipient)
             else:
                 not_found_users.append(f"@{user}")

@@ -5,12 +5,12 @@ from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
-from aiogram.utils.exceptions import CantInitiateConversation
+from aiogram.utils.exceptions import CantInitiateConversation, WrongFileIdentifier
 
 from create_bot import dp, bot, db
 from dicts.messages import start_survey_dict, message_dict, operator_list, commands_dict
 from func.all_func import delete_message, recognize_question, start_survey_answers, is_breakes, \
-    is_reply_keyboard, search_message, validate_bday, validate_phone, validate_email
+    is_reply_keyboard, search_message, validate_bday, validate_phone, validate_email, is_latin
 from handlers.meeting_handlers import meeting
 from handlers.vacation_handlers import vacation
 from handlers.projects_handlers import projects
@@ -89,6 +89,8 @@ async def get_contacts(callback_query: types.CallbackQuery):
 
 
 # Состояния для поиска сотрудника --------------------------------------------------------------------------------------
+# todo Декомпозировать логику поиска в отдельный пакет
+# todo Вынести класс состояний поиска в States
 class FSM_search(StatesGroup):
     enter_name = State()
     enter_surname = State()
@@ -166,7 +168,7 @@ async def search_by_name_step2(message: types.Message, state: FSMContext):
         text = ''
         for i in result:
             text += search_message(i["id"], i["first_name"], i["surname"], i["job_title"])
-        await bot.edit_message_text(text=f"<u>Вот кого удалось найти:</u>\n\n{text}\n", chat_id=message.from_id,
+        await bot.edit_message_text(text=f"<u>Вот, кого удалось найти:</u>\n\n{text}\n", chat_id=message.from_id,
                                     message_id=last_answer, parse_mode="html")
     else:
         await bot.edit_message_text(f"Я не нашел никого с именем {message.text} T_T", chat_id=message.from_id,
@@ -176,7 +178,7 @@ async def search_by_name_step2(message: types.Message, state: FSMContext):
             text = ''
             for i in partial_search_result:
                 text += search_message(i["id"], i["first_name"], i["surname"], i["job_title"])
-            await message.answer(text=f"<u>Вот кто частично подходит под твой запрос:</u>\n\n{text}\n",
+            await message.answer(text=f"<u>Вот, кто частично подходит под твой запрос:</u>\n\n{text}\n",
                                  parse_mode=types.ParseMode.HTML)
     await state.finish()
 
@@ -191,7 +193,7 @@ async def search_by_surname_step2(message: types.Message, state: FSMContext):
         text = ''
         for i in result:
             text += search_message(i["id"], i["first_name"], i["surname"], i["job_title"])
-        await bot.edit_message_text(text=f"<u>Вот кого удалось найти:</u>\n\n{text}\n", chat_id=message.from_id,
+        await bot.edit_message_text(text=f"<u>Вот, кого удалось найти:</u>\n\n{text}\n", chat_id=message.from_id,
                                     message_id=last_answer, parse_mode=types.ParseMode.HTML)
         await state.finish()
     else:
@@ -202,7 +204,7 @@ async def search_by_surname_step2(message: types.Message, state: FSMContext):
             text = ''
             for i in partial_search_result:
                 text += search_message(i["id"], i["first_name"], i["surname"], i["job_title"])
-            await message.answer(text=f"<u>Вот кто частично подходит под твой запрос:</u>\n\n{text}\n",
+            await message.answer(text=f"<u>Вот, кто частично подходит под твой запрос:</u>\n\n{text}\n",
                                  parse_mode=types.ParseMode.HTML)
         await state.finish()
 
@@ -217,7 +219,7 @@ async def search_by_patronymic_step2(message: types.Message, state: FSMContext):
         text = ''
         for i in result:
             text += search_message(i["id"], i["first_name"], i["surname"], i["job_title"])
-        await bot.edit_message_text(text=f"<u>Вот кого удалось найти:</u>\n\n{text}\n", chat_id=message.from_id,
+        await bot.edit_message_text(text=f"<u>Вот, кого удалось найти:</u>\n\n{text}\n", chat_id=message.from_id,
                                     message_id=last_answer, parse_mode=types.ParseMode.HTML)
         await state.finish()
     else:
@@ -228,7 +230,7 @@ async def search_by_patronymic_step2(message: types.Message, state: FSMContext):
             text = ''
             for i in partial_search_result:
                 text += search_message(i["id"], i["first_name"], i["surname"], i["job_title"])
-            await message.answer(text=f"<u>Вот кто частично подходит под твой запрос:</u>\n\n{text}\n",
+            await message.answer(text=f"<u>Вот, кто частично подходит под твой запрос:</u>\n\n{text}\n",
                                  parse_mode=types.ParseMode.HTML)
         await state.finish()
 
@@ -243,7 +245,7 @@ async def search_by_title_step2(message: types.Message, state: FSMContext):
         text = ''
         for i in result:
             text += search_message(i["id"], i["first_name"], i["surname"], i["job_title"])
-        await bot.edit_message_text(text=f"<u>Вот кого удалось найти:</u>\n\n{text}\n", chat_id=message.from_id,
+        await bot.edit_message_text(text=f"<u>Вот, кого удалось найти:</u>\n\n{text}\n", chat_id=message.from_id,
                                     message_id=last_answer, parse_mode=types.ParseMode.HTML)
         await state.finish()
     else:
@@ -254,7 +256,7 @@ async def search_by_title_step2(message: types.Message, state: FSMContext):
             text = ''
             for i in partial_search_result:
                 text += search_message(i["id"], i["first_name"], i["surname"], i["job_title"])
-            await message.answer(text=f"<u>Вот кто частично подходит под твой запрос:</u>\n\n{text}\n",
+            await message.answer(text=f"<u>Вот, кто частично подходит под твой запрос:</u>\n\n{text}\n",
                                  parse_mode=types.ParseMode.HTML)
         await state.finish()
 
@@ -269,7 +271,7 @@ async def search_by_tg_nickname_step2(message: types.Message, state: FSMContext)
         text = ''
         for i in result:
             text += search_message(i["id"], i["first_name"], i["surname"], i["job_title"])
-        await bot.edit_message_text(text=f"<u>Вот кого удалось найти:</u>\n\n{text}\n",
+        await bot.edit_message_text(text=f"<u>Вот, кого удалось найти:</u>\n\n{text}\n",
                                     chat_id=message.from_id, message_id=last_answer, parse_mode=types.ParseMode.HTML)
         await state.finish()
     else:
@@ -280,7 +282,7 @@ async def search_by_tg_nickname_step2(message: types.Message, state: FSMContext)
             text = ''
             for i in partial_search_result:
                 text += search_message(i["id"], i["first_name"], i["surname"], i["job_title"])
-            await message.answer(text=f"<u>Вот кто частично подходит под твой запрос:</u>\n\n{text}\n",
+            await message.answer(text=f"<u>Вот, кто частично подходит под твой запрос:</u>\n\n{text}\n",
                                  parse_mode=types.ParseMode.HTML)
         await state.finish()
 
@@ -295,7 +297,7 @@ async def search_by_email_step2(message: types.Message, state: FSMContext):
         text = ''
         for i in result:
             text += search_message(i["id"], i["first_name"], i["surname"], i["job_title"])
-        await bot.edit_message_text(text=f"<u>Вот кого удалось найти:</u>\n\n{text}\n",
+        await bot.edit_message_text(text=f"<u>Вот, кого удалось найти:</u>\n\n{text}\n",
                                     chat_id=message.from_id, message_id=last_answer, parse_mode=types.ParseMode.HTML)
         await state.finish()
     else:
@@ -306,7 +308,7 @@ async def search_by_email_step2(message: types.Message, state: FSMContext):
             text = ''
             for i in partial_search_result:
                 text += search_message(i["id"], i["first_name"], i["surname"], i["job_title"])
-            await message.answer(text=f"<u>Вот кто частично подходит под твой запрос:</u>\n\n{text}\n",
+            await message.answer(text=f"<u>Вот, кто частично подходит под твой запрос:</u>\n\n{text}\n",
                                  parse_mode=types.ParseMode.HTML)
         await state.finish()
 
@@ -323,7 +325,7 @@ async def search_by_department_step2(message: types.Message, state: FSMContext):
             text += f"{i['name']}:\n" \
                     f"Сотрудники:\n" \
                     f"{', '.join(i['employers'])}"
-        await bot.edit_message_text(text=f"<u>Вот что удалось найти:</u>\n\n{text}\n",
+        await bot.edit_message_text(text=f"<u>Вот, что удалось найти:</u>\n\n{text}\n",
                                     chat_id=message.from_id, message_id=last_answer, parse_mode=types.ParseMode.HTML)
         await state.finish()
     else:
@@ -337,7 +339,7 @@ async def search_by_department_step2(message: types.Message, state: FSMContext):
                 text += f"<b>{i['name']}:</b>\n" \
                         f"<b>Сотрудники:</b>\n" \
                         f"{employers}"
-            await message.answer(text=f"<u>Вот кто частично подходит под твой запрос:</u>\n\n{text}\n",
+            await message.answer(text=f"<u>Вот, кто частично подходит под твой запрос:</u>\n\n{text}\n",
                                  parse_mode=types.ParseMode.HTML)
         await state.finish()
 
@@ -348,6 +350,8 @@ async def got_video(message: types.Message):
 
 
 # Состояния для опросника при старте работы ----------------------------------------------------------------------------
+# todo декомпозировать опросник в отдельный пакет
+# todo вынести класс состояний опросника в States
 class FSM_start_survey(StatesGroup):
     first_question = State()
     second_question = State()
@@ -434,6 +438,7 @@ async def answers(callback_query: types.CallbackQuery, state: FSMContext):
 
 
 # Состояния для заполнения анкеты новичком -----------------------------------------------------------------------------
+# todo декомпозировать состояние для опроса новичка в отдельный пакет
 # @dp.callback_query_handler(lambda c: c.data == "start",
 #                            state=FSM_newbie_questioning.newbie_questioning_start)
 async def questioning_start(callback_query: types.CallbackQuery, state: FSMContext):
@@ -450,22 +455,28 @@ async def load_surname(message: types.Message, state: FSMContext):
         name = message.text.split(" ")[1]
         surname = message.text.split(" ")[0]
         patronymic = message.text.split(" ")[2]
-        await FSM_newbie_questioning.next()
-        keyboard = Survey_inlines_keyboards()
-        msg_todel = await message.answer("Я правильно написал твою фамилию на английском ?:\n "
-                                         f"<b>{translit(surname, language_code='ru', reversed=True)}</b>\n"
-                                         "Эта формулировка будет использована в создании почты", parse_mode="html",
-                                         reply_markup=keyboard.is_ok())
-        async with state.proxy() as data:
-            data["name"] = name
-            data["patronymic"] = patronymic
-            data["surname"] = surname
-            data["tg_id"] = message.from_id
-            data["tg_name"] = message.from_user.username
-            data["to_delete"].append(msg_todel.message_id)
-            data["to_delete"].append(message.message_id)
+        if is_latin(message.text):
+            await FSM_newbie_questioning.next()
+            keyboard = Survey_inlines_keyboards()
+            msg_todel = await message.answer("Я правильно написал твою фамилию на английском?:\n"
+                                             f"<b>{translit(surname, language_code='ru', reversed=True)}</b>\n"
+                                             "Эта формулировка будет использована в создании почты", parse_mode="html",
+                                             reply_markup=keyboard.is_ok())
+            async with state.proxy() as data:
+                data["name"] = name
+                data["patronymic"] = patronymic
+                data["surname"] = surname
+                data["tg_id"] = message.from_id
+                data["tg_name"] = message.from_user.username
+                data["to_delete"].append(msg_todel.message_id)
+                data["to_delete"].append(message.message_id)
+        else:
+            msg_todel = await message.answer("Пожалуйста, введи свое ФИО на кириллице")
+            async with state.proxy() as data:
+                data["to_delete"].append(msg_todel.message_id)
+                data["to_delete"].append(message.message_id)
     except IndexError:
-        msg_todel = await message.answer("Необходимо ввести фамилию имя и отчество, три слова через пробел.\n"
+        msg_todel = await message.answer("Необходимо ввести фамилию, имя и отчество, три слова через пробел.\n"
                                          "Введи свое ФИО (Например: Пупкин Иван Александрович):")
         async with state.proxy() as data:
             data["to_delete"].append(msg_todel.message_id)
@@ -511,7 +522,8 @@ async def load_bdate(message: types.Message, state: FSMContext):
             data["to_delete"].append(message.message_id)
     else:
         msg_todel = await message.answer("Необходимо ввести дату в формате dd.mm.yyyy\n"
-                                         "(Например 28.07.1989):")
+                                         "(Например 28.07.1989)\n"
+                                         "Дата должна быть минимум на 15 лет младше текущей")
         async with state.proxy() as data:
             data["to_delete"].append(msg_todel.message_id)
             data["to_delete"].append(message.message_id)
@@ -540,7 +552,9 @@ async def load_email(message: types.Message, state: FSMContext):
     validator = validate_email(message.text)
     if validator:
         await FSM_newbie_questioning.next()
-        msg_todel = await message.answer("Загрузи свое фото (просто перетащи фото сюда): ")
+        msg_todel = await message.answer("Загрузи свое фото через скрепку 📎. "
+                                         "Фотография будет использоваться в твоей карточке и опубликована в общем чате."
+                                         " Будет отлично, если она будет в деловом стиле.")
         async with state.proxy() as data:
             data["email"] = message.text
             data["to_delete"].append(msg_todel.message_id)
@@ -556,9 +570,22 @@ async def load_email(message: types.Message, state: FSMContext):
 # @dp.message_handler(content_types="photo", state=FSM_newbie_questioning.asking_photo)
 async def load_photo(message: types.Message, state: FSMContext):
     await FSM_newbie_questioning.next()
-    msg_todel = await message.answer("Расскажи о своих хобби увлечениях: ")
+    msg_todel = await message.answer("Расскажи о своих хобби и увлечениях. "
+                                     "Чем любишь заниматься в свободное время? Что тебя вдохновляет и дает энергию?\n"
+                                     "Пиши о себе все, чем ты хочешь поделиться с коллегами! "
+                                     "Так будет быстрее найти единомышленников и друзей😊")
     async with state.proxy() as data:
         data["photo"] = message.photo[0].file_id
+        data["to_delete"].append(msg_todel.message_id)
+        data["to_delete"].append(message.message_id)
+
+
+# @dp.message_handler(state=FSM_newbie_questioning.asking_photo)
+async def waiting_for_photo(message: types.Message, state: FSMContext):
+    msg_todel = await message.answer("Загрузи свое фото через скрепку 📎. "
+                                     "Фотография будет использоваться в твоей карточке и опубликована в общем чате."
+                                     " Будет отлично, если она будет в деловом стиле.")
+    async with state.proxy() as data:
         data["to_delete"].append(msg_todel.message_id)
         data["to_delete"].append(message.message_id)
 
@@ -572,13 +599,13 @@ async def load_hobby(message: types.Message, state: FSMContext):
     await bot.delete_message(message.from_id, message.message_id)
     for i in data["to_delete"]:
         await bot.delete_message(message.from_id, i)
-    await message.answer_photo(data["photo"], 'Проверим что получилось:\n\n'
+    await message.answer_photo(data["photo"], 'Проверим, что получилось:\n\n'
                                               f'{data["surname"]} {data["name"]} {data["patronymic"]}\n'
-                                              f'Дата рождения: {data["bdate"]}\n'
+                                              f'Дата рождения: {data["bdate"].strftime("%d.%m.%Y")}\n'
                                               f'Телефон: +{data["phone"]}\n'
                                               f'E-mail: {data["email"]}\n'
                                               f'Хобби и увлечения: {data["hobby"]}')
-    buttons_to_remove = await message.answer("Все верно ?", reply_markup=keyboard.is_ok())
+    buttons_to_remove = await message.answer("Все верно?", reply_markup=keyboard.is_ok())
     async with state.proxy() as data:
         data["buttons_to_remove"] = buttons_to_remove.message_id
 
@@ -616,9 +643,10 @@ async def commit_data(callback_query: types.CallbackQuery, state: FSMContext):
         await bot.edit_message_text("Данные отправлены на обработку модератору",
                                     callback_query.from_user.id,
                                     data["buttons_to_remove"])
-        await bot.send_message(callback_query.from_user.id, "Cейчас потребуется 2 минуты концентрации."
-                                                            "Мы расскажем в видеоролике, кто такие ТИМ ФОРСЕРЫ и "
-                                                            "кому куда писать по каким вопросам. Начнем ?",
+        await bot.send_message(callback_query.from_user.id, "Сейчас потребуется 2 минуты концентрации😅"
+                                                            "В коротком видео мы расскажем, кто такие ТИМ ФОРСЕРЫ, "
+                                                            "а так же кому и по каким вопросам можно обращаться!\n"
+                                                            "Начнем? Приятного просмотра😊",
                                reply_markup=keyboard.ok_keyboard())
     else:
         await FSM_newbie_questioning.newbie_questioning_start.set()
@@ -632,10 +660,14 @@ async def commit_data(callback_query: types.CallbackQuery, state: FSMContext):
 async def show_video(callback_query: types.CallbackQuery, state: FSMContext):
     keyboard = Survey_inlines_keyboards()
     await state.finish()
-    await bot.send_video(callback_query.from_user.id, message_dict["greeting_video_id"])
+    try:
+        await bot.send_video(callback_query.from_user.id, message_dict["greeting_video_id"])
+    except WrongFileIdentifier as ex:
+        print(f"Не удалось загрузить видео:\n"
+              f"{ex}")
     await bot.send_message(callback_query.from_user.id,
                            "Теперь у тебя побольше представлений о работе ТИМ ФОРС?\n"
-                           "Готов пройти короткий опрос ?",
+                           "Готов пройти короткий опрос?",
                            reply_markup=keyboard.start_survey())
 
 
@@ -693,6 +725,7 @@ def register_handlers_other(dp: Dispatcher):
     dp.register_message_handler(load_phone, state=FSM_newbie_questioning.asking_phone)
     dp.register_message_handler(load_email, state=FSM_newbie_questioning.asking_email)
     dp.register_message_handler(load_photo, content_types="photo", state=FSM_newbie_questioning.asking_photo)
+    dp.register_message_handler(waiting_for_photo, state=FSM_newbie_questioning.asking_photo)
     dp.register_message_handler(load_hobby, state=FSM_newbie_questioning.asking_hobby)
     dp.register_callback_query_handler(commit_data,
                                        lambda c: c.data.startswith("answer"), state=FSM_newbie_questioning.commit_data)

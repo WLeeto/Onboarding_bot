@@ -10,7 +10,7 @@ button_1 = InlineKeyboardButton(text="Поиск по имени", callback_data
 button_2 = InlineKeyboardButton(text="Поиск по фамилии", callback_data="search by_surname")
 button_3 = InlineKeyboardButton(text="Поиск по отчеству", callback_data="search by_patronymic")
 button_4 = InlineKeyboardButton(text="Поиск по email", callback_data="search by_email")
-button_5 = InlineKeyboardButton(text="Поиск по telegram ninckname", callback_data="search telegram_ninckname")
+button_5 = InlineKeyboardButton(text="Поиск по telegram nickname", callback_data="search telegram_ninckname")
 button_6 = InlineKeyboardButton(text="Поиск по должности", callback_data="search by_title")
 button_7 = InlineKeyboardButton(text="Поиск по отделу", callback_data="search by_department")
 button_8 = InlineKeyboardButton(text="Поиск по тегу", callback_data="search by_tag")

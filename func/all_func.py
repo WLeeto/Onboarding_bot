@@ -132,7 +132,11 @@ def validate_bday(date: str) -> bool:
     if len(repl1.split(".")) == 3:
         try:
             date = datetime.strptime(repl1, "%d.%m.%Y")
-            result = date
+            date_delta = datetime.now() - date
+            if date_delta.days >= 5475:
+                result = date
+            else:
+                result = False
         except ValueError as ex:
             print(ex)
             result = False
@@ -143,8 +147,11 @@ def validate_bday(date: str) -> bool:
 
 def validate_phone(phone: str) -> bool:
     replace = phone.replace(" ", "").replace("+", "")
-    if len(replace) == 11:
-        result = replace
+    if (replace.startswith("7") or replace.startswith("8")) and phone.isdigit():
+        if len(replace) == 11:
+            result = replace
+        else:
+            result = False
     else:
         result = False
     return result
@@ -165,3 +172,11 @@ def add_recognize_log(**kwargs):
     text = kwargs.get("text")
     with open("recognize_log.txt", "a", encoding="utf-8") as log:
         log.write(text)
+
+
+def is_latin(string: str):
+    """
+    Проверяет строку на наличие чего-то кроме кирилицы.
+    """
+    lower = set('абвгдеёжзийклмнопрстуфхцчшщъыьэюя')
+    return lower.intersection(string.lower()) != set()
