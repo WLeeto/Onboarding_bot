@@ -376,7 +376,7 @@ async def first_question(callback_query: types.CallbackQuery, state: FSMContext)
                                     message_id=callback_query.message.message_id, )
         await state.finish()
         await asyncio.sleep(3)
-        await callback_query.message.answer(message_dict["help"])
+        await callback_query.message.answer(message_dict.get("help_message"))
 
 
 # @dp.callback_query_handler(
