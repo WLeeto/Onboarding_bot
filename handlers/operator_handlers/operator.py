@@ -201,6 +201,8 @@ async def catch_new_user(callback_query: types.CallbackQuery, state=FSMContext):
         data["confirming_user_surname"] = confirming_user.surname
         data["confirming_user_middle_name"] = confirming_user.middle_name
         data["confirming_user_bdate"] = confirming_user.date_of_birth
+        data["confirming_user_tg_photo"] = confirming_user.tg_photo
+        data["confirming_user_hobby"] = confirming_user.hobby
         db.clear_newbee_confirming(data["confirming_user_id"])
     await callback_query.answer()
     if callback_query.data.split(" ")[1] == "ok":
@@ -257,6 +259,8 @@ async def add_new_user_to_db(callback_query: types.CallbackQuery, state: FSMCont
         confirming_user_surname = data["confirming_user_surname"]
         confirming_user_middle_name = data["confirming_user_middle_name"]
         confirming_user_bdate = data["confirming_user_bdate"]
+        confirming_user_tg_photo = data["confirming_user_tg_photo"]
+        confirming_user_hobby = data["confirming_user_hobby"]
 
     db.add_new_user(
         tg_id=confirming_user_tg_id,
@@ -268,6 +272,8 @@ async def add_new_user_to_db(callback_query: types.CallbackQuery, state: FSMCont
         middle_name=confirming_user_middle_name,
         type_of_employment=data["type_of_employement"],
         date_of_birth=confirming_user_bdate,
+        tg_photo=confirming_user_tg_photo,
+        hobby=confirming_user_hobby,
     )
 
     new_user_id = db.find_by_tg_id(confirming_user_tg_id).id

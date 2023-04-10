@@ -1,4 +1,5 @@
 import asyncio
+import os
 from datetime import date
 
 from aiogram import types, Dispatcher
@@ -570,12 +571,15 @@ async def load_email(message: types.Message, state: FSMContext):
 # @dp.message_handler(content_types="photo", state=FSM_newbie_questioning.asking_photo)
 async def load_photo(message: types.Message, state: FSMContext):
     await FSM_newbie_questioning.next()
+    destination = os.getcwd() + "/saved_files" + str(message.from_id) + ".jpg"
+    await message.photo[-1].download(destination_file=destination)
     msg_todel = await message.answer("Расскажи о своих хобби и увлечениях. "
                                      "Чем любишь заниматься в свободное время? Что тебя вдохновляет и дает энергию?\n"
                                      "Пиши о себе все, чем ты хочешь поделиться с коллегами! "
                                      "Так будет быстрее найти единомышленников и друзей😊")
     async with state.proxy() as data:
-        data["photo"] = message.photo[0].file_id
+        data["tg_photo_path"] = destination
+        data["photo"] = message.photo[-1].file_id
         data["to_delete"].append(msg_todel.message_id)
         data["to_delete"].append(message.message_id)
 
@@ -624,6 +628,8 @@ async def commit_data(callback_query: types.CallbackQuery, state: FSMContext):
                 date_of_birth=data["bdate"],
                 phone=data["phone"],
                 email=data["email"],
+                tg_photo=data["tg_photo_path"],
+                hobby=data["hobby"]
             )
             try:
                 await bot.send_photo(operator_list[0], data["photo"],

@@ -58,8 +58,8 @@ def null_or_bool(string):
 
 
 def fill_db():
-    drop_tables()
-    create_tables()
+    # drop_tables()
+    # create_tables()
 
     with open("temp/departments.csv", encoding="utf-8") as file:
         reader = csv.reader(x.replace('\0', '') for x in file)

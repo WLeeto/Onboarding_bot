@@ -424,7 +424,7 @@ class database:
                      photo: str = None, hired_at: str = None, middle_name: str = None, nickname: str = None,
                      department_id: int = None, organization_id: int = None, user_id: int = None, fired_at: str = None,
                      date_of_birth: str = None, status: str = None, timezone: str = None,
-                     type_of_employment: str = None) -> bool:
+                     type_of_employment: str = None, tg_photo: str = None, hobby: str = None) -> bool:
 
         try:
             id = max([i.id for i in self.session.query(Users).all()]) + 1
@@ -450,7 +450,9 @@ class database:
                 date_of_birth=date_of_birth,
                 status=status,
                 timezone=timezone,
-                type_of_employment=type_of_employment
+                type_of_employment=type_of_employment,
+                tg_photo=tg_photo,
+                hobby=hobby,
             )
             self.session.add(new_user)
             self.session.commit()
@@ -603,6 +605,8 @@ class database:
             type_of_employment=kwargs.get("type_of_employment"),
             phone=kwargs.get("phone"),
             email=kwargs.get("email"),
+            tg_photo=kwargs.get("tg_photo"),
+            hobby=kwargs.get("hobby"),
         )
         self.session.add(newbee)
         self.session.commit()
@@ -622,6 +626,7 @@ class database:
         to_delete = self.session.query(New_User).filter(New_User.id == id).first()
         self.session.delete(to_delete)
         self.session.commit()
+
 
 
 

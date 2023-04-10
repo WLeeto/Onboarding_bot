@@ -61,6 +61,8 @@ class Users(Base):
     status = sq.Column(sq.Text)
     timezone = sq.Column(sq.Text)
     type_of_employment = sq.Column(sq.Text)
+    tg_photo = sq.Column(sq.Text)
+    hobby = sq.Column(sq.Text)
 
     department = relationship(Departments, backref="Departments")
 
@@ -131,3 +133,5 @@ class New_User(Base):
     type_of_employment = sq.Column(sq.Text)
     phone = sq.Column(sq.Text)
     email = sq.Column(sq.Text)
+    tg_photo = sq.Column(sq.Text)
+    hobby = sq.Column(sq.Text)

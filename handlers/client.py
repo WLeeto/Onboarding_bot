@@ -116,8 +116,7 @@ async def stop(message: types.Message, state=FSMContext):
 
 # @dp.message_handler(commands='help')
 async def help(message: types.Message):
-    text = db.find_answer_by_answer_id(31).answer_text
-    await message.answer(is_breakes(text), parse_mode=types.ParseMode.HTML)
+    await message.answer(message_dict["help_message"])
 
 
 # @dp.message_handler(commands='find')
