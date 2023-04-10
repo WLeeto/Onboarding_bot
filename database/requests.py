@@ -283,7 +283,7 @@ class database:
 
     def find_department_by_user_id(self, user_id: int):
         """
-        Находит отдел сотрудника по его id
+        Находит отдел сотрудника по его  id
         """
         result = self.session.query(Departments).join(Users.department).filter(Users.id == user_id).first()
         if result:
