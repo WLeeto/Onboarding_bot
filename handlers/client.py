@@ -103,7 +103,7 @@ async def start(message: types.Message, state=FSMContext):
         await message.answer(message_dict["newbie_greeting"].format(bot_name=f"@{me.username}"),
                              reply_markup=keyboard.ok_keyboard())
     else:
-        await message.answer(message_dict["start_not_in_db"])
+        await message.answer(message_dict["start_not_in_db"].format(tg_id=message.from_id))
 
 
 # @dp.message_handler(commands='stop', state=FSM_start_survey.all_states)
