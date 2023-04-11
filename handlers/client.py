@@ -86,8 +86,8 @@ async def start(message: types.Message, state=FSMContext):
     db.close_session()
     await state.finish()
     add_start_log(text=f"Пользователь {message.from_id} начал работу с ботом в {datetime.now()}\n")
-    if not db.find_statistics(message.from_id):
-        db.add_statistics(message.from_id)
+    # if not db.find_statistics(message.from_id):
+    #     db.add_statistics(message.from_id)
     keyboard = Survey_inlines_keyboards()
     me = await bot.get_me()
     if db.is_tg_id_in_base(message.from_id):
