@@ -7,7 +7,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from create_bot import dp, bot, db
 
 from States.states import FSM_meeting
-from func.scheldule import send_schelduled_message
+from func.scheldule import _send_message
 from keyboards.inline_meeting import meeting_kb
 
 import re
@@ -50,15 +50,21 @@ async def save_date_time(message: types.Message, state: FSMContext):
         hour = re.match(pattern, message.text).group(6)
         minute = re.match(pattern, message.text).group(7)
         inserted_date = datetime(int(year), int(month), int(day), int(hour), int(minute))
-        async with state.proxy() as data:
-            data["datetime"] = inserted_date
+        now = datetime.utcnow() + timedelta(hours=3)
+        print(now)
+        print(inserted_date)
+        if inserted_date > now + timedelta(minutes=7):
+            async with state.proxy() as data:
+                data["datetime"] = inserted_date
 
-        text = f"<b>Встреча</b>: {data['header']}\n" \
-               f"<b>Приглашенные</b>: {', '.join(data['recipient_list'])}\n" \
-               f"<b>Дата и время</b>: {day}.{month}.{year} {hour}:{minute}"
-        await message.answer(f"Отлично, давай проверим что получилось:\n\n"
-                             f"{text}", parse_mode=types.ParseMode.HTML, reply_markup=meeting_kb)
-        await FSM_meeting.end.set()
+            text = f"<b>Встреча</b>: {data['header']}\n" \
+                   f"<b>Приглашенные</b>: {', '.join(data['recipient_list'])}\n" \
+                   f"<b>Дата и время</b>: {day}.{month}.{year} {hour}:{minute}"
+            await message.answer(f"Отлично, давай проверим что получилось:\n\n"
+                                 f"{text}", parse_mode=types.ParseMode.HTML, reply_markup=meeting_kb)
+            await FSM_meeting.end.set()
+        else:
+            await message.answer("Указана дата в прошлом, либо слишком близко к текущей")
     except AttributeError:
         await message.answer("Не могу обработать дату, убедитесь что дата введена по шаблону: дд.мм.гггг чч:мм\n"
                              "Или используй /stop чтобы прекратить заполнение")
@@ -68,6 +74,7 @@ async def save_date_time(message: types.Message, state: FSMContext):
 async def send_invites(callback_query: types.CallbackQuery, scheduler: AsyncIOScheduler, state=FSMContext, ):
     await callback_query.answer()
     if callback_query.data.split(" ")[1] == "yes":
+        await callback_query.message.answer("Отправляю приглашения ...")
         async with state.proxy() as data:
             datetime = data["datetime"]
             recipient_list = data["recipient_list"]
@@ -77,19 +84,19 @@ async def send_invites(callback_query: types.CallbackQuery, scheduler: AsyncIOSc
         datetime_to_send = datetime.strftime("%d.%m.%Y %H:%M")
         found_users = []
         not_found_users = []
+        text = f"<b>Напоминание о встрече:</b>\n" \
+               f"{header}\n" \
+               f"{datetime_to_send}"
         for recipient in recipient_list:
             user = db.find_user_by_telegram_nickname(recipient)
             if user:
-                asyncio.create_task(send_schelduled_message(scheduler=scheduler,
-                                                            run_date=datetime - timedelta(minutes=5),
-                                                            text=f"Напоминаю о собрании:\n"
-                                                                 f"{header}",
-                                                            chat_id=user.tg_id))
+                scheduler.add_job(_send_message, trigger="date", run_date=datetime, args=(user.tg_id, text),
+                                  timezone='Europe/Moscow')
                 recipient_email = db.find_email_by_user_id(user.id)
-                asyncio.run(send_meeting_email(from_name=full_sender_name,
-                                               title=header,
-                                               date=datetime_to_send,
-                                               recipient=recipient_email))
+                asyncio.create_task(send_meeting_email(from_name=full_sender_name,
+                                                       title=header,
+                                                       date=datetime_to_send,
+                                                       recipient=recipient_email))
                 found_users.append(recipient)
             else:
                 not_found_users.append(f"@{user}")

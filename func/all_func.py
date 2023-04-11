@@ -28,9 +28,9 @@ async def set_default_commands(dp):
         types.BotCommand("find", "Поиск контактных данных по фио, должности"),
         types.BotCommand("referal", "Информация о реферальной программе"),
         types.BotCommand("office", "Информация про офис"),
-        types.BotCommand("tf360", "О проекте ТФ360"),
+        types.BotCommand("tf360", "О проекте ТИМФОРС360.Цифровое спасибо"),
         types.BotCommand("projects", "Краткая информация о проектах"),
-        types.BotCommand("about", "Информация о Тим Форс"),
+        types.BotCommand("about", "Информация о ТИМ ФОРС"),
         types.BotCommand("sick_leave", "Информация о больничном"),
     ])
 

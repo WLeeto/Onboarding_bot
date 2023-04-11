@@ -11,7 +11,6 @@ from create_bot import dp, bot, db
 from func.all_func import delete_message, is_breakes, is_reply_keyboard
 
 from dicts.messages import message_dict, commands_dict, operator_list
-from func.scheldule import send_schelduled_message
 from keyboards.all_keyboards import all_keyboards
 from keyboards.inline_finance import finance_staff_choose_kb
 from keyboards.inline_find import search_way
@@ -103,7 +102,8 @@ async def start(message: types.Message, state=FSMContext):
         await message.answer(message_dict["newbie_greeting"].format(bot_name=f"@{me.username}"),
                              reply_markup=keyboard.ok_keyboard())
     else:
-        await message.answer(message_dict["start_not_in_db"].format(tg_id=message.from_id))
+        await message.answer(message_dict["start_not_in_db"].format(tg_id=message.from_id),
+                             parse_mode=types.ParseMode.HTML)
 
 
 # @dp.message_handler(commands='stop', state=FSM_start_survey.all_states)
