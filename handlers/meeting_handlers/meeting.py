@@ -101,9 +101,9 @@ async def send_invites(callback_query: types.CallbackQuery, scheduler: AsyncIOSc
                                                            recipient=recipient_email))
                     found_users.append(recipient)
                 else:
-                    not_found_emails.append(f"@{user}")
+                    not_found_emails.append(recipient)
             else:
-                not_found_users.append(f"@{user}")
+                not_found_users.append(recipient)
         if found_users:
             await callback_query.message.answer("Сообщение о собрании было отправлено на почту пользователям: "
                                                 f"{', '.join(found_users)}")

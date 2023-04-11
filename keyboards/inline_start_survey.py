@@ -79,5 +79,13 @@ class Survey_inlines_keyboards:
         return first_question
 
 
+def send_memo_kb_gen(tg_id):
+    button_1 = InlineKeyboardButton(text="Отправить анкету на проверку", callback_data=f"send yes {tg_id}")
+    button_2 = InlineKeyboardButton(text="Исправить анкету", callback_data=f"send no {tg_id}")
+    send_memo_kb = InlineKeyboardMarkup(row=1).add(button_1, button_2)
+    return send_memo_kb
+
+
+
 
 

@@ -203,7 +203,6 @@ async def catch_new_user(callback_query: types.CallbackQuery, state=FSMContext):
         data["confirming_user_bdate"] = confirming_user.date_of_birth
         data["confirming_user_tg_photo"] = confirming_user.tg_photo
         data["confirming_user_hobby"] = confirming_user.hobby
-        db.clear_newbee_confirming(data["confirming_user_id"])
     await callback_query.answer()
     if callback_query.data.split(" ")[1] == "ok":
         await FSM_newbie_questioning.save_job_title.set()
@@ -290,6 +289,9 @@ async def add_new_user_to_db(callback_query: types.CallbackQuery, state: FSMCont
     await state.finish()
     if new_phone and new_email:
         await callback_query.message.answer("Отлично ! Я добавил нового сотрудника в БД")
+        await bot.send_message(chat_id=confirming_user_tg_id, text="Оператор добавил вас в БД сотрудников, "
+                                                                   "теперь все функции доступны!")
+        db.clear_newbee_confirming(data["confirming_user_id"])
     else:
         await callback_query.message.answer("Что-то пошло не так, пользователь не был добавлен")
 
