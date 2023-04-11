@@ -174,6 +174,12 @@ def add_recognize_log(**kwargs):
         log.write(text)
 
 
+def add_start_log(**kwargs):
+    text = kwargs.get("text")
+    with open("start_log.txt", "a", encoding="utf-8") as log:
+        log.write(text)
+
+
 def is_latin(string: str):
     """
     Проверяет строку на наличие чего-то кроме кирилицы.

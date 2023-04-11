@@ -8,7 +8,7 @@ from aiogram.utils.exceptions import WrongFileIdentifier
 
 from create_bot import dp, bot, db
 
-from func.all_func import delete_message, is_breakes, is_reply_keyboard
+from func.all_func import delete_message, is_breakes, is_reply_keyboard, add_start_log
 
 from dicts.messages import message_dict, commands_dict, operator_list
 from keyboards.all_keyboards import all_keyboards
@@ -85,6 +85,9 @@ async def test(message: types.Message):
 async def start(message: types.Message, state=FSMContext):
     db.close_session()
     await state.finish()
+    # add_start_log(text=f"Пользователь {message.from_id} начал работу с ботом в {datetime.now()}")
+    if not db.find_statistics(message.from_id):
+        db.add_statistics(message.from_id)
     keyboard = Survey_inlines_keyboards()
     me = await bot.get_me()
     if db.is_tg_id_in_base(message.from_id):

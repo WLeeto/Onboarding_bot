@@ -6,7 +6,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
 
 from database.models import Base, Answer, Question, Users, Departments, Contacts, Projects, Operator_questions, Newbie, \
-    New_User
+    New_User, Statistics
 
 
 class database:
@@ -626,6 +626,17 @@ class database:
         to_delete = self.session.query(New_User).filter(New_User.id == id).first()
         self.session.delete(to_delete)
         self.session.commit()
+
+    def find_statistics(self, tg_id):
+        result = self.session.query(Statistics).filter(Statistics.tg_id == tg_id).first()
+        return True if result else False
+
+    def add_statistics(self, tg_id):
+        new_user = Statistics(tg_id=tg_id)
+        self.session.add(new_user)
+        self.session.commit()
+        self.session.close()
+
 
 
 

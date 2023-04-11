@@ -135,3 +135,11 @@ class New_User(Base):
     email = sq.Column(sq.Text)
     tg_photo = sq.Column(sq.Text)
     hobby = sq.Column(sq.Text)
+
+
+class Statistics(Base):
+    __tablename__ = "Statistics"
+
+    id = sq.Column(sq.Integer, primary_key=True)
+    tg_id = sq.Column(sq.BIGINT)
+    created_at = sq.Column(sq.DateTime, default=datetime.now)
