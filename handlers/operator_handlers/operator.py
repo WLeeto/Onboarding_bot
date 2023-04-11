@@ -188,31 +188,39 @@ async def operator_adds_new_manual_question(callback_query: types.CallbackQuery,
 
 
 # ----------------------------------------------------------------------------------------------------------------------
-# @dp.callback_query_handler(lambda c: c.data.startswith("new_user"), state=FSM_newbie_questioning.accept_new_user)
+# @dp.callback_query_handler(lambda c: c.data.startswith("new_user"))
 async def catch_new_user(callback_query: types.CallbackQuery, state=FSMContext):
-    async with state.proxy() as data:
-        confirming_user = db.find_one_confirming_user()
-        data["confirming_user_id"] = confirming_user.id
-        data["confirming_user_tg_name"] = confirming_user.tg_name
-        data["confirming_user_tg_id"] = confirming_user.tg_id
-        data["confirming_user_phone"] = confirming_user.phone
-        data["confirming_user_email"] = confirming_user.email
-        data["confirming_user_first_name"] = confirming_user.first_name
-        data["confirming_user_surname"] = confirming_user.surname
-        data["confirming_user_middle_name"] = confirming_user.middle_name
-        data["confirming_user_bdate"] = confirming_user.date_of_birth
-        data["confirming_user_tg_photo"] = confirming_user.tg_photo
-        data["confirming_user_hobby"] = confirming_user.hobby
     await callback_query.answer()
-    if callback_query.data.split(" ")[1] == "ok":
-        await FSM_newbie_questioning.save_job_title.set()
-        await callback_query.message.answer(f"Отлично, давай тогда добавим несколько данных"
-                                            f" по этому сотруднику и внесем его в базу:\n"
-                                            f"Введи должность нового сотрудника")
+    new_user_id = callback_query.data.split(" ")[2]
+    confirming_user = db.find_one_confirming_user(new_user_id)
+    if confirming_user:
+        async with state.proxy() as data:
+            data["confirming_user_id"] = confirming_user.id
+            data["confirming_user_tg_name"] = confirming_user.tg_name
+            data["confirming_user_tg_id"] = confirming_user.tg_id
+            data["confirming_user_phone"] = confirming_user.phone
+            data["confirming_user_email"] = confirming_user.email
+            data["confirming_user_first_name"] = confirming_user.first_name
+            data["confirming_user_surname"] = confirming_user.surname
+            data["confirming_user_middle_name"] = confirming_user.middle_name
+            data["confirming_user_bdate"] = confirming_user.date_of_birth
+            data["confirming_user_tg_photo"] = confirming_user.tg_photo
+            data["confirming_user_hobby"] = confirming_user.hobby
+        await bot.edit_message_reply_markup(chat_id=callback_query.from_user.id,
+                                            message_id=callback_query.message.message_id,
+                                            reply_markup=None)
+        if callback_query.data.split(" ")[1] == "ok":
+            await FSM_newbie_questioning.save_job_title.set()
+            await callback_query.message.answer(f"Отлично, давай тогда добавим несколько данных"
+                                                f" по этому сотруднику и внесем его в базу:\n"
+                                                f"Введи должность нового сотрудника")
+        else:
+            await FSM_newbie_questioning.confirm_failed.set()
+            await callback_query.message.answer("Введите комментарий для анкеты. "
+                                                "Я отправлю его пользователю с просьбой заполнить анкету заново:")
     else:
-        await FSM_newbie_questioning.confirm_failed.set()
-        await callback_query.message.answer("Введите комментарий для анкеты. "
-                                            "Я отправлю его пользователю с просьбой заполнить анкету заново:")
+        await callback_query.message.answer("Я не смог найти пользователя в БД новеньких,"
+                                            "это сложная ошибка - обратитесь к разработчику")
 
 
 # @dp.message_handler(state=FSM_newbie_questioning.confirm_failed)
@@ -298,8 +306,7 @@ async def add_new_user_to_db(callback_query: types.CallbackQuery, state: FSMCont
 
 def register_handlers_operator(dp: Dispatcher):
     dp.register_callback_query_handler(catch_new_user,
-                                       lambda c: c.data.startswith("new_user"),
-                                       state=FSM_newbie_questioning.accept_new_user)
+                                       lambda c: c.data.startswith("new_user"))
     dp.register_message_handler(send_comfirm_failed_message, state=FSM_newbie_questioning.confirm_failed)
     dp.register_message_handler(save_job_title, state=FSM_newbie_questioning.save_job_title)
     dp.register_callback_query_handler(add_new_user_to_db, lambda c: c.data.startswith("type_of_emp"),

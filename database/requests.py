@@ -612,16 +612,16 @@ class database:
         self.session.commit()
         self.session.close()
 
-    def find_one_confirming_user(self):
+    def find_one_confirming_user(self, tg_id: int) -> object or False:
         """
-        Найти пользователя в New_User для передачи данных от пользователя оператору
+        Найти пользователя в New_User для передачи данных от пользователя оператору.
         """
-        result = self.session.query(New_User).all()
-        return result[-1]
+        result = self.session.query(New_User).filter(New_User.tg_id == tg_id).first()
+        return result if result else False
 
     def clear_newbee_confirming(self, id: int):
         """
-        Удаляет временную запись о новом сотруднике
+        Удаляет временную запись о новом сотруднике.
         """
         to_delete = self.session.query(New_User).filter(New_User.id == id).first()
         self.session.delete(to_delete)

@@ -209,17 +209,16 @@ async def commit_data(callback_query: types.CallbackQuery, state: FSMContext):
             try:
                 await bot.send_photo(operator_list[0], data["photo"],
                                      'Нужно проверить нового пользователя:\n\n'
+                                     f'tg_id: {callback_query.from_user.id}\n'
                                      f'{data["surname"]} {data["name"]} {data["patronymic"]}\n'
                                      f'Дата рождения: {data["bdate"]}\n'
                                      f'Телефон: +{data["phone"]}\n'
                                      f'E-mail: {data["email"]}\n'
                                      f'Хобби и увлечения: {data["hobby"]}',
-                                     reply_markup=confirm_new_user())
+                                     reply_markup=confirm_new_user(data["tg_id"]))
             except CantInitiateConversation:
                 await callback_query.message.answer("Оператор не смог ответить, так как не начал чат с ботом.\n"
                                                     "Перешлите пожалуйста эту ошибку отделу кадров")
-        current_operator_state = dp.current_state(chat=operator_list[0], user=operator_list[0])
-        await current_operator_state.set_state(FSM_newbie_questioning.accept_new_user)
         await FSM_newbie_questioning.next()
         await bot.edit_message_text("Данные отправлены на обработку модератору",
                                     callback_query.from_user.id,
