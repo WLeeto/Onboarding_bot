@@ -84,6 +84,7 @@ async def send_invites(callback_query: types.CallbackQuery, scheduler: AsyncIOSc
         datetime_to_send = datetime.strftime("%d.%m.%Y %H:%M")
         found_users = []
         not_found_users = []
+        not_found_emails = []
         text = f"<b>Напоминание о встрече:</b>\n" \
                f"{header}\n" \
                f"{datetime_to_send}"
@@ -93,11 +94,14 @@ async def send_invites(callback_query: types.CallbackQuery, scheduler: AsyncIOSc
                 scheduler.add_job(_send_message, trigger="date", run_date=datetime, args=(user.tg_id, text),
                                   timezone='Europe/Moscow')
                 recipient_email = db.find_email_by_user_id(user.id)
-                asyncio.create_task(send_meeting_email(from_name=full_sender_name,
-                                                       title=header,
-                                                       date=datetime_to_send,
-                                                       recipient=recipient_email))
-                found_users.append(recipient)
+                if recipient_email:
+                    asyncio.create_task(send_meeting_email(from_name=full_sender_name,
+                                                           title=header,
+                                                           date=datetime_to_send,
+                                                           recipient=recipient_email))
+                    found_users.append(recipient)
+                else:
+                    not_found_emails.append(f"@{user}")
             else:
                 not_found_users.append(f"@{user}")
         if found_users:
@@ -106,6 +110,10 @@ async def send_invites(callback_query: types.CallbackQuery, scheduler: AsyncIOSc
         if not_found_users:
             await callback_query.message.answer("Вот этих пользователей я не смог найти в БД: "
                                                 f"{', '.join(not_found_users)}")
+        if not_found_emails:
+            await callback_query.message.answer("Вот у этих пользователей не указана почта:\n"
+                                                "(им придет только оповещения за 5 минут до встречи)"
+                                                f"{', '.join(not_found_emails)}")
         await state.finish()
     else:
         await callback_query.message.answer("Давай начнем все с начала\n"

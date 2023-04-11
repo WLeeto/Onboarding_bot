@@ -272,46 +272,13 @@ async def call_operator(message: types.Message):
 
 # @dp.message_handler(commands='meeting')
 async def meeting(message: types.Message):
-    await message.answer("Давай соберем людей на созвон !\n"
-                         "Напишите описание встречи и ссылку (если требуется)\n\n"
-                         "Чтобы отменить создание встречи используйте /stop", parse_mode=types.ParseMode.HTML)
-    await FSM_meeting.start.set()
-
-
-# async def pprint(message: types.Message):
-#     await message.answer("Отправвлено")
-#
-#
-# @dp.message_handler(commands='schtest')
-# async def schtest(message: types.Message, scheduler: AsyncIOScheduler):
-#     await message.answer("Введи дату и время в формате дд.мм.гггг чч:мм")
-#     await FSM_scheldule_test.start.set()
-#     # scheduler.add_job(pprint, 'interval', seconds=3, args=(message,))
-#
-#
-# @dp.message_handler(state=FSM_scheldule_test)
-# async def save_date(message: types.Message, scheduler: AsyncIOScheduler, state: FSMContext):
-#     pattern = r"((\d\d).(\d\d).(\d\d\d\d))[\s\S]*((\d\d).(\d\d))"
-#     try:
-#         year = re.match(pattern, message.text).group(4)
-#         month = re.match(pattern, message.text).group(3)
-#         day = re.match(pattern, message.text).group(2)
-#         hour = re.match(pattern, message.text).group(6)
-#         minute = re.match(pattern, message.text).group(7)
-#         await message.answer(f"Год: {year}\n"
-#                              f"Месяц: {month}\n"
-#                              f"День: {day}\n"
-#                              f"Часов: {hour}\n"
-#                              f"Минут: {minute}")
-#         insert_date = datetime(int(year), int(month), int(day), int(hour), int(minute)) + timedelta(hours=-3, seconds=3)
-#         print(insert_date)
-#         asyncio.create_task(send_schelduled_message(scheduler=scheduler,
-#                                                     run_date=insert_date,
-#                                                     text="Тест отправки расписания",
-#                                                     chat_id=message.from_id))
-#         await state.finish()
-#     except AttributeError:
-#         await message.answer("Не могу обработать дату, убедитесь что дата введена по шаблону: дд.мм.гггг чч:мм")
+    if db.is_user(message.from_id):
+        await message.answer("Давай соберем людей на созвон !\n"
+                             "Напишите описание встречи и ссылку (если требуется)\n\n"
+                             "Чтобы отменить создание встречи используйте /stop", parse_mode=types.ParseMode.HTML)
+        await FSM_meeting.start.set()
+    else:
+        await message.answer(message_dict["not_in_db"])
 
 
 def register_handlers_client(dp: Dispatcher):
