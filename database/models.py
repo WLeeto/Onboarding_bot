@@ -79,15 +79,15 @@ class Contacts(Base):
     user = relationship(Users, backref="Users")
 
 
-class SuperviserEmployer(Base):
+class Supervisers(Base):
     __tablename__ = "SuperviserEmployer"
 
     id = sq.Column(sq.Integer, primary_key=True)
     superviser_id = mapped_column(sq.Integer, sq.ForeignKey("Users.id"))
-    employer_id = mapped_column(sq.Integer, sq.ForeignKey("Users.id"))
+    department_id = mapped_column(sq.Integer, sq.ForeignKey("Departments.id"))
 
     superviser = relationship(Users, foreign_keys=[superviser_id])
-    employer = relationship(Users, foreign_keys=[employer_id])
+    employer = relationship(Users, foreign_keys=[department_id])
 
 
 class Projects(Base):
