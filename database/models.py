@@ -79,7 +79,7 @@ class Contacts(Base):
     user = relationship(Users, backref="Users")
 
 
-class Supervisers(Base):
+class SuperviserEmployer(Base):
     __tablename__ = "SuperviserEmployer"
 
     id = sq.Column(sq.Integer, primary_key=True)
