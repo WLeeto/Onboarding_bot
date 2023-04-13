@@ -145,11 +145,14 @@ def validate_bday(date: str) -> bool:
     return result
 
 
-def validate_phone(phone: str) -> bool:
-    replace = phone.replace(" ", "").replace("+", "")
-    if (replace.startswith("7") or replace.startswith("8")) and phone.isdigit():
-        if len(replace) == 11:
-            result = replace
+def validate_phone(phone: str) -> str or False:
+    replaced_phone = phone.replace(" ", "").replace("+", "")
+    if replaced_phone.isdigit():
+        if replaced_phone.startswith("7") or replaced_phone.startswith("8"):
+            if len(replaced_phone) == 11:
+                result = replaced_phone
+            else:
+                result = False
         else:
             result = False
     else:

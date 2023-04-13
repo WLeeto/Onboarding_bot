@@ -9,7 +9,8 @@ from States.states import FSM_newbie_questioning
 from create_bot import bot, dp, db
 from dicts.messages import message_dict, operator_list
 from func.all_func import validate_email, validate_phone, validate_bday, is_latin
-from keyboards.inline_newbie_questioning import change_newbie_questioning
+from keyboards.inline_newbie_questioning import change_newbie_questioning, back_to_name_kb, back_to_bdate_kb, \
+    back_to_phone_kb, back_to_email_kb
 from keyboards.inline_operator import confirm_new_user
 from keyboards.inline_start_survey import Survey_inlines_keyboards
 
@@ -63,7 +64,8 @@ async def load_surname(message: types.Message, state: FSMContext):
 async def email_confirming(callback_query: types.CallbackQuery, state: FSMContext):
     if callback_query.data.split(" ")[1] == "correct":
         msg_todel = await bot.send_message(callback_query.from_user.id,
-                                           "Введи свою дату рождения (формат dd.mm.yyyy): ")
+                                           "Введи свою дату рождения (формат dd.mm.yyyy): ",
+                                           reply_markup=back_to_name_kb)
         await FSM_newbie_questioning.asking_bday.set()
         async with state.proxy() as data:
             data["surname_eng"] = translit(data["surname"], language_code='ru', reversed=True)
@@ -90,7 +92,8 @@ async def load_bdate(message: types.Message, state: FSMContext):
     validator = validate_bday(message.text)
     if validator:
         await FSM_newbie_questioning.next()
-        msg_todel = await message.answer("Теперь введи свой телефон для связи (формат 7 ХХХ ХХХ ХХХХ): ")
+        msg_todel = await message.answer("Теперь введи свой телефон для связи (формат 7 ХХХ ХХХ ХХХХ): ",
+                                         reply_markup=back_to_bdate_kb)
         async with state.proxy() as data:
             data["bdate"] = validator
             data["to_delete"].append(msg_todel.message_id)
@@ -109,7 +112,8 @@ async def load_phone(message: types.Message, state: FSMContext):
     validator = validate_phone(message.text)
     if validator:
         await FSM_newbie_questioning.next()
-        msg_todel = await message.answer("Укажи свой e-mail (для отправки документов): ")
+        msg_todel = await message.answer("Укажи свой e-mail (для отправки документов): ",
+                                         reply_markup=back_to_phone_kb)
         async with state.proxy() as data:
             data["phone"] = validator
             data["to_delete"].append(msg_todel.message_id)
@@ -129,7 +133,8 @@ async def load_email(message: types.Message, state: FSMContext):
         await FSM_newbie_questioning.next()
         msg_todel = await message.answer("Загрузи свое фото через скрепку 📎. "
                                          "Фотография будет использоваться в твоей карточке и опубликована в общем чате."
-                                         " Будет отлично, если она будет в деловом стиле.")
+                                         " Будет отлично, если она будет в деловом стиле.",
+                                         reply_markup=back_to_email_kb)
         async with state.proxy() as data:
             data["email"] = message.text
             data["to_delete"].append(msg_todel.message_id)
@@ -235,6 +240,31 @@ async def commit_data(callback_query: types.CallbackQuery, state: FSMContext):
                                     chat_id=callback_query.from_user.id,
                                     message_id=message_to_edit,
                                     reply_markup=change_newbie_questioning)
+
+
+# @dp.callback_query_handler(lambda c: c.data.startswith("back"), state="*")
+async def back(callback_query: types.CallbackQuery, state: FSMContext):
+    await callback_query.answer()
+    if callback_query.data.split(" ")[1] == "name":
+        await FSM_newbie_questioning.asking_surname.set()
+        msg_todel = await callback_query.message.answer("Введи свое ФИО (Например: Пупкин Иван Александрович)")
+        async with state.proxy() as data:
+            data["to_delete"].append(msg_todel.message_id)
+    elif callback_query.data.split(" ")[1] == "bdate":
+        await FSM_newbie_questioning.asking_bday.set()
+        msg_todel = await callback_query.message.answer("Введи свою дату рождения (формат dd.mm.yyyy): ")
+        async with state.proxy() as data:
+            data["to_delete"].append(msg_todel.message_id)
+    elif callback_query.data.split(" ")[1] == "phone":
+        await FSM_newbie_questioning.asking_phone.set()
+        msg_todel = await callback_query.message.answer("Теперь введи свой телефон для связи (формат 7 ХХХ ХХХ ХХХХ): ")
+        async with state.proxy() as data:
+            data["to_delete"].append(msg_todel.message_id)
+    elif callback_query.data.split(" ")[1] == "email":
+        await FSM_newbie_questioning.asking_email.set()
+        msg_todel = await callback_query.message.answer("Укажи свой e-mail (для отправки документов): ")
+        async with state.proxy() as data:
+            data["to_delete"].append(msg_todel.message_id)
 
 
 # @dp.callback_query_handler(lambda c: c.data.startswith("change"), state=FSM_newbie_questioning.commit_data)
@@ -451,6 +481,7 @@ async def show_video(callback_query: types.CallbackQuery, state: FSMContext):
 # ----------------------------------------------------------------------------------------------------------------------
 
 def register_handlers_newbie_questioning(dp: Dispatcher):
+    dp.register_callback_query_handler(back, lambda c: c.data.startswith("back"), state="*")
     dp.register_callback_query_handler(questioning_start, lambda c: c.data == "start",
                                        state=FSM_newbie_questioning.newbie_questioning_start)
     dp.register_message_handler(load_surname, state=FSM_newbie_questioning.asking_surname)
