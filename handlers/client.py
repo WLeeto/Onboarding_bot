@@ -76,8 +76,8 @@ async def vacation(message: types.Message):
 
 # @dp.message_handler(commands=['test'])
 async def test(message: types.Message):
-    answer = await message.answer(f'Ваш id: {message.from_id}\n'
-                                  f'Бот работает. Сообщение будет удалено')
+    answer = await message.answer(f'Ваш id: `{message.from_id}`\n'
+                                  f'Бот работает. Сообщение будет удалено', parse_mode=types.ParseMode.MARKDOWN)
     await delete_message(answer, 3)
 
 
@@ -85,7 +85,6 @@ async def test(message: types.Message):
 async def start(message: types.Message, state=FSMContext):
     db.close_session()
     await state.finish()
-    add_start_log(text=f"Пользователь {message.from_id} начал работу с ботом в {datetime.now()}\n")
     if not db.find_statistics(message.from_id):
         db.add_statistics(message.from_id)
     keyboard = Survey_inlines_keyboards()
@@ -105,8 +104,8 @@ async def start(message: types.Message, state=FSMContext):
         await message.answer(message_dict["newbie_greeting"].format(bot_name=f"@{me.username}"),
                              reply_markup=keyboard.ok_keyboard())
     else:
-        await message.answer(message_dict["start_not_in_db"].format(tg_id=message.from_id),
-                             parse_mode=types.ParseMode.HTML)
+        await message.answer(message_dict["start_not_in_db"].format(tgid=message.from_id),
+                             parse_mode=types.ParseMode.MARKDOWN_V2)
 
 
 # @dp.message_handler(commands='stop', state=FSM_start_survey.all_states)

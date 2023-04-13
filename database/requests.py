@@ -6,7 +6,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
 
 from database.models import Base, Answer, Question, Users, Departments, Contacts, Projects, Operator_questions, Newbie, \
-    New_User, Statistics
+    New_User, Statistics, SuperviserEmployer
 
 
 class database:
@@ -637,6 +637,9 @@ class database:
         self.session.commit()
         self.session.close()
 
+    def find_superviser(self, department_id):
+        res = self.session.query(SuperviserEmployer).filter(SuperviserEmployer.department_id == department_id).first()
+        return res.superviser_id
 
 
 
