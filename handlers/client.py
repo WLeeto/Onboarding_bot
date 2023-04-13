@@ -105,7 +105,7 @@ async def start(message: types.Message, state=FSMContext):
                              reply_markup=keyboard.ok_keyboard())
     else:
         await message.answer(message_dict["start_not_in_db"].format(tgid=message.from_id),
-                             parse_mode=types.ParseMode.MARKDOWN_V2)
+                             parse_mode=types.ParseMode.MARKDOWN_V2, disable_web_page_preview=True)
 
 
 # @dp.message_handler(commands='stop', state=FSM_start_survey.all_states)
@@ -189,7 +189,11 @@ async def finance(message: types.Message):
 # @dp.message_handler(commands='office')
 async def office(message: types.Message):
     text = db.find_answer_by_answer_id(22).answer_text
-    await message.answer(is_breakes(text), parse_mode=types.ParseMode.HTML)
+    try:
+        await bot.send_video(message.from_id, "BAACAgIAAxkBAAIWJGQ4EyUsVfCZSH3duWwuhsWwkKasAAKALQACZlDBSTHmsaJRH0WYLwQ")
+    except WrongFileIdentifier:
+        pass
+    await message.answer(is_breakes(text), parse_mode=types.ParseMode.HTML, disable_web_page_preview=True)
 
 
 # @dp.message_handler(commands='bt')
