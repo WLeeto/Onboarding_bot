@@ -7,30 +7,32 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
 
 
-async def send_vacation_email(from_name, from_surname, job_title, vacation_period, is_agreed,
-                              coordinator_name, image_path):
+async def send_vacation_email(**kwargs):
     """
     Функция вызывается asincio.run() для отсутствия задержки при ответе gmail
     """
     sender = os.environ.get("SENDER_EMAIL")
     password = os.environ.get("SENDER_PASSWORD")
-    recipient = os.environ.get("RECIPIENT_EMAIL")
+    if kwargs.get("superviser_email"):
+        recipient = [os.environ.get("RECIPIENT_EMAIL")] + kwargs.get("superviser_email")
+    else:
+        recipient = os.environ.get("RECIPIENT_EMAIL")
 
     server = smtplib.SMTP("smtp.gmail.com", 587)
     server.starttls()
 
-    text = f"Прошу принять заявление на отпуск в период {vacation_period}\n" \
-           f"Отпуск с уководителем согласован: {is_agreed}\n" \
-           f"Координатор: {coordinator_name}"
-    subject = f"Отпуск {from_name} {from_surname} должность: {job_title}"
+    text = f"Прошу принять заявление на отпуск в период {kwargs.get('vacation_period')}\n" \
+           f"Координатор: {kwargs.get('coordinator_name')}"
+    subject = f"Отпуск {kwargs.get('from_name')} {kwargs.get('from_surname')} должность: {kwargs.get('job_title')}"
 
     msg = MIMEMultipart()
     msg['Subject'] = subject
     part = MIMEText(text)
     msg.attach(part)
 
-    part = MIMEApplication(open(image_path, "rb").read())
-    part.add_header("Content-Disposition", "attachment", filename=f"{from_name} {from_surname}.jpg")
+    part = MIMEApplication(open(kwargs.get('image_path'), "rb").read())
+    part.add_header("Content-Disposition", "attachment",
+                    filename=f"{kwargs.get('from_name')} {kwargs.get('from_surname')}.jpg")
     msg.attach(part)
 
     try:

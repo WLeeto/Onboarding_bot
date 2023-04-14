@@ -1,12 +1,11 @@
 import os
-from pprint import pprint
 
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
 
-from database.models import Base, Answer, Question, Users, Departments, Contacts, Projects, Operator_questions, Newbie, \
-    New_User, Statistics, SuperviserEmployer
+from database.models import Base, Answer, Question, Users, Departments, Contacts, Projects, Operator_questions, \
+    Newbie, New_User, Statistics, SuperviserEmployer
 
 
 class database:
@@ -245,7 +244,7 @@ class database:
         search = [i for i in self.session.query(Contacts).filter(Contacts.contact_type == "@"). \
             filter(Contacts.contact == email).all()]
         for i in search:
-            user = self.__find_user_by_id(i.profile_id)
+            user = self.find_user_by_id(i.profile_id)
             result.append({
                 "id": user.id,
                 "first_name": user.first_name,
@@ -258,8 +257,8 @@ class database:
         """
         Находит email пользователя по его id
         """
-        result = self.session.query(Contacts)\
-            .filter(Contacts.profile_id == id)\
+        result = self.session.query(Contacts) \
+            .filter(Contacts.profile_id == id) \
             .filter(Contacts.contact_type == "@").first()
         return result.contact if result else False
 
@@ -268,7 +267,7 @@ class database:
         search = [i for i in self.session.query(Contacts).filter(Contacts.contact_type == "@"). \
             filter(Contacts.contact.ilike(f"%{email}%")).limit(10).all()]
         for i in search:
-            user = self.__find_user_by_id(i.profile_id)
+            user = self.find_user_by_id(i.profile_id)
             result.append({
                 "id": user.id,
                 "first_name": user.first_name,
@@ -277,17 +276,26 @@ class database:
             })
         return result
 
-    def __find_user_by_id(self, id: int):
+    def find_user_by_id(self, id: int):
         result = self.session.query(Users).filter(Users.id == id).first()
         return result
 
     def find_department_by_user_id(self, user_id: int):
+        # todo удалить метод, исправить код в команде /find
         """
         Находит отдел сотрудника по его id
         """
         result = self.session.query(Departments).join(Users.department).filter(Users.id == user_id).first()
         if result:
             return result.name
+
+    def find_department_obj_by_user_id(self, user_id: int) -> object or False:
+        """
+        Находит отдел сотрудника по его id
+        """
+        result = self.session.query(Departments).join(Users.department).filter(Users.id == user_id).first()
+        if result:
+            return result if result else False
 
     def find_department_by_name(self, department: str) -> list:
         """
@@ -479,7 +487,7 @@ class database:
         """
         result = self.session.query(Contacts).filter(Contacts.contact.ilike(f"%{phone}%")).first()
         if result:
-            return self.__find_user_by_id(result.profile_id)
+            return self.find_user_by_id(result.profile_id)
         else:
             return None
 
@@ -640,7 +648,3 @@ class database:
     def find_superviser(self, department_id):
         res = self.session.query(SuperviserEmployer).filter(SuperviserEmployer.department_id == department_id).first()
         return res.superviser_id
-
-
-
-

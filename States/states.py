@@ -47,3 +47,12 @@ class FSM_meeting(StatesGroup):
 
 class FSM_scheldule_test(StatesGroup):
     start = State()
+
+
+class FSM_send_vacation_email(StatesGroup):
+    enter_vacation_period = State()
+    is_agreed = State()
+    send_doc = State()
+    enter_coordinator = State()
+    commit_data = State()
+    # what_type_of_employement = State()

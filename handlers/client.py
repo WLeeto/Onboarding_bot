@@ -78,7 +78,7 @@ async def vacation(message: types.Message):
 async def test(message: types.Message):
     answer = await message.answer(f'Ваш id: `{message.from_id}`\n'
                                   f'Бот работает. Сообщение будет удалено', parse_mode=types.ParseMode.MARKDOWN)
-    await delete_message(answer, 3)
+    await asyncio.create_task(delete_message(answer, 3))
 
 
 # @dp.message_handler(commands=['start'])
