@@ -1,18 +1,15 @@
 import asyncio
-from datetime import datetime, timedelta
 
 from aiogram import types, Dispatcher
-from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.utils.exceptions import WrongFileIdentifier
 
 from create_bot import dp, bot, db
 
-from func.all_func import delete_message, is_breakes, is_reply_keyboard, add_start_log
+from func.all_func import delete_message, is_breakes, is_reply_keyboard
 
 from dicts.messages import message_dict, commands_dict, operator_list
 from keyboards.all_keyboards import all_keyboards
-from keyboards.inline_finance import finance_staff_choose_kb
 from keyboards.inline_find import search_way
 from keyboards.inline_initiate_vacation import vacation_keyboard
 from keyboards.inline_projects import Projects_keyboard
@@ -22,13 +19,9 @@ from keyboards.inline_get_documents import get_business_trip_docs_keyboard, get_
 from keyboards.inline_contacts import contacts_keyboard
 from keyboards.inline_type_of_employement import type_of_employement_kb
 
-from handlers.other import FSM_newbie_questioning, FSMContext
+from handlers.other import FSMContext
 
-from States.states import FSM_type_of_employment, FSM_meeting, FSM_scheldule_test
-
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
-
-import re
+from States.states import FSM_type_of_employment, FSM_meeting, FSM_newbie_questioning
 
 
 # @dp.callback_query_handler(lambda c: c.data.startswith("type_of_emp"),

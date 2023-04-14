@@ -109,13 +109,13 @@ def is_reply_keyboard(message: str):
         return None
 
 
-def search_message(id: int, first_name: str, surname: str, job_title: str) -> str:
+def search_message(id: int, first_name: str, surname: str, patronymic: str, job_title: str, tg_name: str) -> str:
     contacts = db.find_contacts_by_id(id)
-    contacts_text = f"  <b>E-mail:</b> {contacts.get('e-mail')}\n" \
-                    f"  <b>Phone:</b> {contacts.get('phone')}"
-    text = f"<b>Имя:</b> {first_name}\n" \
-           f"<b>Фамилия</b>: {surname}\n" \
-           f"<b>Должность</b>: {job_title}\n" \
+    contacts_text = f"  └ <b>Email:</b> <code>{contacts.get('e-mail')}</code>\n" \
+                    f"  └ <b>Phone:</b> <code>{contacts.get('phone')}</code>\n" \
+                    f"  └ <b>Telegram:</b> <code>{tg_name}</code>"
+    text = f"<i><u>{surname} {first_name} {patronymic}</u></i>\n" \
+           f"<b>Должность:</b> {job_title}\n" \
            f"<b>Отдел:</b> {db.find_department_by_user_id(id)}\n" \
            f"<b>Контакты:</b> \n{contacts_text}\n\n"
 

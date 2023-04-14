@@ -56,3 +56,14 @@ class FSM_send_vacation_email(StatesGroup):
     enter_coordinator = State()
     commit_data = State()
     # what_type_of_employement = State()
+
+
+class FSM_search(StatesGroup):
+    enter_name = State()
+    enter_surname = State()
+    enter_patronymic = State()
+    enter_email = State()
+    enter_tg_nickname = State()
+    enter_department = State()
+    enter_title = State()
+    enter_phone = State()
