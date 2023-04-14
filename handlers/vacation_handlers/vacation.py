@@ -70,6 +70,7 @@ async def initiate_vacation_email(callback_query: types.CallbackQuery, state=Non
     async with state.proxy() as data:
         data["from_tg_id"] = sender_tg_id
         data["from_name"] = sender["first_name"]
+        data["department_name"] = user_department.name
         data["from_surname"] = sender["surname"]
         data["job_title"] = sender["job_title"]
         data["superviser_mail"] = superviser_mail
@@ -140,12 +141,14 @@ async def commit_data(callback_query: types.CallbackQuery, state: FSMContext):
             coordinator_name = data["superviser_name"]
             image_path = data["image_path"]
             superviser_mail = [data["superviser_mail"]]
+            department_name = data["department_name"]
         is_ok = asyncio.create_task(send_vacation_email(from_name=from_name,
                                                         from_surname=from_surname,
                                                         job_title=job_title,
                                                         vacation_period=vacation_period,
                                                         coordinator_name=coordinator_name,
                                                         superviser_email=superviser_mail,
+                                                        department_name=department_name,
                                                         image_path=image_path))
         if is_ok:
             text = f"Ваше заявление на отпуск в период {data['vacation_period']} отправлено координатору"
@@ -153,7 +156,7 @@ async def commit_data(callback_query: types.CallbackQuery, state: FSMContext):
             await asyncio.create_task(delete_temp_file(data["image_path"]))
         else:
             text = is_ok
-        await bot.send_message(chat_id=callback_query.message.from_user.id, text=text)
+        await bot.send_message(chat_id=callback_query.from_user.id, text=text)
         await state.finish()
     elif callback_query.data.split(" ")[1] == "no":
         async with state.proxy() as data:

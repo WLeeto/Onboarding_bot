@@ -21,7 +21,9 @@ async def send_vacation_email(**kwargs):
     server = smtplib.SMTP("smtp.gmail.com", 587)
     server.starttls()
 
-    text = f"Прошу принять заявление на отпуск в период {kwargs.get('vacation_period')}\n" \
+    text = f"Заявление на отпуск от: {kwargs.get('from_name')} {kwargs.get('from_surname')}\n" \
+           f"Отдел: {kwargs.get('department_name')}\n\n" \
+           f"Прошу принять заявление на отпуск в период: {kwargs.get('vacation_period')}\n" \
            f"Координатор: {kwargs.get('coordinator_name')}"
     subject = f"Отпуск {kwargs.get('from_name')} {kwargs.get('from_surname')} должность: {kwargs.get('job_title')}"
 
