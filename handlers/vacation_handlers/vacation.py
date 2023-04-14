@@ -59,7 +59,7 @@ async def initiate_vacation_email(callback_query: types.CallbackQuery, state=Non
     user = db.find_by_tg_id(callback_query.from_user.id)
     user_department = db.find_department_obj_by_user_id(user.id)
     if not user_department:
-        await callback_query.message.answer("Для пользователя не указан отдел работы. Обратитесь к администратору")
+        await callback_query.message.answer("Для пользователя не указан отдел работы. Обратитесь к администратору.")
         return
     superviser_id = db.find_superviser(user_department.id)
     superviser = db.find_user_by_id(superviser_id)
