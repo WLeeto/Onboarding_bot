@@ -114,7 +114,7 @@ async def save_coordinator(message: types.Message, state=FSMContext):
            f"<b>От:</b> {data['from_surname']} {data['from_name']}\n" \
            f"<b>Даты отпуска:</b> {data['vacation_period']}\n" \
            f"<b>Руководитель:</b> {data['superviser_name']}\n" \
-           f"<b>Приложение: {data['image_path'].split('/')[2]}</b>\n\n" \
+           f"<b>Приложение: {data['image_path'].split('/')[-1]}</b>\n\n" \
            f"Письмо будет отправлено в отдел кадров и вашему руководителю\n" \
            f"Отправляем ?"
     await message.answer("Вот что получилось:\n\n"
