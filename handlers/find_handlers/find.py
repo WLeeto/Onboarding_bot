@@ -1,7 +1,9 @@
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
+from aiogram.dispatcher.filters.state import StatesGroup, State
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-from create_bot import db, bot
+from create_bot import dp, db, bot
 from func.all_func import search_message, delete_message
 
 from States.states import FSM_search
@@ -249,6 +251,75 @@ async def search_by_department_step2(message: types.Message, state: FSMContext):
             await message.answer(text=f"<u>Вот, кто частично подходит под твой запрос:</u>\n\n{text}\n",
                                  parse_mode=types.ParseMode.HTML)
         await state.finish()
+
+# Пример пагинации -----------------------------------------------------------------------------------------------------
+
+button1 = InlineKeyboardButton(text="Next", callback_data="pagi next")
+button2 = InlineKeyboardButton(text="Prev", callback_data="pagi prev")
+button3 = InlineKeyboardButton(text="Exit", callback_data="pagi exit")
+pagi_kb = InlineKeyboardMarkup(row_width=2).add(button2, button1, button3)
+only_back_kb = InlineKeyboardMarkup(row_width=1).add(button2, button3)
+only_next_kb = InlineKeyboardMarkup(row_width=1).add(button1, button3)
+
+
+class FSM_pagi(StatesGroup):
+    paginator = State()
+
+
+@dp.message_handler(commands="pg")
+async def paginator_test(message: types.Message, state: FSMContext):
+    await FSM_pagi.paginator.set()
+    temp_list = db.partial_search_by_name("ол")
+    text = ""
+    async with state.proxy() as data:
+        data["pagi"] = 1
+    i = temp_list[0]
+    text += search_message(i.id, i.first_name, i.surname, i.middle_name, i.job_title, i.tg_name)
+    await message.answer(text, parse_mode=types.ParseMode.HTML, reply_markup=only_next_kb)
+
+
+@dp.callback_query_handler(lambda c: c.data.startswith("pagi"), state=FSM_pagi.paginator)
+async def pagi(callback_query: types.CallbackQuery, state: FSMContext):
+    if callback_query.data.split(" ")[1] == "next":
+        async with state.proxy() as data:
+            data["pagi"] += 1
+            if len(contacts_dict(db.partial_search_by_name("ол"))) > data["pagi"]:
+                keyboard = pagi_kb
+            else:
+                keyboard = only_back_kb
+            next_contact = contacts_dict(db.partial_search_by_name("ол"))[data["pagi"]]
+            text = search_message(next_contact.id, next_contact.first_name, next_contact.surname,
+                                  next_contact.middle_name, next_contact.job_title, next_contact.tg_name)
+            await callback_query.message.edit_text(text, reply_markup=keyboard, parse_mode=types.ParseMode.HTML)
+            await callback_query.answer()
+    elif callback_query.data.split(" ")[1] == "prev":
+        async with state.proxy() as data:
+            data["pagi"] -= 1
+            if data["pagi"] != 1:
+                keyboard = pagi_kb
+            else:
+                keyboard = only_next_kb
+            prev_contact = contacts_dict(db.partial_search_by_name("ол"))[data["pagi"]]
+            text = search_message(prev_contact.id, prev_contact.first_name, prev_contact.surname,
+                                  prev_contact.middle_name, prev_contact.job_title, prev_contact.tg_name)
+        await callback_query.message.edit_text(text, reply_markup=keyboard, parse_mode=types.ParseMode.HTML)
+        await callback_query.answer()
+    elif callback_query.data.split(" ")[1] == "exit":
+        await state.finish()
+        await bot.edit_message_reply_markup(callback_query.from_user.id, callback_query.message.message_id,
+                                            reply_markup=None)
+        await callback_query.answer()
+
+
+def contacts_dict(contacts: list) -> dict:
+    result = {}
+    page = 1
+    for i in contacts:
+        result[page] = i
+        page += 1
+    return result
+
+# ----------------------------------------------------------------------------------------------------------------------
 
 
 def register_handlers_find(dp: Dispatcher):
