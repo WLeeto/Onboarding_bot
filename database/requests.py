@@ -222,6 +222,13 @@ class database:
         result = self.session.query(Users).filter(Users.id == id).first()
         return result
 
+    def departments_list(self) -> list:
+        """
+        Возвращает список всех подразделений.
+        """
+        result = [i for i in self.session.query(Departments).all()]
+        return result
+
     def find_department_by_user_id(self, user_id: int):
         # todo удалить метод, исправить код в команде /find
         """

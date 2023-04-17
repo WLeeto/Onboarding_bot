@@ -9,6 +9,7 @@ from States.states import FSM_newbie_questioning
 from dicts.messages import operator_list
 from func.all_func import is_breakes, is_reply_keyboard
 from keyboards.all_keyboards import all_keyboards
+from keyboards.inline_newbie_questioning import choose_department_kb_gen
 from keyboards.inline_operator import operator_choice_kb_gen, operator_start_answering, auto_answers_kb_gen, \
     operator_add_new_question_kb_gen
 from keyboards.inline_type_of_employement import type_of_employement_kb
@@ -246,7 +247,7 @@ async def save_job_title(message: types.Message, state: FSMContext):
 
 # @dp.callback_query_handler(lambda c: c.data.startswith("type_of_emp"),
 #                            state=FSM_newbie_questioning.save_type_of_employement)
-async def add_new_user_to_db(callback_query: types.CallbackQuery, state: FSMContext):
+async def save_type_of_employement(callback_query: types.CallbackQuery, state: FSMContext):
     async with state.proxy() as data:
         if callback_query.data.split(" ")[1] == "state":
             data["type_of_employement"] = "штат"
@@ -256,8 +257,17 @@ async def add_new_user_to_db(callback_query: types.CallbackQuery, state: FSMCont
             data["type_of_employement"] = "гпх"
         elif callback_query.data.split(" ")[1] == "sz":
             data["type_of_employement"] = "сз"
+    await callback_query.message.answer("В каком отделе работает сотрудник ?", reply_markup=choose_department_kb_gen())
+    await FSM_newbie_questioning.save_department.set()
 
+
+# @dp.callback_query_handler(lambda c: c.data.startswith("department_id"),
+#                            state=FSM_newbie_questioning.save_department)
+async def add_new_user_to_db(callback_query: types.CallbackQuery, state: FSMContext):
+    await callback_query.answer()
     async with state.proxy() as data:
+        data["department_id"] = callback_query.data.split(" ")[1]
+
         confirming_user_tg_id = data["confirming_user_tg_id"]
         confirming_user_tg_name = data["confirming_user_tg_name"]
         confirming_user_phone = data["confirming_user_phone"]
@@ -268,6 +278,7 @@ async def add_new_user_to_db(callback_query: types.CallbackQuery, state: FSMCont
         confirming_user_bdate = data["confirming_user_bdate"]
         confirming_user_tg_photo = data["confirming_user_tg_photo"]
         confirming_user_hobby = data["confirming_user_hobby"]
+        confirming_user_department = data["department_id"]
 
     db.add_new_user(
         tg_id=confirming_user_tg_id,
@@ -281,6 +292,7 @@ async def add_new_user_to_db(callback_query: types.CallbackQuery, state: FSMCont
         date_of_birth=confirming_user_bdate,
         tg_photo=confirming_user_tg_photo,
         hobby=confirming_user_hobby,
+        department_id=confirming_user_department
     )
 
     new_user_id = db.find_by_tg_id(confirming_user_tg_id).id
@@ -309,8 +321,10 @@ def register_handlers_operator(dp: Dispatcher):
                                        lambda c: c.data.startswith("new_user"))
     dp.register_message_handler(send_comfirm_failed_message, state=FSM_newbie_questioning.confirm_failed)
     dp.register_message_handler(save_job_title, state=FSM_newbie_questioning.save_job_title)
-    dp.register_callback_query_handler(add_new_user_to_db, lambda c: c.data.startswith("type_of_emp"),
+    dp.register_callback_query_handler(save_type_of_employement, lambda c: c.data.startswith("type_of_emp"),
                                        state=FSM_newbie_questioning.save_type_of_employement)
+    dp.register_callback_query_handler(add_new_user_to_db, lambda c: c.data.startswith("department_id"),
+                                       state=FSM_newbie_questioning.save_department)
 
     dp.register_callback_query_handler(call_operator, lambda c: c.data.startswith("call_operator"))
     dp.register_callback_query_handler(operator_choiсe, lambda c: c.data.startswith("help_with_answer"), state=None)

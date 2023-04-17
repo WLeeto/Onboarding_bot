@@ -1,4 +1,6 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+
+from create_bot import db
 from keyboards.inline_get_documents import get_annual_leave_button, get_vacation_at_own_button
 
 """
@@ -25,3 +27,12 @@ back_to_phone_kb = InlineKeyboardMarkup(row_width=1).add(back_to_phone)
 
 back_to_email = InlineKeyboardButton(text="Назад (Ввести email заново)", callback_data="back email")
 back_to_email_kb = InlineKeyboardMarkup(row_width=1).add(back_to_email)
+
+
+def choose_department_kb_gen():
+    all_departments = db.departments_list()
+    result_kb = InlineKeyboardMarkup(row_width=1)
+    for department in all_departments:
+        button = InlineKeyboardButton(text=department.name, callback_data=f"department_id {department.id}")
+        result_kb.add(button)
+    return result_kb

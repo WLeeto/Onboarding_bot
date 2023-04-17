@@ -15,6 +15,7 @@ class FSM_newbie_questioning(StatesGroup):
     show_video = State()
     accept_new_user = State()
     save_job_title = State()
+    save_department = State()
     save_type_of_employement = State()
     confirm_failed = State()
     change_name = State()
