@@ -33,5 +33,6 @@ services:
       - ./:/app
     env_file:
       - .envs/.bot
-#    depends_on:
+    depends_on:
+      - redis
 #      - postgres
