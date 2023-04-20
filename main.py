@@ -18,7 +18,8 @@ async def on_startup(_):
 
     job_stores = {
         "default": RedisJobStore(
-            jobs_key="dispatched_trips_jobs", run_times_key="dispatched_trips_running"
+            jobs_key="dispatched_trips_jobs", run_times_key="dispatched_trips_running",
+            host="redis", port=6379
         )
     }
 
