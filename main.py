@@ -16,14 +16,15 @@ async def on_startup(_):
     """
     asyncio.create_task(set_default_commands(dp))
 
-    job_stores = {
-        "default": RedisJobStore(
-            jobs_key="dispatched_trips_jobs", run_times_key="dispatched_trips_running",
-            host="redis", port=6379
-        )
-    }
+    # job_stores = {
+    #     "default": RedisJobStore(
+    #         jobs_key="dispatched_trips_jobs", run_times_key="dispatched_trips_running",
+    #         host="redis", port=6379
+    #     )
+    # }
 
-    scheduler = AsyncIOScheduler(jobstores=job_stores, timezone="Europe/Moscow")
+    # scheduler = AsyncIOScheduler(jobstores=job_stores, timezone="Europe/Moscow")
+    scheduler = AsyncIOScheduler(timezone="Europe/Moscow")
     scheduler.start()
 
     dp.middleware.setup(SchedulerMiddleware(scheduler))
