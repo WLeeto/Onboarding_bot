@@ -143,3 +143,17 @@ class Statistics(Base):
     id = sq.Column(sq.Integer, primary_key=True)
     tg_id = sq.Column(sq.BIGINT)
     created_at = sq.Column(sq.DateTime, default=datetime.now)
+
+
+class Full_statistics(Base):
+    __tablename__ = "Full_statistics"
+
+    id = sq.Column(sq.Integer, primary_key=True)
+    user_id = sq.Column(sq.Integer, sq.ForeignKey("Users.id"))
+    tg_id = sq.Column(sq.BIGINT, nullable=False)
+    created_at = sq.Column(sq.DateTime, default=datetime.now, onupdate=datetime.now, nullable=False)
+    command_used = sq.Column(sq.Text)
+    text_request = sq.Column(sq.Text)
+    is_answered = sq.Column(sq.Boolean)
+
+    user = relationship(Users, backref="user_statistics")

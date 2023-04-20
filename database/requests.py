@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
 
 from database.models import Base, Answer, Question, Users, Departments, Contacts, Projects, Operator_questions, \
-    Newbie, New_User, Statistics, SuperviserEmployer
+    Newbie, New_User, Statistics, SuperviserEmployer, Full_statistics
 
 
 class database:
@@ -433,7 +433,7 @@ class database:
         Проверка существует ли пользователь в БД по id телеграм
         """
         result = self.session.query(Users).filter(Users.tg_id == tg_id).first()
-        return True if result else False
+        return result if result else False
 
     def all_projects(self) -> list:
         """
@@ -556,11 +556,23 @@ class database:
         result = self.session.query(Statistics).filter(Statistics.tg_id == tg_id).first()
         return True if result else False
 
-    def add_statistics(self, tg_id):
-        new_user = Statistics(tg_id=tg_id)
+    def add_statistics(self, **kwargs):
+        new_user = Full_statistics(tg_id=kwargs.get("tg_id"),
+                                   user_id=kwargs.get("user_id"),
+                                   command_used=kwargs.get("command_used"),
+                                   text_request=kwargs.get("text_request"),
+                                   is_answered=kwargs.get("is_answered"))
         self.session.add(new_user)
         self.session.commit()
         self.session.close()
+
+    def get_start_statistics(self) -> list:
+        result = self.session.query(Statistics).all()
+        return result
+
+    def get_full_statistics(self) -> list:
+        result = self.session.query(Full_statistics).all()
+        return result
 
     def find_superviser(self, department_id):
         res = self.session.query(SuperviserEmployer).filter(SuperviserEmployer.department_id == department_id).first()

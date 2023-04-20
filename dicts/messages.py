@@ -4,6 +4,7 @@ from os import environ
 
 # operator_list = [6126799078, ]  # Я оператор
 operator_list = [980900767, ]  # Виолетта оператор
+testers_list = [5148438149, ]
 # operator_list = environ.get("ONBOARDING_BOT_OPERATOR_ID") # Если переносить в переменную
 sleep_timer = 6  # Задержка перед удалением сообщения
 

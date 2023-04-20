@@ -8,7 +8,7 @@ from create_bot import dp, bot, db
 
 from func.all_func import delete_message, is_breakes, is_reply_keyboard
 
-from dicts.messages import message_dict, commands_dict, operator_list
+from dicts.messages import message_dict, commands_dict, operator_list, testers_list
 from keyboards.all_keyboards import all_keyboards
 from keyboards.inline_find import search_way
 from keyboards.inline_initiate_vacation import vacation_keyboard
@@ -52,7 +52,9 @@ async def change_type_of_employement(callback_query: types.CallbackQuery, state:
 
 # @dp.message_handler(commands='vacation')
 async def vacation(message: types.Message):
-    if db.is_user(message.from_id):
+    user = db.is_user(message.from_id)
+    if user:
+        db.add_statistics(tg_id=message.from_id, user_id=user.id, command_used="vacation")
         type_of_employement = db.what_type_of_employment(message.from_id)
         if type_of_employement:
             await message.answer(commands_dict["vacation"]["vacation"], parse_mode=types.ParseMode.HTML,
@@ -82,7 +84,9 @@ async def start(message: types.Message, state=FSMContext):
         db.add_statistics(message.from_id)
     keyboard = Survey_inlines_keyboards()
     me = await bot.get_me()
-    if db.is_tg_id_in_base(message.from_id):
+    user = db.is_user(message.from_id)
+    if user:
+        db.add_statistics(tg_id=message.from_id, user_id=user.id, command_used="start")
         await message.answer(message_dict['greetings'], parse_mode=types.ParseMode.HTML)
         try:
             await message.answer_video(message_dict["greeting_video_id"])
@@ -111,12 +115,20 @@ async def stop(message: types.Message, state=FSMContext):
 
 # @dp.message_handler(commands='help')
 async def help(message: types.Message):
-    await message.answer(message_dict["help_message"])
+    user = db.is_user(message.from_id)
+    if user:
+        db.add_statistics(tg_id=message.from_id, user_id=user.id, command_used="help")
+        await message.answer(message_dict["help_message"])
+    else:
+        await message.answer(message_dict["start_not_in_db"].format(tgid=message.from_id),
+                             parse_mode=types.ParseMode.MARKDOWN_V2, disable_web_page_preview=True)
 
 
 # @dp.message_handler(commands='find')
 async def start_searching(message: types.Message):
-    if db.is_user(message.from_user.id):
+    user = db.is_user(message.from_id)
+    if user:
+        db.add_statistics(tg_id=message.from_id, user_id=user.id, command_used="find")
         await message.answer("Клавиатура для поиска:", reply_markup=search_way)
         await message.delete()
     else:
@@ -125,44 +137,70 @@ async def start_searching(message: types.Message):
 
 # @dp.message_handler(commands='contacts')
 async def contacts(message: types.Message):
-    await message.answer(commands_dict["contacts"], parse_mode=types.ParseMode.HTML, reply_markup=contacts_keyboard)
+    user = db.is_user(message.from_id)
+    if user:
+        db.add_statistics(tg_id=message.from_id, user_id=user.id, command_used="contacts")
+        await message.answer(commands_dict["contacts"], parse_mode=types.ParseMode.HTML, reply_markup=contacts_keyboard)
+    else:
+        await message.answer(message_dict["not_in_db"])
 
 
 # @dp.message_handler(commands='benefits')
 async def benefits(message: types.Message):
-    text = db.find_answer_by_answer_id(17).answer_text
-
-    check_keyboards = is_reply_keyboard(text)
-    if check_keyboards:
-        keyboard = all_keyboards[check_keyboards[-1]]
-        await message.answer(is_breakes(check_keyboards[0]), parse_mode=types.ParseMode.HTML,
-                             reply_markup=keyboard)
+    user = db.is_user(message.from_id)
+    if user:
+        db.add_statistics(tg_id=message.from_id, user_id=user.id, command_used="benefits")
+        text = db.find_answer_by_answer_id(17).answer_text
+        check_keyboards = is_reply_keyboard(text)
+        if check_keyboards:
+            keyboard = all_keyboards[check_keyboards[-1]]
+            await message.answer(is_breakes(check_keyboards[0]), parse_mode=types.ParseMode.HTML,
+                                 reply_markup=keyboard)
+        else:
+            await message.answer(is_breakes(text), parse_mode=types.ParseMode.HTML,
+                                 reply_markup=get_teamforce_presentation_keyboard)
     else:
-        await message.answer(is_breakes(text), parse_mode=types.ParseMode.HTML,
-                             reply_markup=get_teamforce_presentation_keyboard)
+        await message.answer(message_dict["not_in_db"])
 
 
 # @dp.message_handler(commands='support')
 async def support(message: types.Message):
-    text = db.find_answer_by_answer_id(18).answer_text
-    await message.answer(is_breakes(text), parse_mode=types.ParseMode.HTML)
+    user = db.is_user(message.from_id)
+    if user:
+        db.add_statistics(tg_id=message.from_id, user_id=user.id, command_used="support")
+        text = db.find_answer_by_answer_id(18).answer_text
+        await message.answer(is_breakes(text), parse_mode=types.ParseMode.HTML)
+    else:
+        await message.answer(message_dict["not_in_db"])
 
 
 # @dp.message_handler(commands='social_media')
 async def social_media(message: types.Message):
-    text = db.find_answer_by_answer_id(19).answer_text
-    await message.answer(is_breakes(text), parse_mode=types.ParseMode.HTML)
+    user = db.is_user(message.from_id)
+    if user:
+        db.add_statistics(tg_id=message.from_id, user_id=user.id, command_used="social_media")
+        text = db.find_answer_by_answer_id(19).answer_text
+        await message.answer(is_breakes(text), parse_mode=types.ParseMode.HTML)
+    else:
+        await message.answer(message_dict["not_in_db"])
 
 
 # @dp.message_handler(commands='initiative')
 async def initiative(message: types.Message):
-    text = db.find_answer_by_answer_id(20).answer_text
-    await message.answer(text, parse_mode=types.ParseMode.HTML)
+    user = db.is_user(message.from_id)
+    if user:
+        db.add_statistics(tg_id=message.from_id, user_id=user.id, command_used="initiative")
+        text = db.find_answer_by_answer_id(20).answer_text
+        await message.answer(text, parse_mode=types.ParseMode.HTML)
+    else:
+        await message.answer(message_dict["not_in_db"])
 
 
 # @dp.message_handler(commands='finance')
 async def finance(message: types.Message):
-    if db.is_user(message.from_id):
+    user = db.is_user(message.from_id)
+    if user:
+        db.add_statistics(tg_id=message.from_id, user_id=user.id, command_used="finance")
         type_of_employment = db.what_type_of_employment(message.from_id)
         if type_of_employment:
             if type_of_employment == "штат":
@@ -181,17 +219,25 @@ async def finance(message: types.Message):
 
 # @dp.message_handler(commands='office')
 async def office(message: types.Message):
-    text = db.find_answer_by_answer_id(22).answer_text
-    try:
-        await bot.send_video(message.from_id, "BAACAgIAAxkBAAIWJGQ4EyUsVfCZSH3duWwuhsWwkKasAAKALQACZlDBSTHmsaJRH0WYLwQ")
-    except WrongFileIdentifier:
-        pass
-    await message.answer(is_breakes(text), parse_mode=types.ParseMode.HTML, disable_web_page_preview=True)
+    user = db.is_user(message.from_id)
+    if user:
+        db.add_statistics(tg_id=message.from_id, user_id=user.id, command_used="office")
+        text = db.find_answer_by_answer_id(22).answer_text
+        try:
+            await bot.send_video(message.from_id,
+                                 "BAACAgIAAxkBAAIWJGQ4EyUsVfCZSH3duWwuhsWwkKasAAKALQACZlDBSTHmsaJRH0WYLwQ")
+        except WrongFileIdentifier:
+            pass
+        await message.answer(is_breakes(text), parse_mode=types.ParseMode.HTML, disable_web_page_preview=True)
+    else:
+        await message.answer(message_dict["not_in_db"])
 
 
 # @dp.message_handler(commands='bt')
 async def business_trip(message: types.Message):
-    if db.is_user(message.from_id):
+    user = db.is_user(message.from_id)
+    if user:
+        db.add_statistics(tg_id=message.from_id, user_id=user.id, command_used="bt")
         await message.answer(commands_dict["bt"], parse_mode=types.ParseMode.HTML,
                              reply_markup=get_business_trip_docs_keyboard)
     else:
@@ -200,32 +246,54 @@ async def business_trip(message: types.Message):
 
 # @dp.message_handler(commands='referal')
 async def referal(message: types.Message):
-    text = db.find_answer_by_answer_id(26).answer_text
-    await message.answer(is_breakes(text), parse_mode=types.ParseMode.HTML)
+    user = db.is_user(message.from_id)
+    if user:
+        db.add_statistics(tg_id=message.from_id, user_id=user.id, command_used="referal")
+        text = db.find_answer_by_answer_id(26).answer_text
+        await message.answer(is_breakes(text), parse_mode=types.ParseMode.HTML)
+    else:
+        await message.answer(message_dict["not_in_db"])
 
 
 # @dp.message_handler(commands='tf360')
 async def tf360(message: types.Message):
-    text = db.find_answer_by_answer_id(25).answer_text
-    await message.answer(is_breakes(text), parse_mode=types.ParseMode.HTML)
+    user = db.is_user(message.from_id)
+    if user:
+        db.add_statistics(tg_id=message.from_id, user_id=user.id, command_used="tf360")
+        text = db.find_answer_by_answer_id(25).answer_text
+        await message.answer(is_breakes(text), parse_mode=types.ParseMode.HTML)
+    else:
+        await message.answer(message_dict["not_in_db"])
 
 
 # @dp.message_handler(commands='projects')
 async def projects(message: types.Message):
-    projects_kb = Projects_keyboard()
-    await message.answer(commands_dict["projects"], parse_mode=types.ParseMode.HTML,
+    user = db.is_user(message.from_id)
+    if user:
+        db.add_statistics(tg_id=message.from_id, user_id=user.id, command_used="projects")
+        projects_kb = Projects_keyboard()
+        await message.answer(commands_dict["projects"], parse_mode=types.ParseMode.HTML,
                          reply_markup=projects_kb.create_kb())
+    else:
+        await message.answer(message_dict["not_in_db"])
 
 
 # @dp.message_handler(commands='about')
 async def about(message: types.Message):
-    about_text = db.find_answer_by_answer_id(27).answer_text
-    await message.answer(is_breakes(about_text), parse_mode=types.ParseMode.HTML)
+    user = db.is_user(message.from_id)
+    if user:
+        db.add_statistics(tg_id=message.from_id, user_id=user.id, command_used="about")
+        about_text = db.find_answer_by_answer_id(27).answer_text
+        await message.answer(is_breakes(about_text), parse_mode=types.ParseMode.HTML)
+    else:
+        await message.answer(message_dict["not_in_db"])
 
 
 # @dp.message_handler(commands='sick_leave')
 async def sick_leave(message: types.Message):
-    if db.is_user(message.from_id):
+    user = db.is_user(message.from_id)
+    if user:
+        db.add_statistics(tg_id=message.from_id, user_id=user.id, command_used="sick_leave")
         await message.answer("Что конкретно про больничный вы хотели бы узнать?:", reply_markup=sick_leave_kb)
     else:
         await message.answer(message_dict["not_in_db"])
@@ -239,6 +307,8 @@ class FSM_newbie_adding(StatesGroup):
 # @dp.message_handler(commands='adduser')
 async def adduser(message: types.Message):
     if message.from_id in operator_list:
+        user = db.is_user(message.from_id)
+        db.add_statistics(tg_id=message.from_id, user_id=user.id, command_used="adduser")
         await FSM_newbie_adding.add_tg_id.set()
         await message.answer("Ура! У нас новенький ! Введи id в телеграмме чтобы добавить в БД новеньких:")
     else:
@@ -276,6 +346,98 @@ async def meeting(message: types.Message):
                              "Напишите описание встречи и ссылку (если требуется)\n\n"
                              "Чтобы отменить создание встречи используйте /stop", parse_mode=types.ParseMode.HTML)
         await FSM_meeting.start.set()
+    else:
+        await message.answer(message_dict["not_in_db"])
+
+
+@dp.message_handler(commands="stat")
+async def statistics(message: types.Message):
+    if db.is_user(message.from_id):
+        stat = db.get_full_statistics()
+        start_stat = db.get_start_statistics()
+        start = len(start_stat)
+        command_used = 0
+        contacts = 0
+        vacation = 0
+        benefits = 0
+        support = 0
+        social_media = 0
+        initiative = 0
+        finance = 0
+        bt = 0
+        find = 0
+        referal = 0
+        office = 0
+        tf360 = 0
+        projects = 0
+        about = 0
+        sick_leave = 0
+        count = 0
+        answered = 0
+        not_answered = 0
+        for i in stat:
+            if i.command_used:
+                command_used += 1
+            if i.command_used == "contacts":
+                contacts += 1
+            if i.command_used == "vacation":
+                vacation += 1
+            if i.command_used == "benefits":
+                benefits += 1
+            if i.command_used == "support":
+                support += 1
+            if i.command_used == "social_media":
+                social_media += 1
+            if i.command_used == "initiative":
+                initiative += 1
+            if i.command_used == "finance":
+                finance += 1
+            if i.command_used == "bt":
+                bt += 1
+            if i.command_used == "find":
+                find += 1
+            if i.command_used == "referal":
+                referal += 1
+            if i.command_used == "office":
+                office += 1
+            if i.command_used == "tf360":
+                tf360 += 1
+            if i.command_used == "projects":
+                projects += 1
+            if i.command_used == "about":
+                about += 1
+            if i.command_used == "sick_leave":
+                sick_leave += 1
+            if i.text_request:
+                count += 1
+            if i.is_answered:
+                answered += 1
+            if not i.is_answered and i.is_answered is not None:
+                not_answered += 1
+        text = "<b><u>Статистика:</u></b>\n\n" \
+               f"Всего начали работу с ботом {start} человек\n\n" \
+               f"<b>Использовано команд {command_used}:</b>\n" \
+               f"contacts - {contacts}\n" \
+               f"vacation - {vacation}\n" \
+               f"benefits - {benefits}\n" \
+               f"support - {support}\n" \
+               f"social_media - {social_media}\n" \
+               f"initiative - {initiative}\n" \
+               f"finance - {finance}\n" \
+               f"bt - {bt}\n" \
+               f"find - {find}\n" \
+               f"referal - {referal}\n" \
+               f"office - {office}\n" \
+               f"tf360 - {tf360}\n" \
+               f"projects - {projects}\n" \
+               f"about - {about}\n" \
+               f"sick_leave - {sick_leave}\n" \
+               f"\n" \
+               f"<b>Запросов боту:</b>\n" \
+               f"Всего: {count}\n" \
+               f"Бот смог ответить на {answered}\n" \
+               f"Отправлено оператору {not_answered}\n"
+        await message.answer(text, parse_mode=types.ParseMode.HTML)
     else:
         await message.answer(message_dict["not_in_db"])
 
