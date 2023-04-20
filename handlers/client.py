@@ -350,7 +350,7 @@ async def meeting(message: types.Message):
         await message.answer(message_dict["not_in_db"])
 
 
-@dp.message_handler(commands="stat")
+# @dp.message_handler(commands="stat")
 async def statistics(message: types.Message):
     if db.is_user(message.from_id):
         stat = db.get_full_statistics()
@@ -444,6 +444,8 @@ async def statistics(message: types.Message):
 
 def register_handlers_client(dp: Dispatcher):
     dp.register_message_handler(stop, commands='stop', state="*")
+
+    dp.register_message_handler(statistics, commands="stat")
 
     dp.register_message_handler(adduser, commands='adduser')
     dp.register_message_handler(add_newbie_tg_id, state=FSM_newbie_adding.add_tg_id)

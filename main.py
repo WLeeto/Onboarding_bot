@@ -1,6 +1,8 @@
 import asyncio
 
 from aiogram.utils import executor
+from apscheduler.jobstores.redis import RedisJobStore
+
 from create_bot import dp
 from func.all_func import set_default_commands
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -14,7 +16,13 @@ async def on_startup(_):
     """
     asyncio.create_task(set_default_commands(dp))
 
-    scheduler = AsyncIOScheduler(timezone="Europe/Moscow")
+    job_stores = {
+        "default": RedisJobStore(
+            jobs_key="dispatched_trips_jobs", run_times_key="dispatched_trips_running"
+        )
+    }
+
+    scheduler = AsyncIOScheduler(jobstores=job_stores, timezone="Europe/Moscow")
     scheduler.start()
 
     dp.middleware.setup(SchedulerMiddleware(scheduler))
