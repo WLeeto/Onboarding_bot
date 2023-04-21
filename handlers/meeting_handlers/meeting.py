@@ -76,7 +76,7 @@ async def send_invites(callback_query: types.CallbackQuery, scheduler: AsyncIOSc
     if callback_query.data.split(" ")[1] == "yes":
         await callback_query.message.answer("Отправляю приглашения ...")
         async with state.proxy() as data:
-            datetime = data["datetime"]
+            send_datetime = data["datetime"]
             recipient_list = data["recipient_list"]
             header = data["header"]
         from_user = db.find_by_tg_id(tg_id=callback_query.from_user.id)
@@ -91,7 +91,7 @@ async def send_invites(callback_query: types.CallbackQuery, scheduler: AsyncIOSc
         for recipient in recipient_list:
             user = db.find_user_by_telegram_nickname(recipient)
             if user:
-                scheduler.add_job(_send_message, trigger="date", run_date=datetime, args=(user.tg_id, text),
+                scheduler.add_job(_send_message, trigger="date", run_date=send_datetime, args=(user.tg_id, text),
                                   timezone='Europe/Moscow')
                 recipient_email = db.find_email_by_user_id(user.id)
                 if recipient_email:

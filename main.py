@@ -1,13 +1,17 @@
 import asyncio
 
+from aiogram import Bot
 from aiogram.utils import executor
 from apscheduler.jobstores.redis import RedisJobStore
 
-from create_bot import dp
+from create_bot import dp, bot, db
 from func.all_func import set_default_commands
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from middleware.scheldule_middleware import SchedulerMiddleware
+
+from apscheduler_di import ContextSchedulerDecorator
+from apscheduler.jobstores.redis import RedisJobStore
 
 
 async def on_startup(_):
@@ -16,19 +20,20 @@ async def on_startup(_):
     """
     asyncio.create_task(set_default_commands(dp))
 
-    # job_stores = {
-    #     "default": RedisJobStore(
-    #         jobs_key="dispatched_trips_jobs", run_times_key="dispatched_trips_running",
-    #         host="redis", port=6379
-    #     )
-    # }
+    job_stores = {
+        "default": RedisJobStore(
+            jobs_key="dispatched_trips_jobs", run_times_key="dispatched_trips_running",
+            host="redis", port=6379
+        )
+    }
 
-    # scheduler = AsyncIOScheduler(jobstores=job_stores, timezone="Europe/Moscow")
-    scheduler = AsyncIOScheduler(timezone="Europe/Moscow")
+    scheduler = ContextSchedulerDecorator(AsyncIOScheduler(jobstores=job_stores, timezone="Europe/Moscow"))
+    # scheduler = AsyncIOScheduler(timezone="Europe/Moscow")
+    scheduler.ctx.add_instance(bot, declared_class=Bot)
     scheduler.start()
 
     dp.middleware.setup(SchedulerMiddleware(scheduler))
-
+    db.create_tables()
     print('Бот запущен')
 
 

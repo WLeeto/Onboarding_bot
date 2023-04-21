@@ -13,7 +13,7 @@ class database:
 
         DSN = os.environ.get("ONBOARDING_BOT_DB_DSN")
 
-        # DSN = 'postgresql://postgres:postgres@localhost:5432/onboarding_bot_db'
+        # DSN = 'postgresql://postgres_user:postgres_pass@postgres:5432/onboarding_bot_db'
 
         self.engine = sqlalchemy.create_engine(DSN)
         Session = sessionmaker(bind=self.engine)
