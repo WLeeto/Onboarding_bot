@@ -8,7 +8,7 @@ from create_bot import dp, bot, db
 
 from func.all_func import delete_message, is_breakes, is_reply_keyboard
 
-from dicts.messages import message_dict, commands_dict, operator_list, testers_list
+from dicts.messages import message_dict, commands_dict, operator_list
 from keyboards.all_keyboards import all_keyboards
 from keyboards.inline_find import search_way
 from keyboards.inline_initiate_vacation import vacation_keyboard
@@ -377,6 +377,7 @@ async def statistics(message: types.Message):
         count = 0
         answered = 0
         not_answered = 0
+        meeting = 0
         for i in stat:
             if i.command_used:
                 command_used += 1
@@ -410,6 +411,8 @@ async def statistics(message: types.Message):
                 about += 1
             if i.command_used == "sick_leave":
                 sick_leave += 1
+            if i.command_used == "meeting":
+                meeting += 1
             if i.text_request:
                 count += 1
             if i.is_answered:
@@ -434,6 +437,7 @@ async def statistics(message: types.Message):
                f"projects - {projects}\n" \
                f"about - {about}\n" \
                f"sick_leave - {sick_leave}\n" \
+               f"meeting - {meeting}" \
                f"\n" \
                f"<b>Запросов боту:</b>\n" \
                f"Всего: {count}\n" \
