@@ -78,6 +78,7 @@ async def send_invites(callback_query: types.CallbackQuery, scheduler: AsyncIOSc
             recipient_list = data["recipient_list"]
             header = data["header"]
         from_user = db.find_by_tg_id(tg_id=callback_query.from_user.id)
+        from_user_id = from_user.id
         full_sender_name = f"{from_user.surname} {from_user.first_name}"
         datetime_to_send = send_datetime.strftime("%d.%m.%Y %H:%M")
         found_users = []
@@ -100,7 +101,7 @@ async def send_invites(callback_query: types.CallbackQuery, scheduler: AsyncIOSc
                       f"Время: {datetime_to_send}\n"
                       f"Получатель: {user_tg_name}")
                 recipient_email = db.find_email_by_user_id(user_id)
-                db.add_scheldulered_message(text=text, from_id=from_user.id, to_id=user_id, date_to_send=send_datetime)
+                db.add_scheldulered_message(text=text, from_id=from_user_id, to_id=user_id, date_to_send=send_datetime)
                 if recipient_email:
                     asyncio.create_task(send_meeting_email(from_name=full_sender_name,
                                                            title=header,
