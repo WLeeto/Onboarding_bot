@@ -157,3 +157,16 @@ class Full_statistics(Base):
     is_answered = sq.Column(sq.Boolean)
 
     user = relationship(Users, backref="user_statistics")
+
+
+class Schelduled_message(Base):
+    __tablename__ = "Schelduled_message"
+
+    id = sq.Column(sq.Integer, primary_key=True)
+    text = sq.Column(sq.Text, nullable=False)
+    from_id = sq.Column(sq.Integer, sq.ForeignKey("Users.id"))
+    to_id = sq.Column(sq.Integer, sq.ForeignKey("Users.id"))
+    date_to_send = sq.Column(sq.DateTime, nullable=False)
+
+    from_user = relationship(Users, backref="from_user", foreign_keys=[from_id])
+    to_user = relationship(Users, backref="to_user", foreign_keys=[to_id])

@@ -11,12 +11,11 @@ from database.requests import database
 from aiogram import types
 
 storage = MemoryStorage()
+# storage = RedisStorage('redis://localhost:6379/0')
 
 token_tg = environ.get("TOKEN_ONBOARDING_BOT")
 
 bot = Bot(token=token_tg)
-
-# storage = RedisStorage('redis://localhost:6379/0')
 
 dp = Dispatcher(bot, storage=storage)
 

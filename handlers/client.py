@@ -9,6 +9,7 @@ from create_bot import dp, bot, db
 from func.all_func import delete_message, is_breakes, is_reply_keyboard
 
 from dicts.messages import message_dict, commands_dict, operator_list
+from func.scheldule import _send_message
 from keyboards.all_keyboards import all_keyboards
 from keyboards.inline_find import search_way
 from keyboards.inline_initiate_vacation import vacation_keyboard

@@ -1,4 +1,6 @@
 import asyncio
+import datetime
+import re
 
 from aiogram import Bot
 from aiogram.utils import executor
@@ -8,6 +10,7 @@ from create_bot import dp, bot, db
 from func.all_func import set_default_commands
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
+from func.scheldule import _send_message
 from middleware.scheldule_middleware import SchedulerMiddleware
 
 from apscheduler_di import ContextSchedulerDecorator
@@ -20,20 +23,33 @@ async def on_startup(_):
     """
     asyncio.create_task(set_default_commands(dp))
 
-    job_stores = {
-        "default": RedisJobStore(
-            jobs_key="dispatched_trips_jobs", run_times_key="dispatched_trips_running",
-            host="redis", port=6379
-        )
-    }
+    # job_stores = {
+    #     "default": RedisJobStore(
+    #         jobs_key="dispatched_trips_jobs", run_times_key="dispatched_trips_running",
+    #         host="redis", port=6379
+    #     )
+    # }
 
-    scheduler = ContextSchedulerDecorator(AsyncIOScheduler(jobstores=job_stores, timezone="Europe/Moscow"))
-    # scheduler = AsyncIOScheduler(timezone="Europe/Moscow")
-    scheduler.ctx.add_instance(bot, declared_class=Bot)
+    # scheduler = ContextSchedulerDecorator(AsyncIOScheduler(jobstores=job_stores, timezone="Europe/Moscow"))
+    scheduler = AsyncIOScheduler(timezone="Europe/Moscow")
+    # scheduler.ctx.add_instance(bot, declared_class=Bot)
     scheduler.start()
-
     dp.middleware.setup(SchedulerMiddleware(scheduler))
     db.create_tables()
+
+    all_scheldulered_message = db.get_all_scheldulered_message()
+    for i in all_scheldulered_message:
+        if i.date_to_send >= datetime.datetime.utcnow() + datetime.timedelta(hours=3, minutes=6):
+            recipient = db.find_user_by_id(i.to_id)
+            scheduler.add_job(_send_message, trigger="date", run_date=i.date_to_send - datetime.timedelta(minutes=5),
+                      kwargs={"chat_id": recipient.tg_id,
+                              "text": i.text},
+                      timezone='Europe/Moscow')
+            print(f"Добавлена отложенная отправка: {i.date_to_send} {recipient.tg_name}")
+        else:
+            db.delete_scheldulered_message(i.id)
+    db.session.close()
+
     print('Бот запущен')
 
 

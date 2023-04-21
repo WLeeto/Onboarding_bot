@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
 
 from database.models import Base, Answer, Question, Users, Departments, Contacts, Projects, Operator_questions, \
-    Newbie, New_User, Statistics, SuperviserEmployer, Full_statistics
+    Newbie, New_User, Statistics, SuperviserEmployer, Full_statistics, Schelduled_message
 
 
 class database:
@@ -218,7 +218,7 @@ class database:
             result.append(user)
         return result if result else False
 
-    def find_user_by_id(self, id: int):
+    def find_user_by_id(self, id: int) -> object or None:
         result = self.session.query(Users).filter(Users.id == id).first()
         return result
 
@@ -577,3 +577,19 @@ class database:
     def find_superviser(self, department_id):
         res = self.session.query(SuperviserEmployer).filter(SuperviserEmployer.department_id == department_id).first()
         return res.superviser_id
+
+    def add_scheldulered_message(self, text: str, from_id: int, to_id: int, date_to_send: str) -> None:
+        new_scheldulered_message = Schelduled_message(text=text, from_id=from_id, to_id=to_id,
+                                                      date_to_send=date_to_send)
+        self.session.add(new_scheldulered_message)
+        self.session.commit()
+        self.session.close()
+
+    def get_all_scheldulered_message(self) -> list:
+        result = self.session.query(Schelduled_message).all()
+        return result
+
+    def delete_scheldulered_message(self, id: int) -> None:
+        to_del = self.session.query(Schelduled_message).filter(Schelduled_message.id == id).first()
+        self.session.delete(to_del)
+        self.session.commit()

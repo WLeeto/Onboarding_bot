@@ -51,8 +51,6 @@ async def save_date_time(message: types.Message, state: FSMContext):
         minute = re.match(pattern, message.text).group(7)
         inserted_date = datetime(int(year), int(month), int(day), int(hour), int(minute))
         now = datetime.utcnow() + timedelta(hours=3)
-        print(now)
-        print(inserted_date)
         if inserted_date > now + timedelta(minutes=7):
             async with state.proxy() as data:
                 data["datetime"] = inserted_date
@@ -95,7 +93,11 @@ async def send_invites(callback_query: types.CallbackQuery, scheduler: AsyncIOSc
                                   kwargs={"chat_id": user.tg_id,
                                           "text": text},
                                   timezone='Europe/Moscow')
+                print(f"Создано новое отложенное событие:\n"
+                      f"Время: {datetime_to_send}\n"
+                      f"Получатель: {user.tg_name}")
                 recipient_email = db.find_email_by_user_id(user.id)
+                db.add_scheldulered_message(text=text, from_id=from_user.id, to_id=user.id, date_to_send=send_datetime)
                 if recipient_email:
                     asyncio.create_task(send_meeting_email(from_name=full_sender_name,
                                                            title=header,
