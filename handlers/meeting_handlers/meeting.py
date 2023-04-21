@@ -89,15 +89,18 @@ async def send_invites(callback_query: types.CallbackQuery, scheduler: AsyncIOSc
         for recipient in recipient_list:
             user = db.find_user_by_telegram_nickname(recipient)
             if user:
+                user_id = user.id
+                user_tg_id = user.tg_id
+                user_tg_name = user.tg_name
                 scheduler.add_job(_send_message, trigger="date", run_date=send_datetime - timedelta(minutes=5),
-                                  kwargs={"chat_id": user.tg_id,
+                                  kwargs={"chat_id": user_tg_id,
                                           "text": text},
                                   timezone='Europe/Moscow')
                 print(f"Создано новое отложенное событие:\n"
                       f"Время: {datetime_to_send}\n"
-                      f"Получатель: {user.tg_name}")
-                recipient_email = db.find_email_by_user_id(user.id)
-                db.add_scheldulered_message(text=text, from_id=from_user.id, to_id=user.id, date_to_send=send_datetime)
+                      f"Получатель: {user_tg_name}")
+                recipient_email = db.find_email_by_user_id(user_id)
+                db.add_scheldulered_message(text=text, from_id=from_user.id, to_id=user_id, date_to_send=send_datetime)
                 if recipient_email:
                     asyncio.create_task(send_meeting_email(from_name=full_sender_name,
                                                            title=header,
