@@ -81,7 +81,7 @@ async def send_invites(callback_query: types.CallbackQuery, scheduler: AsyncIOSc
             header = data["header"]
         from_user = db.find_by_tg_id(tg_id=callback_query.from_user.id)
         full_sender_name = f"{from_user.surname} {from_user.first_name}"
-        datetime_to_send = datetime.strftime("%d.%m.%Y %H:%M")
+        datetime_to_send = send_datetime.strftime("%d.%m.%Y %H:%M")
         found_users = []
         not_found_users = []
         not_found_emails = []
