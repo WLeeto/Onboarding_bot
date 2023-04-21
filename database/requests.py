@@ -428,7 +428,7 @@ class database:
         self.session.close()
         return True
 
-    def is_user(self, tg_id: int) -> bool:
+    def is_user(self, tg_id: int) -> object or bool:
         """
         Проверка существует ли пользователь в БД по id телеграм
         """

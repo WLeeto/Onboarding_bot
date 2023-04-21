@@ -341,7 +341,9 @@ async def call_operator(message: types.Message):
 
 # @dp.message_handler(commands='meeting')
 async def meeting(message: types.Message):
-    if db.is_user(message.from_id):
+    user = db.is_user(message.from_id)
+    if user:
+        db.add_statistics(tg_id=message.from_id, user_id=user.id, command_used="meeting")
         await message.answer("Давай соберем людей на созвон !\n"
                              "Напишите описание встречи и ссылку (если требуется)\n\n"
                              "Чтобы отменить создание встречи используйте /stop", parse_mode=types.ParseMode.HTML)
