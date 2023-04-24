@@ -8,7 +8,7 @@ from create_bot import dp, bot, db
 
 from func.all_func import delete_message, is_breakes, is_reply_keyboard
 
-from dicts.messages import message_dict, commands_dict, operator_list
+from dicts.messages import message_dict, commands_dict, operator_list, administarator_list
 from func.scheldule import _send_message
 from keyboards.all_keyboards import all_keyboards
 from keyboards.inline_find import search_way
@@ -355,7 +355,7 @@ async def meeting(message: types.Message):
 
 # @dp.message_handler(commands="stat")
 async def statistics(message: types.Message):
-    if db.is_user(message.from_id):
+    if message.from_id in administarator_list:
         stat = db.get_full_statistics()
         start_stat = db.get_start_statistics()
         start = len(start_stat)
@@ -446,7 +446,7 @@ async def statistics(message: types.Message):
                f"Отправлено оператору {not_answered}\n"
         await message.answer(text, parse_mode=types.ParseMode.HTML)
     else:
-        await message.answer(message_dict["not_in_db"])
+        await message.answer("Команда только для администраторов")
 
 
 def register_handlers_client(dp: Dispatcher):

@@ -67,6 +67,24 @@ class Users(Base):
     department = relationship(Departments, backref="Departments")
 
 
+class Organization(Base):
+    __tablename__ = "Organization"
+
+    id = sq.Column(sq.Integer, primary_key=True)
+    name = sq.Column(sq.Text, nullable=False)
+
+
+class UserOrganization(Base):
+    __tablename__ = "UserOrganization"
+
+    id = sq.Column(sq.Integer, primary_key=True)
+    user_id = sq.Column(sq.Integer, sq.ForeignKey("Users.id"))
+    organization_id = sq.Column(sq.Integer, sq.ForeignKey("Organization.id"))
+
+    user = relationship(Users, backref="UserOrganization")
+    organization = relationship(Organization, backref="UserOrganization")
+
+
 class Contacts(Base):
     __tablename__ = "Contacts"
 
