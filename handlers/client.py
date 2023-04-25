@@ -23,6 +23,7 @@ from keyboards.inline_type_of_employement import type_of_employement_kb
 from handlers.other import FSMContext
 
 from States.states import FSM_type_of_employment, FSM_meeting, FSM_newbie_questioning
+from keyboards.inline_xlsx_newbie_form import start_kb
 
 
 # @dp.callback_query_handler(lambda c: c.data.startswith("type_of_emp"),
@@ -447,6 +448,11 @@ async def statistics(message: types.Message):
         await message.answer(text, parse_mode=types.ParseMode.HTML)
     else:
         await message.answer("Команда только для администраторов")
+
+
+@dp.message_handler(commands="testform")
+async def testform(message: types.Message):
+    await message.answer("Проведем тест заполнения xlsx формы ?", reply_markup=start_kb)
 
 
 def register_handlers_client(dp: Dispatcher):

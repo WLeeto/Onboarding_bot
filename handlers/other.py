@@ -18,6 +18,7 @@ from handlers.finance_handlers import finance
 from handlers.business_trip_handlers import business_trip
 from handlers.sick_leave_handlers import sick_leave
 from handlers.find_handlers import find
+from handlers.create_newbie_xlsx_handlers import create_xlsx
 
 from keyboards.inline_operator import ask_operator
 
@@ -201,6 +202,7 @@ def register_handlers_other(dp: Dispatcher):
     finance.register_handlers_finance(dp)
     business_trip.register_handlers_business_trip(dp)
     find.register_handlers_find(dp)
+    create_xlsx.register_handlers_create_xlsx(dp)
 
     dp.register_callback_query_handler(hr_contacts, lambda c: c.data == "hr_contacts")
 

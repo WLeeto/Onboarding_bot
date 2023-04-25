@@ -68,3 +68,12 @@ class FSM_search(StatesGroup):
     enter_department = State()
     enter_title = State()
     enter_phone = State()
+
+
+class FSM_newbie_xlsx(StatesGroup):
+    step_1 = State()
+    step_2 = State()
+    step_3 = State()
+    step_4 = State()
+    step_5 = State()
+    finish = State()
