@@ -21,7 +21,14 @@ async def start_xlsx_creating(callback_query: types.CallbackQuery, state: FSMCon
                                         "Телефон: +79158548483\n"
                                         "Email: pupkin@mail.ru\n"
                                         "Руководитель: Гайнанова Роза Ильшотовна")
+    button_list = ["ООО «СмартСтаффинг»", "ООО «ТИМ ФОРС»", "ООО «ТИМ ФОРС Сервис»", "ООО «ТИМ ФОРС Менеджмент»",
+                   "ООО «ТАТМобайлИнформ СиДиСи»", 'ООО "Репола"', 'ООО "Сириус"', 'ООО "Кайрос"', 'ООО "Бивень"']
+    cbq_list = ["ООО «СмартСтаффинг»", "ООО «ТИМ ФОРС»", "ООО «ТИМ ФОРС Сервис»", "ООО «ТИМ ФОРС Менеджмент»",
+                "ООО «ТАТМобайлИнформ СиДиСи»", 'ООО "Репола"', 'ООО "Сириус"', 'ООО "Кайрос"', 'ООО "Бивень"']
+    legal_entity_kb = create_kb(buttons_text=button_list, callback_data=cbq_list)
+    to_edit = await callback_query.message.answer("Выберите ЮЛ:", reply_markup=legal_entity_kb)
     async with state.proxy() as data:
+        data["to_edit"] = to_edit
         data["surname"] = "Пупкин"
         data["surname_eng"] = "Pupkin"
         data["name"] = "Владимир"
@@ -31,12 +38,6 @@ async def start_xlsx_creating(callback_query: types.CallbackQuery, state: FSMCon
         data["email"] = "pupkin@mail.ru"
         data["superviser"] = "Гайнанова Роза Ильшотовна"
         data["first_work_day"] = "25.04.2023"
-    button_list = ["ООО «СмартСтаффинг»", "ООО «ТИМ ФОРС»", "ООО «ТИМ ФОРС Сервис»", "ООО «ТИМ ФОРС Менеджмент»",
-                   "ООО «ТАТМобайлИнформ СиДиСи»", 'ООО "Репола"', 'ООО "Сириус"', 'ООО "Кайрос"', 'ООО "Бивень"']
-    cbq_list = ["ООО «СмартСтаффинг»", "ООО «ТИМ ФОРС»", "ООО «ТИМ ФОРС Сервис»", "ООО «ТИМ ФОРС Менеджмент»",
-                "ООО «ТАТМобайлИнформ СиДиСи»", 'ООО "Репола"', 'ООО "Сириус"', 'ООО "Кайрос"', 'ООО "Бивень"']
-    legal_entity_kb = create_kb(buttons_text=button_list, callback_data=cbq_list)
-    await callback_query.message.answer("Выберите ЮЛ:", reply_markup=legal_entity_kb)
 
 
 @dp.callback_query_handler(state=FSM_newbie_xlsx.step_1)
@@ -47,7 +48,11 @@ async def employer_type(callback_query: types.CallbackQuery, state: FSMContext):
     button_list = ["Команда", "Проекты"]
     cbq_list = ["Команда", "Проекты"]
     legal_entity_kb = create_kb(buttons_text=button_list, callback_data=cbq_list)
-    await callback_query.message.answer(f"Тип сотрудника:", reply_markup=legal_entity_kb)
+    to_edit = await bot.edit_message_text(f"Тип сотрудника:", reply_markup=legal_entity_kb,
+                                          chat_id=callback_query.from_user.id,
+                                          message_id=data["to_edit"].message_id)
+    async with state.proxy() as data:
+        data["to_edit"] = to_edit
     await FSM_newbie_xlsx.step_2.set()
 
 
@@ -59,7 +64,11 @@ async def employer_type2(callback_query: types.CallbackQuery, state: FSMContext)
     button_list = ["Штат", "Внешний"]
     cbq_list = ["Штат", "Внешний"]
     legal_entity_kb = create_kb(buttons_text=button_list, callback_data=cbq_list)
-    await callback_query.message.answer(f"Формат сотрудничества:", reply_markup=legal_entity_kb)
+    to_edit = await bot.edit_message_text(f"Формат сотрудничества:", reply_markup=legal_entity_kb,
+                                          chat_id=callback_query.from_user.id,
+                                          message_id=data["to_edit"].message_id)
+    async with state.proxy() as data:
+        data["to_edit"] = to_edit
     await FSM_newbie_xlsx.step_3.set()
 
 
@@ -71,7 +80,11 @@ async def employer_type3(callback_query: types.CallbackQuery, state: FSMContext)
     button_list = ["Сколково", "Удаленка", "Гибрид"]
     cbq_list = ["Сколково", "Удаленка", "Гибрид"]
     legal_entity_kb = create_kb(buttons_text=button_list, callback_data=cbq_list)
-    await callback_query.message.answer(f"Офис:", reply_markup=legal_entity_kb)
+    to_edit = await bot.edit_message_text(f"Офис:", reply_markup=legal_entity_kb,
+                                          chat_id=callback_query.from_user.id,
+                                          message_id=data["to_edit"].message_id)
+    async with state.proxy() as data:
+        data["to_edit"] = to_edit
     await FSM_newbie_xlsx.step_4.set()
 
 
@@ -89,7 +102,11 @@ async def employer_type4(callback_query: types.CallbackQuery, state: FSMContext)
                 "8", "9", "10",
                 "11", "12", "13"]
     legal_entity_kb = create_kb(buttons_text=button_list, callback_data=cbq_list, row_width=2)
-    await callback_query.message.answer(f"Центр расходов:", reply_markup=legal_entity_kb)
+    to_edit = await bot.edit_message_text(f"Центр расходов:", reply_markup=legal_entity_kb,
+                                          chat_id=callback_query.from_user.id,
+                                          message_id=data["to_edit"].message_id)
+    async with state.proxy() as data:
+        data["to_edit"] = to_edit
     await FSM_newbie_xlsx.step_5.set()
 
 
@@ -115,7 +132,11 @@ async def employer_type5(callback_query: types.CallbackQuery, state: FSMContext)
                 "24", "25", "26", "27", "28",
                 "29", "30", "31", "32"]
     legal_entity_kb = create_kb(buttons_text=button_list, callback_data=cbq_list, row_width=4)
-    await callback_query.message.answer(f"Бизнес-роль:", reply_markup=legal_entity_kb)
+    to_edit = await bot.edit_message_text(f"Бизнес-роль:", reply_markup=legal_entity_kb,
+                                          chat_id=callback_query.from_user.id,
+                                          message_id=data["to_edit"].message_id)
+    async with state.proxy() as data:
+        data["to_edit"] = to_edit
     await FSM_newbie_xlsx.finish.set()
 
 
