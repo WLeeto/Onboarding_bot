@@ -104,7 +104,7 @@ async def newbie_xlsx_step_3(callback_query: types.CallbackQuery, state: FSMCont
                                               message_id=data["to_edit"].message_id)
         async with state.proxy() as data:
             data["to_edit"] = to_edit
-        await FSM_newbie_xlsx.step_3.set()
+        await FSM_newbie_xlsx.step_4.set()
     else:
         await callback_query.answer()
         to_del = await callback_query.message.answer("Введите значение для поля 'Формат сотрудничества:':")
