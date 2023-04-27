@@ -91,34 +91,34 @@ def create_newbie_xlsx(filepath, **kwargs) -> bool:
     work_sheet["B17"] = kwargs.get("expense_center")
     work_sheet["B18"] = kwargs.get("superviser")
     work_sheet["B19"] = kwargs.get("business_role")
-    work_sheet["B21"] = "нет"
+    work_sheet["B21"] = kwargs.get("b21")
 
-    work_sheet["B24"] = "нет"
-    work_sheet["B25"] = "нет"
-    work_sheet["B26"] = "нет"
-    work_sheet["B27"] = "нет"
+    work_sheet["B24"] = kwargs.get("b24")
+    work_sheet["B25"] = kwargs.get("b25")
+    work_sheet["B26"] = kwargs.get("b26")
+    work_sheet["B27"] = kwargs.get("b27")
 
-    work_sheet["B30"] = "нет"
-    work_sheet["B31"] = "нет"
-    work_sheet["B32"] = "нет"
-    work_sheet["B33"] = "нет"
+    work_sheet["B30"] = kwargs.get("b30")
+    work_sheet["B31"] = kwargs.get("b31")
+    work_sheet["B32"] = kwargs.get("b32")
+    work_sheet["B33"] = kwargs.get("b33")
 
-    work_sheet["B35"] = "нет"
-    work_sheet["B36"] = "нет"
-    work_sheet["B37"] = "нет"
-    work_sheet["B39"] = "нет"
-    work_sheet["B41"] = "teamforce.ru"
-    work_sheet["B42"] = ""
-    work_sheet["B44"] = "team@teamforce.ru"
-    work_sheet["B45"] = ""
+    work_sheet["B35"] = kwargs.get("b35")
+    work_sheet["B36"] = kwargs.get("b36")
+    work_sheet["B37"] = kwargs.get("b37")
+    work_sheet["B39"] = kwargs.get("b39")
+    work_sheet["B41"] = kwargs.get("b41")
+    work_sheet["B42"] = kwargs.get("b42")
+    work_sheet["B44"] = kwargs.get("b44")
+    work_sheet["B45"] = kwargs.get("b45")
 
-    work_sheet["B48"] = "нет"
-    work_sheet["B49"] = "нет"
-    work_sheet["B50"] = "нет"
-    work_sheet["B51"] = "нет"
-    work_sheet["B52"] = "нет"
+    work_sheet["B48"] = kwargs.get("b48")
+    work_sheet["B49"] = kwargs.get("b49")
+    work_sheet["B50"] = kwargs.get("b50")
+    work_sheet["B51"] = kwargs.get("b51")
+    work_sheet["B52"] = kwargs.get("b52")
 
-    work_sheet["B55"] = "нет"
+    work_sheet["B55"] = kwargs.get("b55")
 
     work_sheet_a23 = work_sheet["A23"]
     work_sheet_a23.font = Font(bold=True)

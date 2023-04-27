@@ -18,11 +18,6 @@ services:
 #      - ./.envs/.local/.postgres
 #    ports:
 #      - "5442:5432"
-#  redis:
-#    image: redis:6
-#    container_name: onboarding_bot_local_redis
-#    ports:
-#      - "6378:6379"
   web:
     build: .
     container_name: onboarding_bot
@@ -34,5 +29,4 @@ services:
     env_file:
       - .envs/.bot
 #    depends_on:
-#      - redis
 #      - postgres
