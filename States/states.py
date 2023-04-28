@@ -106,3 +106,6 @@ class FSM_newbie_xlsx(StatesGroup):
     finish = State()
 
 
+class FSM_button_paginator(StatesGroup):
+    button_paginator = State()
+

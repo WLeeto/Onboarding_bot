@@ -191,3 +191,30 @@ def is_latin(string: str):
     """
     lower = set('абвгдеёжзийклмнопрстуфхцчшщъыьэюя')
     return lower.intersection(string.lower()) != set()
+
+
+def list_split(listA, n):
+    return_list = []
+    for x in range(0, len(listA), n):
+        every_chunk = listA[x: n + x]
+        if len(every_chunk) < n:
+            every_chunk = every_chunk + \
+                            [None for y in range(n - len(every_chunk))]
+        return_list.append(every_chunk)
+    return return_list
+
+
+def create_pagi_data(text: list, list: list) -> dict:
+    pagi_data = {
+        "text": {},
+        "cbq": {}
+    }
+    j = 0
+    for i in text:
+        pagi_data["text"][j] = i
+        j += 1
+    j = 0
+    for i in list:
+        pagi_data["cbq"][j] = i
+        j += 1
+    return pagi_data

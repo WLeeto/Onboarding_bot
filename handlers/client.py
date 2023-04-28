@@ -9,8 +9,8 @@ from create_bot import dp, bot, db
 from func.all_func import delete_message, is_breakes, is_reply_keyboard
 
 from dicts.messages import message_dict, commands_dict, operator_list, administarator_list
-from func.scheldule import _send_message
 from keyboards.all_keyboards import all_keyboards
+from keyboards.inline_create_kb import create_kb
 from keyboards.inline_find import search_way
 from keyboards.inline_initiate_vacation import vacation_keyboard
 from keyboards.inline_projects import Projects_keyboard
@@ -419,8 +419,6 @@ async def statistics(message: types.Message):
                 count += 1
             if i.is_answered:
                 answered += 1
-            if not i.is_answered and i.is_answered is not None:
-                not_answered += 1
         text = "<b><u>Статистика:</u></b>\n\n" \
                f"Всего начали работу с ботом {start} человек\n\n" \
                f"<b>Использовано команд {command_used}:</b>\n" \
@@ -443,8 +441,7 @@ async def statistics(message: types.Message):
                f"\n" \
                f"<b>Запросов боту:</b>\n" \
                f"Всего: {count}\n" \
-               f"Бот смог ответить на {answered}\n" \
-               f"Отправлено оператору {not_answered}\n"
+               f"Бот смог ответить на {answered}\n"
         await message.answer(text, parse_mode=types.ParseMode.HTML)
     else:
         await message.answer("Команда только для администраторов")
@@ -453,6 +450,22 @@ async def statistics(message: types.Message):
 @dp.message_handler(commands="testform")
 async def testform(message: types.Message):
     await message.answer("Проведем тест заполнения xlsx формы ?", reply_markup=start_kb)
+
+
+@dp.message_handler(commands="pagi")
+async def pagi_kb_test(message: types.Message):
+    kb_text = ["Кнопка1", "Кнопка2", "Кнопка3", "Кнопка4", "Кнопка5", "Кнопка6"]
+    kb_data = ["Кнопка1", "Кнопка2", "Кнопка3", "Кнопка4", "Кнопка5", "Кнопка6"]
+    kb = create_kb(kb_text, kb_data)
+    await message.answer("Тест пагинации клавиатуры", reply_markup=kb)
+
+
+@dp.callback_query_handler(lambda c: c.data.startswith("pagi"), state="*")
+async def paginator_response(callback_query: types.CallbackQuery, state: FSMContext):
+    if callback_query.data.split(" ")[1] == "back":
+        pass
+    if callback_query.data.split(" ")[1] == "forward":
+        pass
 
 
 def register_handlers_client(dp: Dispatcher):
