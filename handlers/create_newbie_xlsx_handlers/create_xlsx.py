@@ -1,3 +1,5 @@
+import asyncio
+
 from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
@@ -10,6 +12,8 @@ from dicts.messages import expense_center_xlsx_dict, business_role_xlsx_dict
 from func.all_func import is_breakes, delete_temp_file, list_split, create_pagi_data
 from func.create_xlsx import create_newbie_xlsx
 from keyboards.inline_xlsx_newbie_form import create_kb, create_kb_next, create_kb_mid, create_kb_prev
+from mailing.mailing import send_create_corp_email
+
 
 # todo собрать весь повторяющийся код (пагинатор и other) в отдельные функции
 
@@ -1560,67 +1564,89 @@ async def newbie_xlsx_other(message: types.Message, state: FSMContext):
 @dp.callback_query_handler(state=FSM_newbie_xlsx.finish)
 async def finish(callback_query: types.CallbackQuery, state: FSMContext):
     await callback_query.answer()
+    async with state.proxy() as data:
+        create_newbie_xlsx(
+            filepath="new_employer.xlsx",
+            surname=data["surname"],
+            surname_eng=data["surname_eng"],
+            name=data["name"],
+            patronim=data["patronim"],
+            date_of_birth=data["date_of_birth"],
+            phone=data["phone"],
+            email=data["email"],
+            superviser=data["superviser"],
+            legal_entity=data["legal_entity"],
+            emp_type=data["emp_type"],
+            type_of_cooperation=data["type_of_cooperation"],
+            office=data["office"],
+            first_work_day=data["first_work_day"],
+            expense_center=data["expense_center"],
+            business_role=data["business_role"],
+            b21=data["Удаленный доступ"],
+            b24=data["БУХ"],
+            b25=data["ЗУП"],
+            b26=data["ДОК"],
+            b27=data["СБИС"],
+            b30=data["Public"],
+            b31=data["Findoc"],
+            b32=data["КДП"],
+            b33=data["FindocBK"],
+            b35=data["Контур Фокус"],
+            b36=data["Бикотендер"],
+            b37=data["Консультант+"],
+            b39=data["Доступ 1С"],
+            b41=data["Домен почты"],
+            b42=data["Дополнительный домен почты"],
+            b44=data["Основная группа"],
+            b45=data["Другие группы"],
+            b48=data["Ноутбук"],
+            b49=data["Внешний монитор"],
+            b50=data["Телефон"],
+            b51=data["Флэшка"],
+            b52=data["Модем"],
+            b55=data["Мобильная связь"],
+        )
     if callback_query.data == "Получить xlsx фаил":
-        async with state.proxy() as data:
-            create_newbie_xlsx(
-                filepath="test.xlsx",
-                surname=data["surname"],
-                surname_eng=data["surname_eng"],
-                name=data["name"],
-                patronim=data["patronim"],
-                date_of_birth=data["date_of_birth"],
-                phone=data["phone"],
-                email=data["email"],
-                superviser=data["superviser"],
-                legal_entity=data["legal_entity"],
-                emp_type=data["emp_type"],
-                type_of_cooperation=data["type_of_cooperation"],
-                office=data["office"],
-                first_work_day=data["first_work_day"],
-                expense_center=data["expense_center"],
-                business_role=data["business_role"],
-                b21=data["Удаленный доступ"],
-                b24=data["БУХ"],
-                b25=data["ЗУП"],
-                b26=data["ДОК"],
-                b27=data["СБИС"],
-                b30=data["Public"],
-                b31=data["Findoc"],
-                b32=data["КДП"],
-                b33=data["FindocBK"],
-                b35=data["Контур Фокус"],
-                b36=data["Бикотендер"],
-                b37=data["Консультант+"],
-                b39=data["Доступ 1С"],
-                b41=data["Домен почты"],
-                b42=data["Дополнительный домен почты"],
-                b44=data["Основная группа"],
-                b45=data["Другие группы"],
-                b48=data["Ноутбук"],
-                b49=data["Внешний монитор"],
-                b50=data["Телефон"],
-                b51=data["Флэшка"],
-                b52=data["Модем"],
-                b55=data["Мобильная связь"],
-            )
-        with open("test.xlsx", "rb") as file:
+        with open("new_employer.xlsx", "rb") as file:
             await bot.send_document(chat_id=callback_query.from_user.id, document=file)
-        await delete_temp_file("test.xlsx")
         button_list = ["Отправляем", "Редактируем", "Выйти"]
         cbq_list = ["Отправляем", "Редактируем", "Выйти"]
         temp_kb = create_kb(buttons_text=button_list, callback_data=cbq_list)
         await callback_query.message.edit_reply_markup(reply_markup=temp_kb)
     elif callback_query.data == "Отправляем":
-        await callback_query.message.answer("Отправляю xlsx ... (в работе)")
+        await callback_query.message.edit_reply_markup(reply_markup=None)
+        msg = await callback_query.message.answer("Отправляю xlsx ... (в работе)")
+        async with state.proxy() as data:
+            send_email = asyncio.create_task(send_create_corp_email(
+                name=data["name"],
+                surname=data["surname"],
+                patronim=data["patronim"],
+                date_of_birth=data["date_of_birth"],
+                legal_entity=data["legal_entity"],
+                first_work_day="today",  # todo забирать из основной анкеты
+                superviser=data["superviser"],
+                job_title="Название должности",  # todo забирать из основной анкеты
+                mail_domain=data["Домен почты"],
+                xlsx_path="new_employer.xlsx"
+            ))
+            if send_email:
+                await bot.edit_message_text(text="Сообщение отправлено",
+                                            chat_id=callback_query.from_user.id,
+                                            message_id=msg.message_id)
+            else:
+                await bot.edit_message_text(text="Сообщение отправлено",
+                                            chat_id=callback_query.from_user.id,
+                                            message_id=msg.message_id)
         await state.finish()
     elif callback_query.data == "Редактируем":
         await callback_query.message.edit_reply_markup(reply_markup=None)
-        await callback_query.message.answer("Тут будет клавиатура для редактирования отдальных параметров")
+        await callback_query.message.answer("Тут будет клавиатура для редактирования отдельных параметров")
         await state.finish()
     elif callback_query.data == "Выйти":
         await callback_query.message.edit_reply_markup(reply_markup=None)
         await callback_query.message.answer("Совершен выход из анкеты, данные удалены")
         await state.finish()
+    await delete_temp_file("new_employer.xlsx")
 
 
 def register_handlers_create_xlsx(dp: Dispatcher):

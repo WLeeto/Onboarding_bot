@@ -1,26 +1,6 @@
 import openpyxl
 from openpyxl.styles import Font
 
-surname = "Марченко"
-surname_eng = "Marchenko"
-name = "Олег"
-patronim = "Александрович"
-date_of_birth = "28.07.1989"
-phone = "+79158548483"
-email = "leeto4848@gmail.com"
-legal_entity = ""  # Юр. Лицо
-emp_type = ""
-type_of_cooperation = ""
-office = ""
-first_work_day = ""
-expense_center = ""
-superviser = ""
-business_role = ""
-email_domain = "teamforce.ru"
-email_domain_added = ""
-main_group = "team@teamforce.ru"
-other_groups = ""
-
 
 def create_newbie_xlsx(filepath, **kwargs) -> bool:
     """
@@ -31,6 +11,9 @@ def create_newbie_xlsx(filepath, **kwargs) -> bool:
     """
     wb = openpyxl.Workbook()
     work_sheet = wb.create_sheet("Прием", 0)
+
+    work_sheet.column_dimensions['A'].width = 30
+    work_sheet.column_dimensions['B'].width = 30
 
     work_sheet["A2"] = "Фамилия"
     work_sheet["A3"] = "Фамилия (англ.)"
