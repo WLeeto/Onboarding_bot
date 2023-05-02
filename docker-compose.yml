@@ -1,23 +1,23 @@
 version: "3"
 
-#volumes:
-#  onboarding_bot_postgres_data: {}
-#  onboarding_bot_postgres_data_backups: {}
+volumes:
+ onboarding_bot_postgres_data: {}
+ onboarding_bot_postgres_data_backups: {}
 
 services:
-#  postgres:
-#    build:
-#      context: .
-#      dockerfile: ./compose/production/postgres/Dockerfile
-#    image: onboarding_bot_production_postgres
-#    container_name: onboarding_bot_local_postgres
-#    volumes:
-#      - onboarding_bot_postgres_data:/var/lib/postgresql/data
-#      - onboarding_bot_postgres_data_backups:/backups
-#    env_file:
-#      - ./.envs/.local/.postgres
-#    ports:
-#      - "5442:5432"
+ postgres:
+   build:
+     context: .
+     dockerfile: ./compose/production/postgres/Dockerfile
+   image: onboarding_bot_production_postgres
+   container_name: onboarding_bot_local_postgres
+   volumes:
+     - onboarding_bot_postgres_data:/var/lib/postgresql/data
+     - onboarding_bot_postgres_data_backups:/backups
+   env_file:
+     - ./.envs/.postgres
+   ports:
+     - "5442:5432"
   web:
     build: .
     container_name: onboarding_bot
@@ -28,5 +28,5 @@ services:
       - ./:/app
     env_file:
       - .envs/.bot
-#    depends_on:
-#      - postgres
+   depends_on:
+     - postgres
