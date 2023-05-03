@@ -2,7 +2,7 @@ version: "3"
 
 volumes:
  onboarding_bot_postgres_data: {}
- onboarding_bot_postgres_data_backups: {}
+#  onboarding_bot_postgres_data_backups: {}
 
 services:
  postgres:
@@ -13,7 +13,7 @@ services:
    container_name: onboarding_bot_local_postgres
    volumes:
      - onboarding_bot_postgres_data:/var/lib/postgresql/data
-     - onboarding_bot_postgres_data_backups:/backups
+     - ./backups/:/backups
    env_file:
      - ./.envs/.postgres
    ports:
