@@ -30,4 +30,3 @@ services:
       - .envs/.bot
     depends_on:
      - postgres
-

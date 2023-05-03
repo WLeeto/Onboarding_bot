@@ -147,17 +147,18 @@ async def send_create_corp_email(**kwargs) -> bool:
 
     sender = os.environ.get("SENDER_EMAIL")
     password = os.environ.get("SENDER_PASSWORD")
-    recipient = os.environ.get("SENDER_EMAIL")  # "v.d.starik@hrteamforce.com" , "v.kim@teamforce.ru"
+    recipient = "v.d.starik@hrteamforce.com"  # "v.d.starik@hrteamforce.com" , "v.kim@teamforce.ru"
 
     server = smtplib.SMTP("smtp.gmail.com", 587)
     server.starttls()
 
     text = "Вячеслав Давидович, добрый день!\n\n" \
-           f"Прошу создать рабочую почту новому сотруднику - {surname} {name} {patronim} {date_of_birth} года рождения." \
-           f"ЮЛ: {legal_entity}" \
-           f"Выход: {first_work_day}" \
-           f"Руководитель: {superviser}" \
-           f"Должность: {job_title}" \
+           f"Прошу создать рабочую почту новому сотруднику - {surname} {name} {patronim} {date_of_birth} " \
+           f"года рождения.\n" \
+           f"ЮЛ: {legal_entity}\n" \
+           f"Выход: {first_work_day}\n" \
+           f"Руководитель: {superviser}\n" \
+           f"Должность: {job_title}\n" \
            f"Домен почты: {mail_domain}\n\n" \
            f"Карточка специалиста во вложении.\n\n" \
            f"Благодарю!"

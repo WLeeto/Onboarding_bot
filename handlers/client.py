@@ -63,8 +63,8 @@ async def vacation(message: types.Message):
                                  reply_markup=vacation_keyboard)
         else:
             await FSM_type_of_employment.change_type_of_employment.set()
-            await message.answer("Я не нашел в своей базе тип твоей занятости в компании Тимфорс.\n"
-                                 "Укажи пожалуйста ты оформлен в штат или работаешь по ИП/СЗ/ГПХ ?",
+            await message.answer("Я не нашел в своей базе тип твоей занятости в компании ТИМ ФОРС.\n"
+                                 "Укажи, пожалуйста, ты оформлен в штат или работаешь по ИП/СЗ/ГПХ ?",
                                  reply_markup=type_of_employement_kb,
                                  parse_mode=types.ParseMode.HTML)
     else:
@@ -285,8 +285,18 @@ async def about(message: types.Message):
     user = db.is_user(message.from_id)
     if user:
         db.add_statistics(tg_id=message.from_id, user_id=user.id, command_used="about")
-        about_text = db.find_answer_by_answer_id(27).answer_text
-        await message.answer(is_breakes(about_text), parse_mode=types.ParseMode.HTML)
+        # db.find_answer_by_answer_id(27).answer_text
+        about_text = "<a href='https://disk.yandex.ru/i/PKcCI85GYNSvjQ'>" \
+                     "Пионер и лидер в области лизинга и проектных команд 2008 года." \
+                     "14 лет в области HR-Tech\n\n</a>" \
+                     "Бизнес-процессы:\n" \
+                     "*Поиск и верификация поставщиков и специалистов. Сбор данных о доступности в единый пул " \
+                     "ресурсов\n" \
+                     "*Привлечение компетенций под конкретный проект. Управление специалистами и их загрузкой\n" \
+                     "*Управление поставщиками. Организация документооборота и проведение платежей\n\n" \
+                     "Интерактивная карта ТИМ ФОРС:\n" \
+                     "<a href='https://mm.tt/map/2583836886?t=IVbQmGKCG6'>Здесь Вы можете узнать самое главное</a>"
+        await message.answer(about_text, parse_mode=types.ParseMode.HTML)
     else:
         await message.answer(message_dict["not_in_db"])
 
@@ -445,19 +455,6 @@ async def statistics(message: types.Message):
         await message.answer(text, parse_mode=types.ParseMode.HTML)
     else:
         await message.answer("Команда только для администраторов")
-
-
-@dp.message_handler(commands="testform")
-async def testform(message: types.Message):
-    await message.answer("Проведем тест заполнения xlsx формы ?", reply_markup=start_kb)
-
-
-@dp.message_handler(commands="pagi")
-async def pagi_kb_test(message: types.Message):
-    kb_text = ["Кнопка1", "Кнопка2", "Кнопка3", "Кнопка4", "Кнопка5", "Кнопка6"]
-    kb_data = ["Кнопка1", "Кнопка2", "Кнопка3", "Кнопка4", "Кнопка5", "Кнопка6"]
-    kb = create_kb(kb_text, kb_data)
-    await message.answer("Тест пагинации клавиатуры", reply_markup=kb)
 
 
 @dp.callback_query_handler(lambda c: c.data.startswith("pagi"), state="*")

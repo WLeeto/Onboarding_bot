@@ -6,7 +6,7 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 
 from pprint import pprint
 
-from States.states import FSM_newbie_xlsx
+from States.states import FSM_newbie_questioning
 from create_bot import dp, bot, db
 from dicts.messages import expense_center_xlsx_dict, business_role_xlsx_dict
 from func.all_func import is_breakes, delete_temp_file, list_split, create_pagi_data
@@ -18,44 +18,44 @@ from mailing.mailing import send_create_corp_email
 # todo собрать весь повторяющийся код (пагинатор и other) в отдельные функции
 
 
-@dp.callback_query_handler(lambda c: c.data == "xlsx_start")
-async def start_xlsx_creating(callback_query: types.CallbackQuery, state: FSMContext):
-    await FSM_newbie_xlsx.step_1.set()
-    await callback_query.answer()
-    await callback_query.message.answer("Тестовые данные для формирования xlsx фаила:\n"
-                                        "ФИО: Пупкин Владимир Владимирович\n"
-                                        "Фамилия на английском: Pupkin\n"
-                                        "Дата рождения: 26.06.1966\n"
-                                        "Телефон: +79158548483\n"
-                                        "Email: pupkin@mail.ru\n"
-                                        "Руководитель: Гайнанова Роза Ильшотовна")
-    button_list = ["ООО «СмартСтаффинг»", "ООО «ТИМ ФОРС»", "ООО «ТИМ ФОРС Сервис»", "ООО «ТИМ ФОРС Менеджмент»",
-                   "ООО «ТАТМобайлИнформ СиДиСи»", 'ООО "Репола"', 'ООО "Сириус"', 'ООО "Кайрос"', 'ООО "Бивень"',
-                   "Другое (Ввести вручную)"]
-    cbq_list = ["ООО «СмартСтаффинг»", "ООО «ТИМ ФОРС»", "ООО «ТИМ ФОРС Сервис»", "ООО «ТИМ ФОРС Менеджмент»",
-                "ООО «ТАТМобайлИнформ СиДиСи»", 'ООО "Репола"', 'ООО "Сириус"', 'ООО "Кайрос"', 'ООО "Бивень"',
-                "Другое"]
-    button_list_list = list_split(button_list, 5)
-    cbq_list_list = list_split(cbq_list, 5)
-    pagi_data = create_pagi_data(button_list_list, cbq_list_list)
-    legal_entity_kb = create_kb_next(buttons_text=button_list[0:5], callback_data=cbq_list[0:5])
-    to_edit = await callback_query.message.answer("Выберите ЮЛ:", reply_markup=legal_entity_kb)
-    async with state.proxy() as data:
-        data["to_edit"] = to_edit
-        data["surname"] = "Пупкин"
-        data["surname_eng"] = "Pupkin"
-        data["name"] = "Владимир"
-        data["patronim"] = "Владимирович"
-        data["date_of_birth"] = "26.06.1966"
-        data["phone"] = "+79158548483"
-        data["email"] = "pupkin@mail.ru"
-        data["superviser"] = "Гайнанова Роза Ильшотовна"
-        data["first_work_day"] = "25.04.2023"
-        data["pagi"] = pagi_data
-        data["pagi_step"] = 0
+# @dp.callback_query_handler(lambda c: c.data == "xlsx_start")
+# async def start_xlsx_creating(callback_query: types.CallbackQuery, state: FSMContext):
+#     await FSM_newbie_questioning.step_1.set()
+#     await callback_query.answer()
+#     await callback_query.message.answer("Тестовые данные для формирования xlsx фаила:\n"
+#                                         "ФИО: Пупкин Владимир Владимирович\n"
+#                                         "Фамилия на английском: Pupkin\n"
+#                                         "Дата рождения: 26.06.1966\n"
+#                                         "Телефон: +79158548483\n"
+#                                         "Email: pupkin@mail.ru\n"
+#                                         "Руководитель: Гайнанова Роза Ильшотовна")
+#     button_list = ["ООО «СмартСтаффинг»", "ООО «ТИМ ФОРС»", "ООО «ТИМ ФОРС Сервис»", "ООО «ТИМ ФОРС Менеджмент»",
+#                    "ООО «ТАТМобайлИнформ СиДиСи»", 'ООО "Репола"', 'ООО "Сириус"', 'ООО "Кайрос"', 'ООО "Бивень"',
+#                    "Другое (Ввести вручную)"]
+#     cbq_list = ["ООО «СмартСтаффинг»", "ООО «ТИМ ФОРС»", "ООО «ТИМ ФОРС Сервис»", "ООО «ТИМ ФОРС Менеджмент»",
+#                 "ООО «ТАТМобайлИнформ СиДиСи»", 'ООО "Репола"', 'ООО "Сириус"', 'ООО "Кайрос"', 'ООО "Бивень"',
+#                 "Другое"]
+#     button_list_list = list_split(button_list, 5)
+#     cbq_list_list = list_split(cbq_list, 5)
+#     pagi_data = create_pagi_data(button_list_list, cbq_list_list)
+#     legal_entity_kb = create_kb_next(buttons_text=button_list[0:5], callback_data=cbq_list[0:5])
+#     to_edit = await callback_query.message.answer("Выберите ЮЛ:", reply_markup=legal_entity_kb)
+#     async with state.proxy() as data:
+#         data["to_edit"] = to_edit
+#         data["surname"] = "Пупкин"
+#         data["surname_eng"] = "Pupkin"
+#         data["name"] = "Владимир"
+#         data["patronim"] = "Владимирович"
+#         data["date_of_birth"] = "26.06.1966"
+#         data["phone"] = "+79158548483"
+#         data["email"] = "pupkin@mail.ru"
+#         data["superviser"] = "Гайнанова Роза Ильшотовна"
+#         data["first_work_day"] = "25.04.2023"
+#         data["pagi"] = pagi_data
+#         data["pagi_step"] = 0
 
 
-@dp.callback_query_handler(lambda c: c.data.startswith("xlsx_pagi"), state=FSM_newbie_xlsx.step_1)
+@dp.callback_query_handler(lambda c: c.data.startswith("xlsx_pagi"), state=FSM_newbie_questioning.step_1)
 async def xlsx_pagi(callback_query: types.CallbackQuery, state: FSMContext):
     async with state.proxy() as data:
         if callback_query.data.split(" ")[1] == "next":
@@ -90,7 +90,7 @@ async def xlsx_pagi(callback_query: types.CallbackQuery, state: FSMContext):
                 data["to_edit"] = to_edit
 
 
-@dp.callback_query_handler(state=FSM_newbie_xlsx.step_1)
+@dp.callback_query_handler(state=FSM_newbie_questioning.step_1)
 async def newbie_xlsx_step_1(callback_query: types.CallbackQuery, state: FSMContext):
     if callback_query.data != "Другое":
         async with state.proxy() as data:
@@ -104,17 +104,17 @@ async def newbie_xlsx_step_1(callback_query: types.CallbackQuery, state: FSMCont
                                               message_id=data["to_edit"].message_id)
         async with state.proxy() as data:
             data["to_edit"] = to_edit
-        await FSM_newbie_xlsx.step_2.set()
+        await FSM_newbie_questioning.step_2.set()
     else:
         await callback_query.answer()
         to_del = await callback_query.message.answer("Введите значение для поля 'ЮЛ':")
         async with state.proxy() as data:
             data["state"] = await state.get_state()
             data["to_del"] = to_del
-        await FSM_newbie_xlsx.other.set()
+        await FSM_newbie_questioning.other.set()
 
 
-@dp.callback_query_handler(state=FSM_newbie_xlsx.step_2)
+@dp.callback_query_handler(state=FSM_newbie_questioning.step_2)
 async def newbie_xlsx_step_2(callback_query: types.CallbackQuery, state: FSMContext):
     if callback_query.data != "Другое":
         async with state.proxy() as data:
@@ -128,17 +128,17 @@ async def newbie_xlsx_step_2(callback_query: types.CallbackQuery, state: FSMCont
                                               message_id=data["to_edit"].message_id)
         async with state.proxy() as data:
             data["to_edit"] = to_edit
-        await FSM_newbie_xlsx.step_3.set()
+        await FSM_newbie_questioning.step_3.set()
     else:
         await callback_query.answer()
         to_del = await callback_query.message.answer("Введите значение для поля 'Тип сотрудника':")
         async with state.proxy() as data:
             data["state"] = await state.get_state()
             data["to_del"] = to_del
-        await FSM_newbie_xlsx.other.set()
+        await FSM_newbie_questioning.other.set()
 
 
-@dp.callback_query_handler(state=FSM_newbie_xlsx.step_3)
+@dp.callback_query_handler(state=FSM_newbie_questioning.step_3)
 async def newbie_xlsx_step_3(callback_query: types.CallbackQuery, state: FSMContext):
     if callback_query.data != "Другое":
         async with state.proxy() as data:
@@ -152,17 +152,17 @@ async def newbie_xlsx_step_3(callback_query: types.CallbackQuery, state: FSMCont
                                               message_id=data["to_edit"].message_id)
         async with state.proxy() as data:
             data["to_edit"] = to_edit
-        await FSM_newbie_xlsx.step_4.set()
+        await FSM_newbie_questioning.step_4.set()
     else:
         await callback_query.answer()
         to_del = await callback_query.message.answer("Введите значение для поля 'Формат сотрудничества:':")
         async with state.proxy() as data:
             data["state"] = await state.get_state()
             data["to_del"] = to_del
-        await FSM_newbie_xlsx.other.set()
+        await FSM_newbie_questioning.other.set()
 
 
-@dp.callback_query_handler(state=FSM_newbie_xlsx.step_4)
+@dp.callback_query_handler(state=FSM_newbie_questioning.step_4)
 async def newbie_xlsx_step_4(callback_query: types.CallbackQuery, state: FSMContext):
     if callback_query.data != "Другое":
         async with state.proxy() as data:
@@ -190,17 +190,17 @@ async def newbie_xlsx_step_4(callback_query: types.CallbackQuery, state: FSMCont
             data["to_edit"] = to_edit
             data["pagi"] = pagi_data
             data["pagi_step"] = 0
-        await FSM_newbie_xlsx.step_5.set()
+        await FSM_newbie_questioning.step_5.set()
     else:
         await callback_query.answer()
         to_del = await callback_query.message.answer("Введите значение для поля 'Офис':")
         async with state.proxy() as data:
             data["state"] = await state.get_state()
             data["to_del"] = to_del
-        await FSM_newbie_xlsx.other.set()
+        await FSM_newbie_questioning.other.set()
 
 
-@dp.callback_query_handler(lambda c: c.data.startswith("xlsx_pagi"), state=FSM_newbie_xlsx.step_5)
+@dp.callback_query_handler(lambda c: c.data.startswith("xlsx_pagi"), state=FSM_newbie_questioning.step_5)
 async def xlsx_pagi(callback_query: types.CallbackQuery, state: FSMContext):
     async with state.proxy() as data:
         if callback_query.data.split(" ")[1] == "next":
@@ -235,7 +235,7 @@ async def xlsx_pagi(callback_query: types.CallbackQuery, state: FSMContext):
                 data["to_edit"] = to_edit
 
 
-@dp.callback_query_handler(state=FSM_newbie_xlsx.step_5)
+@dp.callback_query_handler(state=FSM_newbie_questioning.step_5)
 async def newbie_xlsx_step_5(callback_query: types.CallbackQuery, state: FSMContext):
     if callback_query.data != "Другое":
         async with state.proxy() as data:
@@ -272,17 +272,17 @@ async def newbie_xlsx_step_5(callback_query: types.CallbackQuery, state: FSMCont
             data["to_edit"] = to_edit
             data["pagi"] = pagi_data
             data["pagi_step"] = 0
-        await FSM_newbie_xlsx.step_6.set()
+        await FSM_newbie_questioning.step_6.set()
     else:
         await callback_query.answer()
         to_del = await callback_query.message.answer("Введите значение для поля 'Центр расходов':")
         async with state.proxy() as data:
             data["state"] = await state.get_state()
             data["to_del"] = to_del
-        await FSM_newbie_xlsx.other.set()
+        await FSM_newbie_questioning.other.set()
 
 
-@dp.callback_query_handler(lambda c: c.data.startswith("xlsx_pagi"), state=FSM_newbie_xlsx.step_6)
+@dp.callback_query_handler(lambda c: c.data.startswith("xlsx_pagi"), state=FSM_newbie_questioning.step_6)
 async def xlsx_pagi(callback_query: types.CallbackQuery, state: FSMContext):
     async with state.proxy() as data:
         if callback_query.data.split(" ")[1] == "next":
@@ -317,7 +317,7 @@ async def xlsx_pagi(callback_query: types.CallbackQuery, state: FSMContext):
                 data["to_edit"] = to_edit
 
 
-@dp.callback_query_handler(state=FSM_newbie_xlsx.step_6)
+@dp.callback_query_handler(state=FSM_newbie_questioning.step_6)
 async def newbie_xlsx_step_6(callback_query: types.CallbackQuery, state: FSMContext):
     if callback_query.data != "Другое":
         async with state.proxy() as data:
@@ -331,17 +331,17 @@ async def newbie_xlsx_step_6(callback_query: types.CallbackQuery, state: FSMCont
                                               message_id=data["to_edit"].message_id)
         async with state.proxy() as data:
             data["to_edit"] = to_edit
-        await FSM_newbie_xlsx.step_7.set()
+        await FSM_newbie_questioning.step_7.set()
     else:
         await callback_query.answer()
         to_del = await callback_query.message.answer("Введите значение для поля 'Бизнес-роль':")
         async with state.proxy() as data:
             data["state"] = await state.get_state()
             data["to_del"] = to_del
-        await FSM_newbie_xlsx.other.set()
+        await FSM_newbie_questioning.other.set()
 
 
-@dp.callback_query_handler(state=FSM_newbie_xlsx.step_7)
+@dp.callback_query_handler(state=FSM_newbie_questioning.step_7)
 async def newbie_xlsx_step_7(callback_query: types.CallbackQuery, state: FSMContext):
     if callback_query.data != "Другое":
         async with state.proxy() as data:
@@ -356,17 +356,17 @@ async def newbie_xlsx_step_7(callback_query: types.CallbackQuery, state: FSMCont
                                               parse_mode=types.ParseMode.HTML)
         async with state.proxy() as data:
             data["to_edit"] = to_edit
-        await FSM_newbie_xlsx.step_8.set()
+        await FSM_newbie_questioning.step_8.set()
     else:
         await callback_query.answer()
         to_del = await callback_query.message.answer("Введите значение для поля 'Удаленный доступ':")
         async with state.proxy() as data:
             data["state"] = await state.get_state()
             data["to_del"] = to_del
-        await FSM_newbie_xlsx.other.set()
+        await FSM_newbie_questioning.other.set()
 
 
-@dp.callback_query_handler(state=FSM_newbie_xlsx.step_8)
+@dp.callback_query_handler(state=FSM_newbie_questioning.step_8)
 async def newbie_xlsx_step_8(callback_query: types.CallbackQuery, state: FSMContext):
     if callback_query.data != "Другое":
         async with state.proxy() as data:
@@ -381,17 +381,17 @@ async def newbie_xlsx_step_8(callback_query: types.CallbackQuery, state: FSMCont
                                               parse_mode=types.ParseMode.HTML)
         async with state.proxy() as data:
             data["to_edit"] = to_edit
-        await FSM_newbie_xlsx.step_9.set()
+        await FSM_newbie_questioning.step_9.set()
     else:
         await callback_query.answer()
         to_del = await callback_query.message.answer("Введите значение для поля 'БУХ':")
         async with state.proxy() as data:
             data["state"] = await state.get_state()
             data["to_del"] = to_del
-        await FSM_newbie_xlsx.other.set()
+        await FSM_newbie_questioning.other.set()
 
 
-@dp.callback_query_handler(state=FSM_newbie_xlsx.step_9)
+@dp.callback_query_handler(state=FSM_newbie_questioning.step_9)
 async def newbie_xlsx_step_9(callback_query: types.CallbackQuery, state: FSMContext):
     if callback_query.data != "Другое":
         async with state.proxy() as data:
@@ -406,17 +406,17 @@ async def newbie_xlsx_step_9(callback_query: types.CallbackQuery, state: FSMCont
                                               parse_mode=types.ParseMode.HTML)
         async with state.proxy() as data:
             data["to_edit"] = to_edit
-        await FSM_newbie_xlsx.step_10.set()
+        await FSM_newbie_questioning.step_10.set()
     else:
         await callback_query.answer()
         to_del = await callback_query.message.answer("Введите значение для поля 'ЗУП':")
         async with state.proxy() as data:
             data["state"] = await state.get_state()
             data["to_del"] = to_del
-        await FSM_newbie_xlsx.other.set()
+        await FSM_newbie_questioning.other.set()
 
 
-@dp.callback_query_handler(state=FSM_newbie_xlsx.step_10)
+@dp.callback_query_handler(state=FSM_newbie_questioning.step_10)
 async def newbie_xlsx_step_10(callback_query: types.CallbackQuery, state: FSMContext):
     if callback_query.data != "Другое":
         async with state.proxy() as data:
@@ -431,17 +431,17 @@ async def newbie_xlsx_step_10(callback_query: types.CallbackQuery, state: FSMCon
                                               parse_mode=types.ParseMode.HTML)
         async with state.proxy() as data:
             data["to_edit"] = to_edit
-        await FSM_newbie_xlsx.step_11.set()
+        await FSM_newbie_questioning.step_11.set()
     else:
         await callback_query.answer()
         to_del = await callback_query.message.answer("Введите значение для поля 'ДОК':")
         async with state.proxy() as data:
             data["state"] = await state.get_state()
             data["to_del"] = to_del
-        await FSM_newbie_xlsx.other.set()
+        await FSM_newbie_questioning.other.set()
 
 
-@dp.callback_query_handler(state=FSM_newbie_xlsx.step_11)
+@dp.callback_query_handler(state=FSM_newbie_questioning.step_11)
 async def newbie_xlsx_step_11(callback_query: types.CallbackQuery, state: FSMContext):
     if callback_query.data != "Другое":
         async with state.proxy() as data:
@@ -456,17 +456,17 @@ async def newbie_xlsx_step_11(callback_query: types.CallbackQuery, state: FSMCon
                                               parse_mode=types.ParseMode.HTML)
         async with state.proxy() as data:
             data["to_edit"] = to_edit
-        await FSM_newbie_xlsx.step_12.set()
+        await FSM_newbie_questioning.step_12.set()
     else:
         await callback_query.answer()
         to_del = await callback_query.message.answer("Введите значение для поля 'СБИС':")
         async with state.proxy() as data:
             data["state"] = await state.get_state()
             data["to_del"] = to_del
-        await FSM_newbie_xlsx.other.set()
+        await FSM_newbie_questioning.other.set()
 
 
-@dp.callback_query_handler(state=FSM_newbie_xlsx.step_12)
+@dp.callback_query_handler(state=FSM_newbie_questioning.step_12)
 async def newbie_xlsx_step_12(callback_query: types.CallbackQuery, state: FSMContext):
     if callback_query.data != "Другое":
         async with state.proxy() as data:
@@ -481,17 +481,17 @@ async def newbie_xlsx_step_12(callback_query: types.CallbackQuery, state: FSMCon
                                               parse_mode=types.ParseMode.HTML)
         async with state.proxy() as data:
             data["to_edit"] = to_edit
-        await FSM_newbie_xlsx.step_13.set()
+        await FSM_newbie_questioning.step_13.set()
     else:
         await callback_query.answer()
         to_del = await callback_query.message.answer("Введите значение для поля 'Public':")
         async with state.proxy() as data:
             data["state"] = await state.get_state()
             data["to_del"] = to_del
-        await FSM_newbie_xlsx.other.set()
+        await FSM_newbie_questioning.other.set()
 
 
-@dp.callback_query_handler(state=FSM_newbie_xlsx.step_13)
+@dp.callback_query_handler(state=FSM_newbie_questioning.step_13)
 async def newbie_xlsx_step_13(callback_query: types.CallbackQuery, state: FSMContext):
     if callback_query.data != "Другое":
         async with state.proxy() as data:
@@ -506,17 +506,17 @@ async def newbie_xlsx_step_13(callback_query: types.CallbackQuery, state: FSMCon
                                               parse_mode=types.ParseMode.HTML)
         async with state.proxy() as data:
             data["to_edit"] = to_edit
-        await FSM_newbie_xlsx.step_14.set()
+        await FSM_newbie_questioning.step_14.set()
     else:
         await callback_query.answer()
         to_del = await callback_query.message.answer("Введите значение для поля 'Findoc':")
         async with state.proxy() as data:
             data["state"] = await state.get_state()
             data["to_del"] = to_del
-        await FSM_newbie_xlsx.other.set()
+        await FSM_newbie_questioning.other.set()
 
 
-@dp.callback_query_handler(state=FSM_newbie_xlsx.step_14)
+@dp.callback_query_handler(state=FSM_newbie_questioning.step_14)
 async def newbie_xlsx_step_14(callback_query: types.CallbackQuery, state: FSMContext):
     if callback_query.data != "Другое":
         async with state.proxy() as data:
@@ -531,17 +531,17 @@ async def newbie_xlsx_step_14(callback_query: types.CallbackQuery, state: FSMCon
                                               parse_mode=types.ParseMode.HTML)
         async with state.proxy() as data:
             data["to_edit"] = to_edit
-        await FSM_newbie_xlsx.step_15.set()
+        await FSM_newbie_questioning.step_15.set()
     else:
         await callback_query.answer()
         to_del = await callback_query.message.answer("Введите значение для поля 'КДП':")
         async with state.proxy() as data:
             data["state"] = await state.get_state()
             data["to_del"] = to_del
-        await FSM_newbie_xlsx.other.set()
+        await FSM_newbie_questioning.other.set()
 
 
-@dp.callback_query_handler(state=FSM_newbie_xlsx.step_15)
+@dp.callback_query_handler(state=FSM_newbie_questioning.step_15)
 async def newbie_xlsx_step_15(callback_query: types.CallbackQuery, state: FSMContext):
     if callback_query.data != "Другое":
         async with state.proxy() as data:
@@ -556,17 +556,17 @@ async def newbie_xlsx_step_15(callback_query: types.CallbackQuery, state: FSMCon
                                               parse_mode=types.ParseMode.HTML)
         async with state.proxy() as data:
             data["to_edit"] = to_edit
-        await FSM_newbie_xlsx.step_16.set()
+        await FSM_newbie_questioning.step_16.set()
     else:
         await callback_query.answer()
         to_del = await callback_query.message.answer("Введите значение для поля 'FindocBK':")
         async with state.proxy() as data:
             data["state"] = await state.get_state()
             data["to_del"] = to_del
-        await FSM_newbie_xlsx.other.set()
+        await FSM_newbie_questioning.other.set()
 
 
-@dp.callback_query_handler(state=FSM_newbie_xlsx.step_16)
+@dp.callback_query_handler(state=FSM_newbie_questioning.step_16)
 async def newbie_xlsx_step_16(callback_query: types.CallbackQuery, state: FSMContext):
     if callback_query.data != "Другое":
         async with state.proxy() as data:
@@ -581,17 +581,17 @@ async def newbie_xlsx_step_16(callback_query: types.CallbackQuery, state: FSMCon
                                               parse_mode=types.ParseMode.HTML)
         async with state.proxy() as data:
             data["to_edit"] = to_edit
-        await FSM_newbie_xlsx.step_17.set()
+        await FSM_newbie_questioning.step_17.set()
     else:
         await callback_query.answer()
         to_del = await callback_query.message.answer("Введите значение для поля 'Контур Фокус':")
         async with state.proxy() as data:
             data["state"] = await state.get_state()
             data["to_del"] = to_del
-        await FSM_newbie_xlsx.other.set()
+        await FSM_newbie_questioning.other.set()
 
 
-@dp.callback_query_handler(state=FSM_newbie_xlsx.step_17)
+@dp.callback_query_handler(state=FSM_newbie_questioning.step_17)
 async def newbie_xlsx_step_17(callback_query: types.CallbackQuery, state: FSMContext):
     if callback_query.data != "Другое":
         async with state.proxy() as data:
@@ -606,17 +606,17 @@ async def newbie_xlsx_step_17(callback_query: types.CallbackQuery, state: FSMCon
                                               parse_mode=types.ParseMode.HTML)
         async with state.proxy() as data:
             data["to_edit"] = to_edit
-        await FSM_newbie_xlsx.step_18.set()
+        await FSM_newbie_questioning.step_18.set()
     else:
         await callback_query.answer()
         to_del = await callback_query.message.answer("Введите значение для поля 'Бикотендер':")
         async with state.proxy() as data:
             data["state"] = await state.get_state()
             data["to_del"] = to_del
-        await FSM_newbie_xlsx.other.set()
+        await FSM_newbie_questioning.other.set()
 
 
-@dp.callback_query_handler(state=FSM_newbie_xlsx.step_18)
+@dp.callback_query_handler(state=FSM_newbie_questioning.step_18)
 async def newbie_xlsx_step_18(callback_query: types.CallbackQuery, state: FSMContext):
     if callback_query.data != "Другое":
         async with state.proxy() as data:
@@ -630,17 +630,17 @@ async def newbie_xlsx_step_18(callback_query: types.CallbackQuery, state: FSMCon
                                               message_id=data["to_edit"].message_id)
         async with state.proxy() as data:
             data["to_edit"] = to_edit
-        await FSM_newbie_xlsx.step_19.set()
+        await FSM_newbie_questioning.step_19.set()
     else:
         await callback_query.answer()
         to_del = await callback_query.message.answer("Введите значение для поля 'Консультант+':")
         async with state.proxy() as data:
             data["state"] = await state.get_state()
             data["to_del"] = to_del
-        await FSM_newbie_xlsx.other.set()
+        await FSM_newbie_questioning.other.set()
 
 
-@dp.callback_query_handler(state=FSM_newbie_xlsx.step_19)
+@dp.callback_query_handler(state=FSM_newbie_questioning.step_19)
 async def newbie_xlsx_step_19(callback_query: types.CallbackQuery, state: FSMContext):
     if callback_query.data != "Другое":
         async with state.proxy() as data:
@@ -654,17 +654,17 @@ async def newbie_xlsx_step_19(callback_query: types.CallbackQuery, state: FSMCon
                                               message_id=data["to_edit"].message_id)
         async with state.proxy() as data:
             data["to_edit"] = to_edit
-        await FSM_newbie_xlsx.step_20.set()
+        await FSM_newbie_questioning.step_20.set()
     else:
         await callback_query.answer()
         to_del = await callback_query.message.answer("Введите значение для поля 'Доступ 1С':")
         async with state.proxy() as data:
             data["state"] = await state.get_state()
             data["to_del"] = to_del
-        await FSM_newbie_xlsx.other.set()
+        await FSM_newbie_questioning.other.set()
 
 
-@dp.callback_query_handler(state=FSM_newbie_xlsx.step_20)
+@dp.callback_query_handler(state=FSM_newbie_questioning.step_20)
 async def newbie_xlsx_step_20(callback_query: types.CallbackQuery, state: FSMContext):
     if callback_query.data != "Другое":
         async with state.proxy() as data:
@@ -679,17 +679,17 @@ async def newbie_xlsx_step_20(callback_query: types.CallbackQuery, state: FSMCon
                                               message_id=data["to_edit"].message_id)
         async with state.proxy() as data:
             data["to_edit"] = to_edit
-        await FSM_newbie_xlsx.step_21.set()
+        await FSM_newbie_questioning.step_21.set()
     else:
         await callback_query.answer()
         to_del = await callback_query.message.answer("Введите значение для поля 'Домен почты':")
         async with state.proxy() as data:
             data["state"] = await state.get_state()
             data["to_del"] = to_del
-        await FSM_newbie_xlsx.other.set()
+        await FSM_newbie_questioning.other.set()
 
 
-@dp.callback_query_handler(state=FSM_newbie_xlsx.step_21)
+@dp.callback_query_handler(state=FSM_newbie_questioning.step_21)
 async def newbie_xlsx_step_21(callback_query: types.CallbackQuery, state: FSMContext):
     if callback_query.data != "Другое":
         async with state.proxy() as data:
@@ -720,17 +720,17 @@ async def newbie_xlsx_step_21(callback_query: types.CallbackQuery, state: FSMCon
             data["to_edit"] = to_edit
             data["pagi"] = pagi_data
             data["pagi_step"] = 0
-        await FSM_newbie_xlsx.step_22.set()
+        await FSM_newbie_questioning.step_22.set()
     else:
         await callback_query.answer()
         to_del = await callback_query.message.answer("Введите значение для поля 'Дополнительный домен почты':")
         async with state.proxy() as data:
             data["state"] = await state.get_state()
             data["to_del"] = to_del
-        await FSM_newbie_xlsx.other.set()
+        await FSM_newbie_questioning.other.set()
 
 
-@dp.callback_query_handler(lambda c: c.data.startswith("xlsx_pagi"), state=FSM_newbie_xlsx.step_22)
+@dp.callback_query_handler(lambda c: c.data.startswith("xlsx_pagi"), state=FSM_newbie_questioning.step_22)
 async def xlsx_pagi(callback_query: types.CallbackQuery, state: FSMContext):
     async with state.proxy() as data:
         if callback_query.data.split(" ")[1] == "next":
@@ -765,7 +765,7 @@ async def xlsx_pagi(callback_query: types.CallbackQuery, state: FSMContext):
                 data["to_edit"] = to_edit
 
 
-@dp.callback_query_handler(state=FSM_newbie_xlsx.step_22)
+@dp.callback_query_handler(state=FSM_newbie_questioning.step_22)
 async def newbie_xlsx_step_22(callback_query: types.CallbackQuery, state: FSMContext):
     if callback_query.data != "Другое":
         async with state.proxy() as data:
@@ -796,7 +796,7 @@ async def newbie_xlsx_step_22(callback_query: types.CallbackQuery, state: FSMCon
             data["to_edit"] = to_edit
             data["pagi"] = pagi_data
             data["pagi_step"] = 0
-        await FSM_newbie_xlsx.step_23.set()
+        await FSM_newbie_questioning.step_23.set()
     else:
         await callback_query.answer()
         to_del = await callback_query.message.answer(
@@ -804,10 +804,10 @@ async def newbie_xlsx_step_22(callback_query: types.CallbackQuery, state: FSMCon
         async with state.proxy() as data:
             data["state"] = await state.get_state()
             data["to_del"] = to_del
-        await FSM_newbie_xlsx.other.set()
+        await FSM_newbie_questioning.other.set()
 
 
-@dp.callback_query_handler(lambda c: c.data.startswith("xlsx_pagi"), state=FSM_newbie_xlsx.step_23)
+@dp.callback_query_handler(lambda c: c.data.startswith("xlsx_pagi"), state=FSM_newbie_questioning.step_23)
 async def xlsx_pagi(callback_query: types.CallbackQuery, state: FSMContext):
     async with state.proxy() as data:
         if callback_query.data.split(" ")[1] == "next":
@@ -842,7 +842,7 @@ async def xlsx_pagi(callback_query: types.CallbackQuery, state: FSMContext):
                 data["to_edit"] = to_edit
 
 
-@dp.callback_query_handler(state=FSM_newbie_xlsx.step_23)
+@dp.callback_query_handler(state=FSM_newbie_questioning.step_23)
 async def newbie_xlsx_step_23(callback_query: types.CallbackQuery, state: FSMContext):
     if callback_query.data != "Другое":
         async with state.proxy() as data:
@@ -857,17 +857,17 @@ async def newbie_xlsx_step_23(callback_query: types.CallbackQuery, state: FSMCon
                                               parse_mode=types.ParseMode.HTML)
         async with state.proxy() as data:
             data["to_edit"] = to_edit
-        await FSM_newbie_xlsx.step_24.set()
+        await FSM_newbie_questioning.step_24.set()
     else:
         await callback_query.answer()
         to_del = await callback_query.message.answer("Введите значение для поля 'Другие группы':")
         async with state.proxy() as data:
             data["state"] = await state.get_state()
             data["to_del"] = to_del
-        await FSM_newbie_xlsx.other.set()
+        await FSM_newbie_questioning.other.set()
 
 
-@dp.callback_query_handler(state=FSM_newbie_xlsx.step_24)
+@dp.callback_query_handler(state=FSM_newbie_questioning.step_24)
 async def newbie_xlsx_step_24(callback_query: types.CallbackQuery, state: FSMContext):
     if callback_query.data != "Другое":
         async with state.proxy() as data:
@@ -882,17 +882,17 @@ async def newbie_xlsx_step_24(callback_query: types.CallbackQuery, state: FSMCon
                                               parse_mode=types.ParseMode.HTML)
         async with state.proxy() as data:
             data["to_edit"] = to_edit
-        await FSM_newbie_xlsx.step_25.set()
+        await FSM_newbie_questioning.step_25.set()
     else:
         await callback_query.answer()
         to_del = await callback_query.message.answer("Введите значение для поля 'Ноутбук':")
         async with state.proxy() as data:
             data["state"] = await state.get_state()
             data["to_del"] = to_del
-        await FSM_newbie_xlsx.other.set()
+        await FSM_newbie_questioning.other.set()
 
 
-@dp.callback_query_handler(state=FSM_newbie_xlsx.step_25)
+@dp.callback_query_handler(state=FSM_newbie_questioning.step_25)
 async def newbie_xlsx_step_25(callback_query: types.CallbackQuery, state: FSMContext):
     if callback_query.data != "Другое":
         async with state.proxy() as data:
@@ -907,17 +907,17 @@ async def newbie_xlsx_step_25(callback_query: types.CallbackQuery, state: FSMCon
                                               parse_mode=types.ParseMode.HTML)
         async with state.proxy() as data:
             data["to_edit"] = to_edit
-        await FSM_newbie_xlsx.step_26.set()
+        await FSM_newbie_questioning.step_26.set()
     else:
         await callback_query.answer()
         to_del = await callback_query.message.answer("Введите значение для поля 'Внешний монитор':")
         async with state.proxy() as data:
             data["state"] = await state.get_state()
             data["to_del"] = to_del
-        await FSM_newbie_xlsx.other.set()
+        await FSM_newbie_questioning.other.set()
 
 
-@dp.callback_query_handler(state=FSM_newbie_xlsx.step_26)
+@dp.callback_query_handler(state=FSM_newbie_questioning.step_26)
 async def newbie_xlsx_step_26(callback_query: types.CallbackQuery, state: FSMContext):
     if callback_query.data != "Другое":
         async with state.proxy() as data:
@@ -932,17 +932,17 @@ async def newbie_xlsx_step_26(callback_query: types.CallbackQuery, state: FSMCon
                                               parse_mode=types.ParseMode.HTML)
         async with state.proxy() as data:
             data["to_edit"] = to_edit
-        await FSM_newbie_xlsx.step_27.set()
+        await FSM_newbie_questioning.step_27.set()
     else:
         await callback_query.answer()
         to_del = await callback_query.message.answer("Введите значение для поля 'Телефон':")
         async with state.proxy() as data:
             data["state"] = await state.get_state()
             data["to_del"] = to_del
-        await FSM_newbie_xlsx.other.set()
+        await FSM_newbie_questioning.other.set()
 
 
-@dp.callback_query_handler(state=FSM_newbie_xlsx.step_27)
+@dp.callback_query_handler(state=FSM_newbie_questioning.step_27)
 async def newbie_xlsx_step_27(callback_query: types.CallbackQuery, state: FSMContext):
     if callback_query.data != "Другое":
         async with state.proxy() as data:
@@ -957,17 +957,17 @@ async def newbie_xlsx_step_27(callback_query: types.CallbackQuery, state: FSMCon
                                               parse_mode=types.ParseMode.HTML)
         async with state.proxy() as data:
             data["to_edit"] = to_edit
-        await FSM_newbie_xlsx.step_28.set()
+        await FSM_newbie_questioning.step_28.set()
     else:
         await callback_query.answer()
         to_del = await callback_query.message.answer("Введите значение для поля 'Флэшка':")
         async with state.proxy() as data:
             data["state"] = await state.get_state()
             data["to_del"] = to_del
-        await FSM_newbie_xlsx.other.set()
+        await FSM_newbie_questioning.other.set()
 
 
-@dp.callback_query_handler(state=FSM_newbie_xlsx.step_28)
+@dp.callback_query_handler(state=FSM_newbie_questioning.step_28)
 async def newbie_xlsx_step_28(callback_query: types.CallbackQuery, state: FSMContext):
     if callback_query.data != "Другое":
         async with state.proxy() as data:
@@ -982,18 +982,18 @@ async def newbie_xlsx_step_28(callback_query: types.CallbackQuery, state: FSMCon
                                               parse_mode=types.ParseMode.HTML)
         async with state.proxy() as data:
             data["to_edit"] = to_edit
-        await FSM_newbie_xlsx.commit_data.set()
+        await FSM_newbie_questioning.commit_data_email.set()
     else:
         await callback_query.answer()
         to_del = await callback_query.message.answer("Введите значение для поля 'Модем':")
         async with state.proxy() as data:
             data["state"] = await state.get_state()
             data["to_del"] = to_del
-        await FSM_newbie_xlsx.other.set()
+        await FSM_newbie_questioning.other.set()
 
 
-@dp.callback_query_handler(state=FSM_newbie_xlsx.commit_data)
-async def commit_data(callback_query: types.CallbackQuery, state: FSMContext):
+@dp.callback_query_handler(state=FSM_newbie_questioning.commit_data_email)
+async def commit_data_email(callback_query: types.CallbackQuery, state: FSMContext):
     if callback_query.data != "Другое":
         async with state.proxy() as data:
             data["Мобильная связь"] = callback_query.data
@@ -1046,7 +1046,7 @@ async def commit_data(callback_query: types.CallbackQuery, state: FSMContext):
         temp_kb = create_kb(buttons_text=button_list, callback_data=cbq_list)
         await bot.edit_message_text(text, callback_query.from_user.id, data["to_edit"].message_id, reply_markup=temp_kb,
                                     parse_mode=types.ParseMode.HTML)
-        await FSM_newbie_xlsx.finish.set()
+        await FSM_newbie_questioning.finish.set()
     else:
         await callback_query.answer()
         to_del = await callback_query.message.answer("Введите значение для поля 'Мобильная связь':")
@@ -1054,15 +1054,15 @@ async def commit_data(callback_query: types.CallbackQuery, state: FSMContext):
             data["state"] = await state.get_state()
             data["to_del"] = to_del
             print(data["state"])
-        await FSM_newbie_xlsx.other.set()
+        await FSM_newbie_questioning.other.set()
 
 
-@dp.message_handler(state=FSM_newbie_xlsx.other)
+@dp.message_handler(state=FSM_newbie_questioning.other)
 async def newbie_xlsx_other(message: types.Message, state: FSMContext):
     await message.delete()
     async with state.proxy() as data:
         await data["to_del"].delete()
-        if data["state"] == "FSM_newbie_xlsx:step_1":
+        if data["state"] == "FSM_newbie_questioning:step_1":
             data["legal_entity"] = message.text
             button_list = ["Команда", "Проекты", "Другое (Ввести вручную)"]
             cbq_list = ["Команда", "Проекты", "Другое"]
@@ -1072,8 +1072,8 @@ async def newbie_xlsx_other(message: types.Message, state: FSMContext):
                                                   message_id=data["to_edit"].message_id)
             async with state.proxy() as data:
                 data["to_edit"] = to_edit
-            await FSM_newbie_xlsx.step_2.set()
-        elif data["state"] == "FSM_newbie_xlsx:step_2":
+            await FSM_newbie_questioning.step_2.set()
+        elif data["state"] == "FSM_newbie_questioning:step_2":
             async with state.proxy() as data:
                 data["emp_type"] = message.text
             button_list = ["Штат", "Внешний", "Другое (Ввести вручную)"]
@@ -1084,9 +1084,9 @@ async def newbie_xlsx_other(message: types.Message, state: FSMContext):
                                                   message_id=data["to_edit"].message_id)
             async with state.proxy() as data:
                 data["to_edit"] = to_edit
-            await FSM_newbie_xlsx.step_3.set()
+            await FSM_newbie_questioning.step_3.set()
 
-        elif data["state"] == "FSM_newbie_xlsx:step_3":
+        elif data["state"] == "FSM_newbie_questioning:step_3":
             async with state.proxy() as data:
                 data["type_of_cooperation"] = message.text
             button_list = ["Сколково", "Удаленка", "Гибрид", "Другое (Ввести вручную)"]
@@ -1097,9 +1097,9 @@ async def newbie_xlsx_other(message: types.Message, state: FSMContext):
                                                   message_id=data["to_edit"].message_id)
             async with state.proxy() as data:
                 data["to_edit"] = to_edit
-            await FSM_newbie_xlsx.step_4.set()
+            await FSM_newbie_questioning.step_4.set()
 
-        elif data["state"] == "FSM_newbie_xlsx:step_4":
+        elif data["state"] == "FSM_newbie_questioning:step_4":
             async with state.proxy() as data:
                 data["office"] = message.text
             button_list = ["/Блок Проекты", "/Блок Проекты/Группа договорной работы",
@@ -1127,9 +1127,9 @@ async def newbie_xlsx_other(message: types.Message, state: FSMContext):
                 data["to_edit"] = to_edit
                 data["pagi"] = pagi_data
                 data["pagi_step"] = 0
-            await FSM_newbie_xlsx.step_5.set()
+            await FSM_newbie_questioning.step_5.set()
 
-        elif data["state"] == "FSM_newbie_xlsx:step_5":
+        elif data["state"] == "FSM_newbie_questioning:step_5":
             async with state.proxy() as data:
                 data["expense_center"] = message.text
             button_list = ["Основатель", "Операционный директор", "Директор программы", "Директор блока",
@@ -1165,9 +1165,9 @@ async def newbie_xlsx_other(message: types.Message, state: FSMContext):
                 data["to_edit"] = to_edit
                 data["pagi"] = pagi_data
                 data["pagi_step"] = 0
-            await FSM_newbie_xlsx.step_6.set()
+            await FSM_newbie_questioning.step_6.set()
 
-        elif data["state"] == "FSM_newbie_xlsx:step_6":
+        elif data["state"] == "FSM_newbie_questioning:step_6":
             async with state.proxy() as data:
                 data["business_role"] = message.text
             button_list = ["Да", "Нет", "Другое"]
@@ -1178,9 +1178,9 @@ async def newbie_xlsx_other(message: types.Message, state: FSMContext):
                                                   message_id=data["to_edit"].message_id)
             async with state.proxy() as data:
                 data["to_edit"] = to_edit
-            await FSM_newbie_xlsx.step_7.set()
+            await FSM_newbie_questioning.step_7.set()
 
-        elif data["state"] == "FSM_newbie_xlsx:step_7":
+        elif data["state"] == "FSM_newbie_questioning:step_7":
             async with state.proxy() as data:
                 data["Удаленный доступ"] = message.text
             button_list = ["Да", "Нет", "Другое"]
@@ -1191,9 +1191,9 @@ async def newbie_xlsx_other(message: types.Message, state: FSMContext):
                                                   message_id=data["to_edit"].message_id)
             async with state.proxy() as data:
                 data["to_edit"] = to_edit
-            await FSM_newbie_xlsx.step_8.set()
+            await FSM_newbie_questioning.step_8.set()
 
-        elif data["state"] == "FSM_newbie_xlsx:step_8":
+        elif data["state"] == "FSM_newbie_questioning:step_8":
             async with state.proxy() as data:
                 data["БУХ"] = message.text
             button_list = ["Да", "Нет", "Другое"]
@@ -1204,9 +1204,9 @@ async def newbie_xlsx_other(message: types.Message, state: FSMContext):
                                                   message_id=data["to_edit"].message_id)
             async with state.proxy() as data:
                 data["to_edit"] = to_edit
-            await FSM_newbie_xlsx.step_9.set()
+            await FSM_newbie_questioning.step_9.set()
 
-        elif data["state"] == "FSM_newbie_xlsx:step_9":
+        elif data["state"] == "FSM_newbie_questioning:step_9":
             async with state.proxy() as data:
                 data["ЗУП"] = message.text
             button_list = ["Да", "Нет", "Другое"]
@@ -1217,9 +1217,9 @@ async def newbie_xlsx_other(message: types.Message, state: FSMContext):
                                                   message_id=data["to_edit"].message_id)
             async with state.proxy() as data:
                 data["to_edit"] = to_edit
-            await FSM_newbie_xlsx.step_10.set()
+            await FSM_newbie_questioning.step_10.set()
 
-        elif data["state"] == "FSM_newbie_xlsx:step_10":
+        elif data["state"] == "FSM_newbie_questioning:step_10":
             async with state.proxy() as data:
                 data["ДОК"] = message.text
             button_list = ["Да", "Нет", "Другое"]
@@ -1230,9 +1230,9 @@ async def newbie_xlsx_other(message: types.Message, state: FSMContext):
                                                   message_id=data["to_edit"].message_id)
             async with state.proxy() as data:
                 data["to_edit"] = to_edit
-            await FSM_newbie_xlsx.step_11.set()
+            await FSM_newbie_questioning.step_11.set()
 
-        elif data["state"] == "FSM_newbie_xlsx:step_11":
+        elif data["state"] == "FSM_newbie_questioning:step_11":
             async with state.proxy() as data:
                 data["СБИС"] = message.text
             button_list = ["Да", "Нет", "Другое"]
@@ -1243,9 +1243,9 @@ async def newbie_xlsx_other(message: types.Message, state: FSMContext):
                                                   message_id=data["to_edit"].message_id)
             async with state.proxy() as data:
                 data["to_edit"] = to_edit
-            await FSM_newbie_xlsx.step_12.set()
+            await FSM_newbie_questioning.step_12.set()
 
-        elif data["state"] == "FSM_newbie_xlsx:step_12":
+        elif data["state"] == "FSM_newbie_questioning:step_12":
             async with state.proxy() as data:
                 data["Public"] = message.text
             button_list = ["Да", "Нет", "Другое"]
@@ -1256,9 +1256,9 @@ async def newbie_xlsx_other(message: types.Message, state: FSMContext):
                                                   message_id=data["to_edit"].message_id)
             async with state.proxy() as data:
                 data["to_edit"] = to_edit
-            await FSM_newbie_xlsx.step_13.set()
+            await FSM_newbie_questioning.step_13.set()
 
-        elif data["state"] == "FSM_newbie_xlsx:step_13":
+        elif data["state"] == "FSM_newbie_questioning:step_13":
             async with state.proxy() as data:
                 data["Findoc"] = message.text
             button_list = ["Да", "Нет", "Другое"]
@@ -1269,9 +1269,9 @@ async def newbie_xlsx_other(message: types.Message, state: FSMContext):
                                                   message_id=data["to_edit"].message_id)
             async with state.proxy() as data:
                 data["to_edit"] = to_edit
-            await FSM_newbie_xlsx.step_14.set()
+            await FSM_newbie_questioning.step_14.set()
 
-        elif data["state"] == "FSM_newbie_xlsx:step_14":
+        elif data["state"] == "FSM_newbie_questioning:step_14":
             async with state.proxy() as data:
                 data["КДП"] = message.text
             button_list = ["Да", "Нет", "Другое"]
@@ -1282,9 +1282,9 @@ async def newbie_xlsx_other(message: types.Message, state: FSMContext):
                                                   message_id=data["to_edit"].message_id)
             async with state.proxy() as data:
                 data["to_edit"] = to_edit
-            await FSM_newbie_xlsx.step_15.set()
+            await FSM_newbie_questioning.step_15.set()
 
-        elif data["state"] == "FSM_newbie_xlsx:step_15":
+        elif data["state"] == "FSM_newbie_questioning:step_15":
             async with state.proxy() as data:
                 data["FindocBK"] = message.text
             button_list = ["Да", "Нет", "Другое"]
@@ -1295,9 +1295,9 @@ async def newbie_xlsx_other(message: types.Message, state: FSMContext):
                                                   message_id=data["to_edit"].message_id)
             async with state.proxy() as data:
                 data["to_edit"] = to_edit
-            await FSM_newbie_xlsx.step_16.set()
+            await FSM_newbie_questioning.step_16.set()
 
-        elif data["state"] == "FSM_newbie_xlsx:step_16":
+        elif data["state"] == "FSM_newbie_questioning:step_16":
             async with state.proxy() as data:
                 data["Контур Фокус"] = message.text
             button_list = ["Да", "Нет", "Другое"]
@@ -1308,9 +1308,9 @@ async def newbie_xlsx_other(message: types.Message, state: FSMContext):
                                                   message_id=data["to_edit"].message_id)
             async with state.proxy() as data:
                 data["to_edit"] = to_edit
-            await FSM_newbie_xlsx.step_17.set()
+            await FSM_newbie_questioning.step_17.set()
 
-        elif data["state"] == "FSM_newbie_xlsx:step_17":
+        elif data["state"] == "FSM_newbie_questioning:step_17":
             async with state.proxy() as data:
                 data["Бикотендер"] = message.text
             button_list = ["Да", "Нет", "Другое"]
@@ -1321,9 +1321,9 @@ async def newbie_xlsx_other(message: types.Message, state: FSMContext):
                                                   message_id=data["to_edit"].message_id)
             async with state.proxy() as data:
                 data["to_edit"] = to_edit
-            await FSM_newbie_xlsx.step_18.set()
+            await FSM_newbie_questioning.step_18.set()
 
-        elif data["state"] == "FSM_newbie_xlsx:step_18":
+        elif data["state"] == "FSM_newbie_questioning:step_18":
             async with state.proxy() as data:
                 data["Консультант+"] = message.text
             button_list = ["Да", "Нет", "Другое"]
@@ -1334,9 +1334,9 @@ async def newbie_xlsx_other(message: types.Message, state: FSMContext):
                                                   message_id=data["to_edit"].message_id)
             async with state.proxy() as data:
                 data["to_edit"] = to_edit
-            await FSM_newbie_xlsx.step_19.set()
+            await FSM_newbie_questioning.step_19.set()
 
-        elif data["state"] == "FSM_newbie_xlsx:step_19":
+        elif data["state"] == "FSM_newbie_questioning:step_19":
             async with state.proxy() as data:
                 data["Доступ 1С"] = message.text
             button_list = ["teamforce.ru", "teamforce.dev", "Другое (Ввести вручную)"]
@@ -1347,9 +1347,9 @@ async def newbie_xlsx_other(message: types.Message, state: FSMContext):
                                                   message_id=data["to_edit"].message_id)
             async with state.proxy() as data:
                 data["to_edit"] = to_edit
-            await FSM_newbie_xlsx.step_20.set()
+            await FSM_newbie_questioning.step_20.set()
 
-        elif data["state"] == "FSM_newbie_xlsx:step_20":
+        elif data["state"] == "FSM_newbie_questioning:step_20":
             async with state.proxy() as data:
                 data["Домен почты"] = message.text
             button_list = ["smartstaffing.ru", "tatmobile.solutions", "repola.dev", "sirius.engineering",
@@ -1361,9 +1361,9 @@ async def newbie_xlsx_other(message: types.Message, state: FSMContext):
                                                   message_id=data["to_edit"].message_id)
             async with state.proxy() as data:
                 data["to_edit"] = to_edit
-            await FSM_newbie_xlsx.step_21.set()
+            await FSM_newbie_questioning.step_21.set()
 
-        elif data["state"] == "FSM_newbie_xlsx:step_21":
+        elif data["state"] == "FSM_newbie_questioning:step_21":
             async with state.proxy() as data:
                 data["Дополнительный домен почты"] = message.text
             button_list = ["group_general@teamforce.ru", "group_buh@teamforce.ru", "group_contracts@teamforce.ru",
@@ -1393,9 +1393,9 @@ async def newbie_xlsx_other(message: types.Message, state: FSMContext):
                 data["to_edit"] = to_edit
                 data["pagi"] = pagi_data
                 data["pagi_step"] = 0
-            await FSM_newbie_xlsx.step_22.set()
+            await FSM_newbie_questioning.step_22.set()
 
-        elif data["state"] == "FSM_newbie_xlsx:step_22":
+        elif data["state"] == "FSM_newbie_questioning:step_22":
             async with state.proxy() as data:
                 data["Основная группа"] = message.text
             button_list = ["нет", "group_general@teamforce.ru", "group_buh@teamforce.ru",
@@ -1425,9 +1425,9 @@ async def newbie_xlsx_other(message: types.Message, state: FSMContext):
                 data["to_edit"] = to_edit
                 data["pagi"] = pagi_data
                 data["pagi_step"] = 0
-            await FSM_newbie_xlsx.step_23.set()
+            await FSM_newbie_questioning.step_23.set()
 
-        elif data["state"] == "FSM_newbie_xlsx:step_23":
+        elif data["state"] == "FSM_newbie_questioning:step_23":
             async with state.proxy() as data:
                 data["Другие группы"] = message.text
             button_list = ["Да", "Нет", "Другое"]
@@ -1438,9 +1438,9 @@ async def newbie_xlsx_other(message: types.Message, state: FSMContext):
                                                   message_id=data["to_edit"].message_id)
             async with state.proxy() as data:
                 data["to_edit"] = to_edit
-            await FSM_newbie_xlsx.step_24.set()
+            await FSM_newbie_questioning.step_24.set()
 
-        elif data["state"] == "FSM_newbie_xlsx:step_24":
+        elif data["state"] == "FSM_newbie_questioning:step_24":
             async with state.proxy() as data:
                 data["Ноутбук"] = message.text
             button_list = ["Да", "Нет", "Другое"]
@@ -1451,9 +1451,9 @@ async def newbie_xlsx_other(message: types.Message, state: FSMContext):
                                                   message_id=data["to_edit"].message_id)
             async with state.proxy() as data:
                 data["to_edit"] = to_edit
-            await FSM_newbie_xlsx.step_25.set()
+            await FSM_newbie_questioning.step_25.set()
 
-        elif data["state"] == "FSM_newbie_xlsx:step_25":
+        elif data["state"] == "FSM_newbie_questioning:step_25":
             async with state.proxy() as data:
                 data["Внешний монитор"] = message.text
             button_list = ["Да", "Нет", "Другое"]
@@ -1464,9 +1464,9 @@ async def newbie_xlsx_other(message: types.Message, state: FSMContext):
                                                   message_id=data["to_edit"].message_id)
             async with state.proxy() as data:
                 data["to_edit"] = to_edit
-            await FSM_newbie_xlsx.step_26.set()
+            await FSM_newbie_questioning.step_26.set()
 
-        elif data["state"] == "FSM_newbie_xlsx:step_26":
+        elif data["state"] == "FSM_newbie_questioning:step_26":
             async with state.proxy() as data:
                 data["Телефон"] = message.text
             button_list = ["Да", "Нет", "Другое"]
@@ -1477,9 +1477,9 @@ async def newbie_xlsx_other(message: types.Message, state: FSMContext):
                                                   message_id=data["to_edit"].message_id)
             async with state.proxy() as data:
                 data["to_edit"] = to_edit
-            await FSM_newbie_xlsx.step_27.set()
+            await FSM_newbie_questioning.step_27.set()
 
-        elif data["state"] == "FSM_newbie_xlsx:step_27":
+        elif data["state"] == "FSM_newbie_questioning:step_27":
             async with state.proxy() as data:
                 data["Флэшка"] = message.text
             button_list = ["Да", "Нет", "Другое"]
@@ -1490,9 +1490,9 @@ async def newbie_xlsx_other(message: types.Message, state: FSMContext):
                                                   message_id=data["to_edit"].message_id)
             async with state.proxy() as data:
                 data["to_edit"] = to_edit
-            await FSM_newbie_xlsx.step_28.set()
+            await FSM_newbie_questioning.step_28.set()
 
-        elif data["state"] == "FSM_newbie_xlsx:step_28":
+        elif data["state"] == "FSM_newbie_questioning:step_28":
             async with state.proxy() as data:
                 data["Модем"] = message.text
             button_list = ["Да", "Нет", "Другое"]
@@ -1503,9 +1503,9 @@ async def newbie_xlsx_other(message: types.Message, state: FSMContext):
                                                   message_id=data["to_edit"].message_id)
             async with state.proxy() as data:
                 data["to_edit"] = to_edit
-            await FSM_newbie_xlsx.commit_data.set()
+            await FSM_newbie_questioning.commit_data_email.set()
 
-        elif data["state"] == "FSM_newbie_xlsx:commit_data":
+        elif data["state"] == "FSM_newbie_questioning:commit_data_email":
             async with state.proxy() as data:
                 data["Мобильная связь"] = message.text
                 text = "Давай проверим что получилось:\n\n" \
@@ -1558,10 +1558,10 @@ async def newbie_xlsx_other(message: types.Message, state: FSMContext):
             await bot.edit_message_text(text, message.from_user.id, data["to_edit"].message_id,
                                         reply_markup=temp_kb,
                                         parse_mode=types.ParseMode.HTML)
-            await FSM_newbie_xlsx.finish.set()
+            await FSM_newbie_questioning.finish.set()
 
 
-@dp.callback_query_handler(state=FSM_newbie_xlsx.finish)
+@dp.callback_query_handler(state=FSM_newbie_questioning.finish)
 async def finish(callback_query: types.CallbackQuery, state: FSMContext):
     await callback_query.answer()
     async with state.proxy() as data:

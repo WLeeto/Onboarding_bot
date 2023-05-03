@@ -147,6 +147,20 @@ def validate_bday(date: str) -> bool:
     return result
 
 
+def validate_date(date: str) -> bool:
+    repl1 = date.replace("/", ".").replace("г", "").replace("Г", "").replace("г.", "")
+    if len(repl1.split(".")) == 3:
+        try:
+            date = datetime.strptime(repl1, "%d.%m.%Y")
+            result = date
+        except ValueError as ex:
+            print(ex)
+            result = False
+    else:
+        result = False
+    return result
+
+
 def validate_phone(phone: str) -> str or False:
     replaced_phone = phone.replace(" ", "").replace("+", "")
     if replaced_phone.isdigit():

@@ -532,6 +532,7 @@ class database:
             email=kwargs.get("email"),
             tg_photo=kwargs.get("tg_photo"),
             hobby=kwargs.get("hobby"),
+            surname_eng=kwargs.get("surname_eng")
         )
         self.session.add(newbee)
         self.session.commit()

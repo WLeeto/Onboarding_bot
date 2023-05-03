@@ -209,7 +209,8 @@ async def commit_data(callback_query: types.CallbackQuery, state: FSMContext):
                 phone=data["phone"],
                 email=data["email"],
                 tg_photo=data["tg_photo_path"],
-                hobby=data["hobby"]
+                hobby=data["hobby"],
+                surname_eng=data["surname_eng"],
             )
             try:
                 await bot.send_photo(operator_list[0], data["photo"],

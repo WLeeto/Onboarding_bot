@@ -143,6 +143,7 @@ class New_User(Base):
     tg_id = sq.Column(sq.BIGINT)
     first_name = sq.Column(sq.Text)
     surname = sq.Column(sq.Text)
+    surname_eng = sq.Column(sq.Text)
     middle_name = sq.Column(sq.Text)
     job_title = sq.Column(sq.Text)
     tg_name = sq.Column(sq.Text)
