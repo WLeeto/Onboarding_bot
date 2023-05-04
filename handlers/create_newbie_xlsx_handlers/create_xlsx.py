@@ -264,7 +264,7 @@ async def newbie_xlsx_step_5(callback_query: types.CallbackQuery, state: FSMCont
         cbq_list_list = list_split(cbq_list, 5)
         pagi_data = create_pagi_data(button_list_list, cbq_list_list)
 
-        legal_entity_kb = create_kb(buttons_text=button_list[0:5], callback_data=cbq_list[0:5], row_width=4)
+        legal_entity_kb = create_kb_next(buttons_text=button_list[0:5], callback_data=cbq_list[0:5], row_width=4)
         to_edit = await bot.edit_message_text(f"Бизнес-роль:", reply_markup=legal_entity_kb,
                                               chat_id=callback_query.from_user.id,
                                               message_id=data["to_edit"].message_id)
@@ -1623,9 +1623,9 @@ async def finish(callback_query: types.CallbackQuery, state: FSMContext):
                 patronim=data["patronim"],
                 date_of_birth=data["date_of_birth"],
                 legal_entity=data["legal_entity"],
-                first_work_day="today",  # todo забирать из основной анкеты
+                first_work_day=data["first_work_day"],
                 superviser=data["superviser"],
-                job_title="Название должности",  # todo забирать из основной анкеты
+                job_title=data["business_role"],
                 mail_domain=data["Домен почты"],
                 xlsx_path="new_employer.xlsx"
             ))

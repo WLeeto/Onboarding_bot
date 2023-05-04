@@ -153,8 +153,8 @@ async def send_create_corp_email(**kwargs) -> bool:
     server.starttls()
 
     text = "Вячеслав Давидович, добрый день!\n\n" \
-           f"Прошу создать рабочую почту новому сотруднику - {surname} {name} {patronim} {date_of_birth} " \
-           f"года рождения.\n" \
+           f"Прошу создать рабочую почту новому сотруднику - {surname} {name} {patronim} " \
+           f"Дата рождения: {date_of_birth}\n" \
            f"ЮЛ: {legal_entity}\n" \
            f"Выход: {first_work_day}\n" \
            f"Руководитель: {superviser}\n" \

@@ -285,18 +285,8 @@ async def about(message: types.Message):
     user = db.is_user(message.from_id)
     if user:
         db.add_statistics(tg_id=message.from_id, user_id=user.id, command_used="about")
-        # db.find_answer_by_answer_id(27).answer_text
-        about_text = "<a href='https://disk.yandex.ru/i/PKcCI85GYNSvjQ'>" \
-                     "Пионер и лидер в области лизинга и проектных команд 2008 года." \
-                     "14 лет в области HR-Tech\n\n</a>" \
-                     "Бизнес-процессы:\n" \
-                     "*Поиск и верификация поставщиков и специалистов. Сбор данных о доступности в единый пул " \
-                     "ресурсов\n" \
-                     "*Привлечение компетенций под конкретный проект. Управление специалистами и их загрузкой\n" \
-                     "*Управление поставщиками. Организация документооборота и проведение платежей\n\n" \
-                     "Интерактивная карта ТИМ ФОРС:\n" \
-                     "<a href='https://mm.tt/map/2583836886?t=IVbQmGKCG6'>Здесь Вы можете узнать самое главное</a>"
-        await message.answer(about_text, parse_mode=types.ParseMode.HTML)
+        about_text = db.find_answer_by_answer_id(27).answer_text
+        await message.answer(is_breakes(about_text), parse_mode=types.ParseMode.HTML)
     else:
         await message.answer(message_dict["not_in_db"])
 
