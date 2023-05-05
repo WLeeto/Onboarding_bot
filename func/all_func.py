@@ -33,7 +33,8 @@ async def set_default_commands(dp):
         types.BotCommand("projects", "Краткая информация о проектах"),
         types.BotCommand("about", "Информация о ТИМ ФОРС"),
         types.BotCommand("sick_leave", "Информация о больничном"),
-        types.BotCommand("meeting", "Создать встречу")
+        types.BotCommand("meeting", "Создать встречу"),
+        types.BotCommand("bday", "Дни рождения сотрудников"),
     ])
 
 
