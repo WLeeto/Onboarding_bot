@@ -1,6 +1,7 @@
 import os
 
 import sqlalchemy
+from sqlalchemy import extract
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
 
@@ -594,3 +595,7 @@ class database:
         to_del = self.session.query(Schelduled_message).filter(Schelduled_message.id == id).first()
         self.session.delete(to_del)
         self.session.commit()
+
+    def get_users_by_birth_month(self, month: int = 0) -> list or None:
+        result = [i for i in self.session.query(Users).filter(extract("month", Users.date_of_birth) == month).all()]
+        return result

@@ -19,6 +19,7 @@ from handlers.business_trip_handlers import business_trip
 from handlers.sick_leave_handlers import sick_leave
 from handlers.find_handlers import find
 from handlers.create_newbie_xlsx_handlers import create_xlsx
+from handlers.bday_handlers import bday
 
 from keyboards.inline_operator import ask_operator
 
@@ -193,6 +194,7 @@ async def hr_contacts(callback_query: types.CallbackQuery):
 
 
 def register_handlers_other(dp: Dispatcher):
+    bday.register_handlers_bday(dp)
     newbie_questioning.register_handlers_newbie_questioning(dp)
     meeting.register_handlers_meeting(dp)
     sick_leave.register_handlers_sick_leave(dp)

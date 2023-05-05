@@ -10,6 +10,7 @@ from func.all_func import delete_message, is_breakes, is_reply_keyboard
 
 from dicts.messages import message_dict, commands_dict, operator_list, administarator_list
 from keyboards.all_keyboards import all_keyboards
+from keyboards.inline_bday import bday_kb
 from keyboards.inline_create_kb import create_kb
 from keyboards.inline_find import search_way
 from keyboards.inline_initiate_vacation import vacation_keyboard
@@ -301,6 +302,17 @@ async def sick_leave(message: types.Message):
         await message.answer(message_dict["not_in_db"])
 
 
+# @dp.message_handler(commands='bday')
+async def bday(message: types.Message):
+    user = db.is_user(message.from_id)
+    if user:
+        # todo добавить проверку на тип трудоустройства
+        await message.answer("Давайте посмотрим кто когда родился. Какой месяц вас интересует ?",
+                             reply_markup=bday_kb)
+    else:
+        await message.answer(message_dict["not_in_db"])
+
+
 # Добавление новенького ------------------------------------------------------------------------------------------------
 class FSM_newbie_adding(StatesGroup):
     add_tg_id = State()
@@ -334,11 +346,6 @@ async def add_newbie_tg_id(message: types.Message, state: FSMContext):
         await message.answer(f"'{message.text}' не является целым числом,\n"
                              f"telegram_id могут быть только целые числа\n"
                              f"Напишите корректное telegramm id или используйте /stop для выхода")
-
-
-@dp.message_handler(commands='operator')
-async def call_operator(message: types.Message):
-    await message.answer("Тут должна быть логика для связи с оператором, но она еще не готова. Приходите позже")
 
 
 # @dp.message_handler(commands='meeting')
@@ -447,14 +454,6 @@ async def statistics(message: types.Message):
         await message.answer("Команда только для администраторов")
 
 
-@dp.callback_query_handler(lambda c: c.data.startswith("pagi"), state="*")
-async def paginator_response(callback_query: types.CallbackQuery, state: FSMContext):
-    if callback_query.data.split(" ")[1] == "back":
-        pass
-    if callback_query.data.split(" ")[1] == "forward":
-        pass
-
-
 def register_handlers_client(dp: Dispatcher):
     dp.register_message_handler(stop, commands='stop', state="*")
 
@@ -467,6 +466,7 @@ def register_handlers_client(dp: Dispatcher):
                                        lambda c: c.data.startswith("type_of_emp"),
                                        state=FSM_type_of_employment.change_type_of_employment
                                        )
+    dp.register_message_handler(bday, commands='bday')
     dp.register_message_handler(meeting, commands='meeting')
     dp.register_message_handler(projects, commands='projects')
     dp.register_message_handler(about, commands='about')
