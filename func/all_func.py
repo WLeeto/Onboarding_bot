@@ -114,6 +114,12 @@ def is_reply_keyboard(message: str):
 
 def search_message(id: int, first_name: str, surname: str, patronymic: str, job_title: str, tg_name: str) -> str:
     contacts = db.find_contacts_by_id(id)
+    if first_name is None:
+        first_name = ""
+    if surname is None:
+        surname = ""
+    if patronymic is None:
+        patronymic = ""
     contacts_text = f"  └ <b>Email:</b> <code>{contacts.get('e-mail')}</code>\n" \
                     f"  └ <b>Phone:</b> <code>{contacts.get('phone')}</code>\n" \
                     f"  └ <b>Telegram:</b> <code>{tg_name}</code>"
