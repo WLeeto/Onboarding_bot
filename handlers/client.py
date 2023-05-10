@@ -89,6 +89,7 @@ async def start(message: types.Message, state=FSMContext):
     me = await bot.get_me()
     user = db.is_user(message.from_id)
     if user:
+        # todo переделать приветствие
         db.add_statistics(tg_id=message.from_id, user_id=user.id, command_used="start")
         await message.answer(message_dict['greetings'], parse_mode=types.ParseMode.HTML)
         try:
@@ -96,8 +97,8 @@ async def start(message: types.Message, state=FSMContext):
         except WrongFileIdentifier as ex:
             print(f"Не удалось загрузить видео:\n"
                   f"{ex}")
-        await asyncio.sleep(3)
-        await message.answer(message_dict['for_olds_message'], reply_markup=keyboard.start_survey())
+        await asyncio.sleep(1)
+        await message.answer(message_dict['help_message'])
     elif db.is_tg_id_in_newbie_base(message.from_id):
         await FSM_newbie_questioning.newbie_questioning_start.set()
         await message.answer(message_dict["greetings"])
