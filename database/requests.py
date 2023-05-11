@@ -143,21 +143,24 @@ class database:
         """
         Поиск сотрудника по фамилии
         """
-        result = [i for i in self.session.query(Users).filter(Users.surname == surname).all()]
+        result = [i for i in self.session.query(Users).filter(Users.surname == surname).
+        filter(Users.fired_at == None).all()]
         return result if result else False
 
     def partial_search_by_surname(self, surname: str) -> list or False:
         """
         Поиск сотрудника по частичному совпадению фамилии
         """
-        result = [i for i in self.session.query(Users).filter(Users.surname.ilike(f"%{surname}%")).all()]
+        result = [i for i in self.session.query(Users).filter(Users.surname.ilike(f"%{surname}%")).
+        filter(Users.fired_at == None).all()]
         return result if result else False
 
     def find_by_patronymic(self, patronimyc: str) -> list or False:
         """
         Поиск сотрудника по отчеству
         """
-        result = [i for i in self.session.query(Users).filter(Users.middle_name == patronimyc).all()]
+        result = [i for i in self.session.query(Users).filter(Users.middle_name == patronimyc).
+        filter(Users.fired_at == None).all()]
         return result if result else False
 
     def find_by_tg_id(self, tg_id: int) -> object or False:
@@ -171,14 +174,16 @@ class database:
         """
         Поиск сотрудника по частичному совпадению отчества
         """
-        result = [i for i in self.session.query(Users).filter(Users.middle_name.ilike(f"%{patronimyc}%")).all()]
+        result = [i for i in self.session.query(Users).filter(Users.middle_name.ilike(f"%{patronimyc}%")).
+        filter(Users.fired_at == None).all()]
         return result if result is not None else False
 
     def find_by_telegram_ninckname(self, telegram_ninckname: str) -> list or False:
         """
         Поиск сотрудника по telegram_ninckname
         """
-        result = [i for i in self.session.query(Users).filter(Users.tg_name == telegram_ninckname).all()]
+        result = [i for i in self.session.query(Users).filter(Users.tg_name == telegram_ninckname).
+        filter(Users.fired_at == None).all()]
         return result if result else False
 
     def find_user_by_telegram_nickname(self, telegram_nickname: str) -> object or None:
@@ -189,7 +194,8 @@ class database:
         """
         Поиск сотрудника по частичному совпадению telegram_ninckname
         """
-        result = [i for i in self.session.query(Users).filter(Users.tg_name.ilike(f"%{telegram_ninckname}%")).all()]
+        result = [i for i in self.session.query(Users).filter(Users.tg_name.ilike(f"%{telegram_ninckname}%")).
+        filter(Users.fired_at == None).all()]
         return result if result else False
 
     def find_by_email(self, email: str) -> list or False:
@@ -254,7 +260,8 @@ class database:
         result = []
         search = [i for i in self.session.query(Departments).filter(Departments.name == department).all()]
         for i in search:
-            employers = [i for i in self.session.query(Users).filter(Users.department_id == i.id).all()]
+            employers = [i for i in self.session.query(Users).filter(Users.department_id == i.id).
+                         filter(Users.fired_at == None).all()]
             result.append({
                 "id": i.id,
                 "name": i.name,
@@ -281,28 +288,32 @@ class database:
         """
         Находит сотрудника по должности
         """
-        result = [i for i in self.session.query(Users).filter(Users.job_title == title).all()]
+        result = [i for i in self.session.query(Users).filter(Users.job_title == title).
+        filter(Users.fired_at == None).all()]
         return result if result else False
 
     def partial_search_by_title(self, title: str) -> list or False:
         """
         Находит сотрудника по частичному соответствию должности
         """
-        result = [i for i in self.session.query(Users).filter(Users.job_title.ilike(f"%{title}%")).all()]
+        result = [i for i in self.session.query(Users).filter(Users.job_title.ilike(f"%{title}%")).
+        filter(Users.fired_at == None).all()]
         return result if result else False
 
     def find_by_name(self, name: str) -> dict:
         """
         Находит сотрудника по имени
         """
-        result = [i for i in self.session.query(Users).filter(Users.first_name == name).all()]
+        result = [i for i in self.session.query(Users).filter(Users.first_name == name).
+        filter(Users.fired_at == None).all()]
         return result if result else False
 
     def partial_search_by_name(self, name: str) -> list or False:
         """
         Находит сотрудника по частичному соответствию имени
         """
-        result = [i for i in self.session.query(Users).filter(Users.first_name.ilike(fr"%{name}%")).all()]
+        result = [i for i in self.session.query(Users).filter(Users.first_name.ilike(fr"%{name}%")).
+        filter(Users.fired_at == None).all()]
         return result if result else False
 
     def find_contacts_by_tg_id(self, tg_id: int) -> dict:

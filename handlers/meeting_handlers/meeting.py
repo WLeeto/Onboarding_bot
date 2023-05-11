@@ -32,7 +32,7 @@ async def save_contacts(message: types.Message, state: FSMContext):
     if len(recipient_list) != 0:
         async with state.proxy() as data:
             data["recipient_list"] = recipient_list
-        await message.answer("напишите время в формате дд.мм.гггг **чч:мм**")
+        await message.answer("напишите время в формате дд.мм.гггг чч:мм")
         await FSM_meeting.step_3.set()
     else:
         await message.answer("Не указан ни один получатель\n"

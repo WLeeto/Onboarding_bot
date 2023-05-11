@@ -89,7 +89,6 @@ async def start(message: types.Message, state=FSMContext):
     me = await bot.get_me()
     user = db.is_user(message.from_id)
     if user:
-        # todo переделать приветствие
         db.add_statistics(tg_id=message.from_id, user_id=user.id, command_used="start")
         await message.answer(message_dict['greetings'], parse_mode=types.ParseMode.HTML)
         try:

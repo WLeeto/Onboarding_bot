@@ -1,6 +1,8 @@
 from datetime import datetime
+from typing import Any
 
 import sqlalchemy as sq
+from sqlalchemy import Column
 from sqlalchemy.orm import declarative_base, relationship, mapped_column
 
 Base = declarative_base()
@@ -55,7 +57,7 @@ class Users(Base):
     department_id = sq.Column(sq.Integer, sq.ForeignKey("Departments.id"))
     organization_id = sq.Column(sq.Integer)
     user_id = sq.Column(sq.Integer)
-    fired_at = sq.Column(sq.Date)
+    fired_at: Column[Any] = sq.Column(sq.Date)
     date_of_birth = sq.Column(sq.Date)
     job_title = sq.Column(sq.Text)
     status = sq.Column(sq.Text)
