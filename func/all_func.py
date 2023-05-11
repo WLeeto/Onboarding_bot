@@ -239,3 +239,11 @@ def create_pagi_data(text: list, list: list) -> dict:
         pagi_data["cbq"][j] = i
         j += 1
     return pagi_data
+
+
+def is_duplicates(checked_list: list) -> False or str:
+    for i in range(len(checked_list)):
+        if checked_list[i] in checked_list[i + 1:]:
+            return checked_list[i]
+    return False
+

@@ -611,3 +611,12 @@ class database:
         result = [i for i in self.session.query(Users).filter(extract("month", Users.date_of_birth) == month).
         filter(Users.fired_at == None).order_by(extract("day", Users.date_of_birth).asc()).all()]
         return result
+
+    def is_user_by_username(self, username: str) -> object or False:
+        result = self.session.query(Users).filter(Users.tg_name.ilike(username)).first()
+        return result if result else False
+
+    def is_user_by_surname(self, surname: str) -> list or False:
+        result = self.session.query(Users).filter(Users.surname.ilike(surname)).all()
+        return result if result else False
+
