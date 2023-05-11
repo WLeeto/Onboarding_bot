@@ -86,7 +86,7 @@ async def save_date_time(message: types.Message, state: FSMContext):
 
             invited_text = '\n'.join(invited_list)
             text = f"<b>Встреча</b>:\n {data['header']}\n" \
-                   f"<b>Приглашенные</b>:\n {invited_text}\n" \
+                   f"<b>Приглашенные</b>:\n{invited_text}\n" \
                    f"<b>Дата и время</b>:\n {day}.{month}.{year} {hour}:{minute}"
             await message.answer(f"Отлично, давай проверим что получилось:\n\n"
                                  f"{text}", parse_mode=types.ParseMode.HTML, reply_markup=meeting_kb)
@@ -145,16 +145,17 @@ async def send_invites(callback_query: types.CallbackQuery, scheduler: AsyncIOSc
                     not_found_emails.append(f"{user_surname} {user_name}")
         if found_users:
             found_users_text = '\n'.join(found_users)
-            await callback_query.message.answer("Сообщение о собрании было отправлено на почту пользователям: "
-                                                f"{found_users_text}")
+            await callback_query.message.answer("Сообщение о собрании было отправлено на почту пользователям:\n"
+                                                f"{found_users_text}\n\n"
+                                                f"Обратите внимание - чтобы я смог оповестить пользователя о начале "
+                                                f"встречи, он должен начать со мной диалог")
         if not_found_users:
             not_found_users_text = '\n'.join(not_found_users)
             await callback_query.message.answer("Вот этих пользователей я не смог найти в БД: "
                                                 f"{not_found_users_text}")
         if not_found_emails:
-            not_found_emails_text = '\n'.join(not_found_users)
+            not_found_emails_text = '\n'.join(not_found_emails)
             await callback_query.message.answer("Вот у этих пользователей не указана почта:\n"
-                                                "(им придет только оповещения за 5 минут до встречи)"
                                                 f"{not_found_emails_text}")
         await state.finish()
     else:
