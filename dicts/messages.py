@@ -267,5 +267,5 @@ all_monthes = {
     "September": [9, "Сентябре"],
     "October": [10, "Октябре"],
     "November": [11, "Ноябре"],
-    "December": [1, "Декабре"],
+    "December": [12, "Декабре"],
 }

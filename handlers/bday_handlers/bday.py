@@ -13,7 +13,10 @@ async def display_bday(callback_query: types.CallbackQuery):
         for i in list_of_users:
             name = i.first_name
             surname = i.surname
-            middle_name = i.middle_name
+            if i.middle_name is not None:
+                middle_name = i.middle_name
+            else:
+                middle_name = ""
             text += f"{surname} {name} {middle_name} - {i.date_of_birth.strftime('%d.%m')}\n"
     else:
         text = f"В БД нет сотрудников с ДР в {all_monthes[month][1]}"

@@ -609,5 +609,5 @@ class database:
 
     def get_users_by_birth_month(self, month: int = 0) -> list or None:
         result = [i for i in self.session.query(Users).filter(extract("month", Users.date_of_birth) == month).
-        order_by(extract("day", Users.date_of_birth).asc()).all()]
+        filter(Users.fired_at == None).order_by(extract("day", Users.date_of_birth).asc()).all()]
         return result
