@@ -13,9 +13,6 @@ class database:
     def __init__(self):
 
         DSN = os.environ.get("ONBOARDING_BOT_DB_DSN")
-
-        # DSN = 'postgresql://postgres_user:postgres_pass@postgres:5432/onboarding_bot_db'
-
         self.engine = sqlalchemy.create_engine(DSN)
         Session = sessionmaker(bind=self.engine)
         self.session = Session()
@@ -568,6 +565,12 @@ class database:
     def find_statistics(self, tg_id):
         result = self.session.query(Statistics).filter(Statistics.tg_id == tg_id).first()
         return True if result else False
+
+    def add_start_statistics(self, tg_id):
+        new_stat = Statistics(tg_id=tg_id)
+        self.session.add(new_stat)
+        self.session.commit()
+        self.session.close()
 
     def add_statistics(self, **kwargs):
         new_user = Full_statistics(tg_id=kwargs.get("tg_id"),

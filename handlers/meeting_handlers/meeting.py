@@ -145,18 +145,21 @@ async def send_invites(callback_query: types.CallbackQuery, scheduler: AsyncIOSc
                     not_found_emails.append(f"{user_surname} {user_name}")
         if found_users:
             found_users_text = '\n'.join(found_users)
-            await callback_query.message.answer("Сообщение о собрании было отправлено на почту пользователям:\n"
+            await callback_query.message.answer("<b>Сообщение о собрании было отправлено на почту пользователям:</b>\n"
                                                 f"{found_users_text}\n\n"
                                                 f"Обратите внимание - чтобы я смог оповестить пользователя о начале "
-                                                f"встречи, он должен начать со мной диалог")
+                                                f"встречи, он должен начать со мной диалог",
+                                                parse_mode=types.ParseMode.HTML)
         if not_found_users:
             not_found_users_text = '\n'.join(not_found_users)
-            await callback_query.message.answer("Вот этих пользователей я не смог найти в БД: "
-                                                f"{not_found_users_text}")
+            await callback_query.message.answer("<b>Вот этих пользователей я не смог найти в БД:</b>\n"
+                                                f"{not_found_users_text}",
+                                                parse_mode=types.ParseMode.HTML)
         if not_found_emails:
             not_found_emails_text = '\n'.join(not_found_emails)
-            await callback_query.message.answer("Вот у этих пользователей не указана почта:\n"
-                                                f"{not_found_emails_text}")
+            await callback_query.message.answer("<b>Вот у этих пользователей не указана почта:</b>\n"
+                                                f"{not_found_emails_text}",
+                                                parse_mode=types.ParseMode.HTML)
         await state.finish()
     else:
         await callback_query.message.answer("Давай начнем все с начала\n"

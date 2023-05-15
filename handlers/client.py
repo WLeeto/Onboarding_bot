@@ -84,7 +84,7 @@ async def start(message: types.Message, state=FSMContext):
     db.close_session()
     await state.finish()
     if not db.find_statistics(message.from_id):
-        db.add_statistics(message.from_id)
+        db.add_start_statistics(message.from_id)
     keyboard = Survey_inlines_keyboards()
     me = await bot.get_me()
     user = db.is_user(message.from_id)
