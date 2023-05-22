@@ -101,9 +101,9 @@ async def got_video(message: types.Message):
     await message.answer(f"Получил видео. Его id {message.video.file_id}")
 
 
-@dp.message_handler(content_types=ContentType.PHOTO)
+# @dp.message_handler(content_types=ContentType.PHOTO)
 async def got_photo(message: types.Message):
-    pprint(message.photo[-1].file_id)
+    await message.answer(message.photo[-1].file_id)
 
 
 # Состояния для опросника при старте работы ----------------------------------------------------------------------------
@@ -222,6 +222,7 @@ def register_handlers_other(dp: Dispatcher):
     dp.register_callback_query_handler(get_document, lambda c: c.data.startswith("get"), state=None)
 
     dp.register_message_handler(got_video, content_types='video')
+    dp.register_message_handler(got_photo, content_types=ContentType.PHOTO)
 
     dp.register_callback_query_handler(first_question, lambda c: c.data.startswith("survey"), state=None)
     dp.register_callback_query_handler(second_question, lambda c: c.data.startswith("first"),
