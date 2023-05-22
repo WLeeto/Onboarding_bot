@@ -320,8 +320,6 @@ async def me(message: types.Message):
     user = db.find_by_tg_id(message.from_id)
     if user:
         photo = user.tg_photo
-        if not photo:
-            photo = "AgACAgIAAxkBAAIVBWRnRZ_bt9RPWnSSPaMYMEC0UgrvAAJZyTEbaGM4S5alufS89OseAQADAgADeQADLwQ"
         user_id = user.id
         birth_date = user.date_of_birth
         job_title = user.job_title
@@ -339,7 +337,10 @@ async def me(message: types.Message):
                f"E-mail: {email}\n\n" \
                f"Отдел: {department_name}\n" \
                f"Должность: {job_title}\n"
-        await message.answer_photo(photo, text, parse_mode=types.ParseMode.HTML)
+        if photo:
+            await message.answer_photo(photo, text, parse_mode=types.ParseMode.HTML)
+        else:
+            await message.answer(f"Фото отсутствует =(\n\n{text}", parse_mode=types.ParseMode.HTML)
     else:
         await message.answer(message_dict["not_in_db"])
 
