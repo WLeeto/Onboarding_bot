@@ -1,10 +1,12 @@
 import asyncio
+from pprint import pprint
 
 from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
+from aiogram.types import ContentType
 
-from create_bot import bot, db
+from create_bot import bot, db, dp
 from dicts.messages import start_survey_dict, message_dict, commands_dict
 from func.all_func import recognize_question, start_survey_answers, is_breakes, \
     is_reply_keyboard
@@ -97,6 +99,11 @@ async def get_contacts(callback_query: types.CallbackQuery):
 # @dp.message_handler(content_types='video')
 async def got_video(message: types.Message):
     await message.answer(f"Получил видео. Его id {message.video.file_id}")
+
+
+@dp.message_handler(content_types=ContentType.PHOTO)
+async def got_photo(message: types.Message):
+    pprint(message.photo[-1].file_id)
 
 
 # Состояния для опросника при старте работы ----------------------------------------------------------------------------

@@ -74,6 +74,8 @@ async def vacation(message: types.Message):
 
 # @dp.message_handler(commands=['test'])
 async def test(message: types.Message):
+    # await message.answer_photo("AgACAgIAAxkBAAIU_WRnQH1EMI1TCpYtskatxr8nqVJYAAI4yTEbaGM4S4VwH6f3PSN-AQADAgADcwADLwQ",
+    #                            "some text")
     answer = await message.answer(f'Ваш id: `{message.from_id}`\n'
                                   f'Бот работает. Сообщение будет удалено', parse_mode=types.ParseMode.MARKDOWN)
     await asyncio.create_task(delete_message(answer, 3))
@@ -313,6 +315,33 @@ async def bday(message: types.Message):
         await message.answer(message_dict["not_in_db"])
 
 
+# @dp.message_handler(commands="me")
+async def me(message: types.Message):
+    user = db.find_by_tg_id(message.from_id)
+    if user:
+        photo = user.tg_photo
+        if not photo:
+            photo = "AgACAgIAAxkBAAIVBWRnRZ_bt9RPWnSSPaMYMEC0UgrvAAJZyTEbaGM4S5alufS89OseAQADAgADeQADLwQ"
+        user_id = user.id
+        birth_date = user.date_of_birth
+        job_title = user.job_title
+        contacts = db.find_contacts_by_id(user_id)
+        phone = contacts.get("phone")
+        email = contacts.get("e-mail")
+        department = db.find_department_obj_by_user_id(user_id)
+        if department:
+            department_name = department.name
+        else:
+            department_name = "Отдел не указан"
+        text = f"<b>{user.surname} {user.first_name} {user.middle_name}</b>\n" \
+               f"Дата рождения: {birth_date}\n\n" \
+               f"Телефон: {phone}\n" \
+               f"E-mail: {email}\n\n" \
+               f"Отдел: {department_name}" \
+               f"Должность: {job_title}\n"
+        await message.answer_photo(photo, text, parse_mode=types.ParseMode.HTML)
+
+
 # Добавление новенького ------------------------------------------------------------------------------------------------
 class FSM_newbie_adding(StatesGroup):
     add_tg_id = State()
@@ -459,6 +488,7 @@ def register_handlers_client(dp: Dispatcher):
 
     dp.register_message_handler(statistics, commands="stat")
 
+    dp.register_message_handler(me, commands="me")
     dp.register_message_handler(adduser, commands='adduser')
     dp.register_message_handler(add_newbie_tg_id, state=FSM_newbie_adding.add_tg_id)
 

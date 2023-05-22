@@ -150,8 +150,7 @@ async def load_email(message: types.Message, state: FSMContext):
 # @dp.message_handler(content_types="photo", state=FSM_newbie_questioning.asking_photo)
 async def load_photo(message: types.Message, state: FSMContext):
     await FSM_newbie_questioning.next()
-    destination = os.getcwd() + "/saved_files/tg_photos/" + str(message.from_id) + ".jpg"
-    await message.photo[-1].download(destination_file=destination)
+    destination = message.photo[-1].file_id
     msg_todel = await message.answer("Расскажи о своих хобби и увлечениях. "
                                      "Чем любишь заниматься в свободное время? Что тебя вдохновляет и дает энергию?\n"
                                      "Пиши о себе все, чем ты хочешь поделиться с коллегами! "
