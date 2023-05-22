@@ -337,9 +337,11 @@ async def me(message: types.Message):
                f"Дата рождения: {birth_date}\n\n" \
                f"Телефон: {phone}\n" \
                f"E-mail: {email}\n\n" \
-               f"Отдел: {department_name}" \
+               f"Отдел: {department_name}\n" \
                f"Должность: {job_title}\n"
         await message.answer_photo(photo, text, parse_mode=types.ParseMode.HTML)
+    else:
+        await message.answer(message_dict["not_in_db"])
 
 
 # Добавление новенького ------------------------------------------------------------------------------------------------
