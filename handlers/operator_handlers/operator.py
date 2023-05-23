@@ -11,7 +11,7 @@ from func.all_func import is_breakes, is_reply_keyboard, list_split, create_pagi
 from keyboards.all_keyboards import all_keyboards
 from keyboards.inline_newbie_questioning import choose_department_kb_gen
 from keyboards.inline_operator import operator_choice_kb_gen, operator_start_answering, auto_answers_kb_gen, \
-    operator_add_new_question_kb_gen
+    operator_add_new_question_kb_gen, mail_or_card
 from keyboards.inline_type_of_employement import type_of_employement_kb
 
 from datetime import date
@@ -193,7 +193,7 @@ async def operator_adds_new_manual_question(callback_query: types.CallbackQuery,
 # ----------------------------------------------------------------------------------------------------------------------
 # @dp.callback_query_handler(lambda c: c.data.startswith("new_user"))
 async def catch_new_user(callback_query: types.CallbackQuery, state=FSMContext):
-    await callback_query.answer()
+    await callback_query.message.edit_reply_markup(reply_markup=None)
     new_user_id = callback_query.data.split(" ")[2]
     confirming_user = db.find_one_confirming_user(new_user_id)
     if confirming_user:
@@ -211,9 +211,6 @@ async def catch_new_user(callback_query: types.CallbackQuery, state=FSMContext):
             data["confirming_user_hobby"] = confirming_user.hobby
             data["surname_eng"] = confirming_user.surname_eng
 
-        await bot.edit_message_reply_markup(chat_id=callback_query.from_user.id,
-                                            message_id=callback_query.message.message_id,
-                                            reply_markup=None)
         if callback_query.data.split(" ")[1] == "ok":
             await FSM_newbie_questioning.save_job_title.set()
             await callback_query.message.answer(f"Отлично, давай тогда добавим несколько данных"
@@ -299,7 +296,6 @@ async def add_new_user_to_db(message: types.Message, state: FSMContext):
         confirming_user_tg_photo = data["confirming_user_tg_photo"]
         confirming_user_hobby = data["confirming_user_hobby"]
         confirming_user_department = data["department_id"]
-        confirming_user_surname_eng = data["surname_eng"]
 
     db.add_new_user(
         tg_id=confirming_user_tg_id,
@@ -328,14 +324,32 @@ async def add_new_user_to_db(message: types.Message, state: FSMContext):
     )
 
     if new_phone and new_email:
-        await message.answer("Отлично ! Я добавил нового сотрудника в БД")
+        await message.answer("Отлично ! Я добавил нового сотрудника в БД\n"
+                             "Заполним заявку на почту или отправим карточку новенького в чат?",
+                             reply_markup=mail_or_card())
         await bot.send_message(chat_id=confirming_user_tg_id, text="Оператор добавил вас в БД сотрудников, "
                                                                    "теперь все функции доступны!")
         db.clear_newbee_confirming(data["confirming_user_id"])
+        await FSM_newbie_questioning.procced.set()
+    else:
+        await message.answer("Что-то пошло не так, пользователь не был добавлен")
+        await state.finish()
 
+
+# @dp.callback_query_handlers(lambda c: c.data.startswith("operator"), state=FSM_newbie_questioning.procced)
+async def procced(callback_querry: types.CallbackQuery, state: FSMContext):
+    await callback_querry.message.edit_reply_markup(reply_markup=None)
+    if callback_querry.data.split(" ")[1] == "mail":
         await FSM_newbie_questioning.step_1.set()
-
-
+        async with state.proxy() as data:
+            confirming_user_phone = data["confirming_user_phone"]
+            confirming_user_email = data["confirming_user_email"]
+            confirming_user_first_name = data["confirming_user_first_name"]
+            confirming_user_surname = data["confirming_user_surname"]
+            confirming_user_middle_name = data["confirming_user_middle_name"]
+            confirming_user_bdate = data["confirming_user_bdate"]
+            confirming_user_department = data["department_id"]
+            confirming_user_surname_eng = data["surname_eng"]
         button_list = ["ООО «СмартСтаффинг»", "ООО «ТИМ ФОРС»", "ООО «ТИМ ФОРС Сервис»", "ООО «ТИМ ФОРС Менеджмент»",
                        "ООО «ТАТМобайлИнформ СиДиСи»", 'ООО "Репола"', 'ООО "Сириус"', 'ООО "Кайрос"', 'ООО "Бивень"',
                        "Другое (Ввести вручную)"]
@@ -346,7 +360,7 @@ async def add_new_user_to_db(message: types.Message, state: FSMContext):
         cbq_list_list = list_split(cbq_list, 5)
         pagi_data = create_pagi_data(button_list_list, cbq_list_list)
         legal_entity_kb = create_kb_next(buttons_text=button_list[0:5], callback_data=cbq_list[0:5])
-        to_edit = await message.answer("Выберите ЮЛ:", reply_markup=legal_entity_kb)
+        to_edit = await callback_querry.message.answer("Выберите ЮЛ:", reply_markup=legal_entity_kb)
         confirming_user_superviser_id = db.find_superviser(confirming_user_department)
         confirming_user_superviser = db.find_user_by_id(confirming_user_superviser_id)
         confirming_user_superviser_name = f"{confirming_user_superviser.surname} {confirming_user_superviser.first_name}" \
@@ -364,10 +378,8 @@ async def add_new_user_to_db(message: types.Message, state: FSMContext):
             data["first_work_day"] = data["first_work_day"]
             data["pagi"] = pagi_data
             data["pagi_step"] = 0
-
     else:
-        await message.answer("Что-то пошло не так, пользователь не был добавлен")
-        await state.finish()
+        pass
 
 
 def register_handlers_operator(dp: Dispatcher):
@@ -381,6 +393,8 @@ def register_handlers_operator(dp: Dispatcher):
                                        lambda c: c.data.startswith("department_id"),
                                        state=FSM_newbie_questioning.save_department)
     dp.register_message_handler(add_new_user_to_db, state=FSM_newbie_questioning.save_first_working_day)
+    dp.register_callback_query_handler(procced,
+                                       lambda c: c.data.startswith("operator"), state=FSM_newbie_questioning.procced)
 
     dp.register_callback_query_handler(call_operator, lambda c: c.data.startswith("call_operator"))
     dp.register_callback_query_handler(operator_choiсe, lambda c: c.data.startswith("help_with_answer"), state=None)

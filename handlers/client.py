@@ -14,6 +14,7 @@ from keyboards.inline_bday import bday_kb
 from keyboards.inline_create_kb import create_kb
 from keyboards.inline_find import search_way
 from keyboards.inline_initiate_vacation import vacation_keyboard
+from keyboards.inline_operator import mail_or_card
 from keyboards.inline_projects import Projects_keyboard
 from keyboards.inline_sick_leave import sick_leave_kb
 from keyboards.inline_start_survey import Survey_inlines_keyboards

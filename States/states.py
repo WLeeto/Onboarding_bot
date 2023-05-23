@@ -24,6 +24,7 @@ class FSM_newbie_questioning(StatesGroup):
     change_phone = State()
     change_email = State()
     change_hobbie = State()
+    procced = State()
 
     step_1 = State()
     step_2 = State()
