@@ -219,10 +219,12 @@ async def catch_new_user(callback_query: types.CallbackQuery, state=FSMContext):
             await callback_query.message.answer(f"Отлично, давай тогда добавим несколько данных"
                                                 f" по этому сотруднику и внесем его в базу:\n"
                                                 f"Введи должность нового сотрудника")
-        else:
+        elif callback_query.data.split(" ")[1] == "not_ok":
             await FSM_newbie_questioning.confirm_failed.set()
             await callback_query.message.answer("Введите комментарий для анкеты. "
                                                 "Я отправлю его пользователю с просьбой заполнить анкету заново:")
+        elif callback_query.data.split(" ")[1] == "send":
+            pass
     else:
         await callback_query.message.answer("Я не смог найти пользователя в БД новеньких,"
                                             "это сложная ошибка - обратитесь к разработчику")
@@ -332,6 +334,8 @@ async def add_new_user_to_db(message: types.Message, state: FSMContext):
         db.clear_newbee_confirming(data["confirming_user_id"])
 
         await FSM_newbie_questioning.step_1.set()
+
+
         button_list = ["ООО «СмартСтаффинг»", "ООО «ТИМ ФОРС»", "ООО «ТИМ ФОРС Сервис»", "ООО «ТИМ ФОРС Менеджмент»",
                        "ООО «ТАТМобайлИнформ СиДиСи»", 'ООО "Репола"', 'ООО "Сириус"', 'ООО "Кайрос"', 'ООО "Бивень"',
                        "Другое (Ввести вручную)"]

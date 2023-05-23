@@ -31,32 +31,33 @@ from keyboards.all_keyboards import all_keyboards
 
 # @dp.message_handler(content_types='text', state=None)
 async def recognizing(message: types.Message):
-    user = db.is_user(message.from_id)
-    if user:
-        question_list = db.find_all_questions()
-        response_id = recognize_question(message.text, question_list)
-        if response_id:
-            answered = True
-            answer = db.find_answer_by_question_id(response_id)
-            check_keyboards = is_reply_keyboard(answer)
-            if check_keyboards:
-                keyboard = all_keyboards[check_keyboards[-1]]
-                await message.reply(is_breakes(check_keyboards[0]), reply_markup=keyboard, parse_mode=types.ParseMode.HTML)
+    if message.chat.type == types.ChatType.PRIVATE:
+        user = db.is_user(message.from_id)
+        if user:
+            question_list = db.find_all_questions()
+            response_id = recognize_question(message.text, question_list)
+            if response_id:
+                answered = True
+                answer = db.find_answer_by_question_id(response_id)
+                check_keyboards = is_reply_keyboard(answer)
+                if check_keyboards:
+                    keyboard = all_keyboards[check_keyboards[-1]]
+                    await message.reply(is_breakes(check_keyboards[0]), reply_markup=keyboard, parse_mode=types.ParseMode.HTML)
+                else:
+                    await message.reply(is_breakes(answer), parse_mode=types.ParseMode.HTML)
             else:
-                await message.reply(is_breakes(answer), parse_mode=types.ParseMode.HTML)
+                answered = False
+                question = db.add_new_operator_question(question_text=message.text,
+                                                        sender_tg_id=message.from_id,
+                                                        message_id=message.message_id)
+                question_id = question.id
+                question_from_user = question.from_user_id
+                question_message_id = question.message_id
+                await message.reply("На такой запрос у меня нет ответа. Передать вопрос оператору ?",
+                                    reply_markup=ask_operator(question_id, question_from_user, question_message_id))
+            db.add_statistics(tg_id=message.from_user.id, user_id=user.id, text_request=message.text, is_answered=answered)
         else:
-            answered = False
-            question = db.add_new_operator_question(question_text=message.text,
-                                                    sender_tg_id=message.from_id,
-                                                    message_id=message.message_id)
-            question_id = question.id
-            question_from_user = question.from_user_id
-            question_message_id = question.message_id
-            await message.reply("На такой запрос у меня нет ответа. Передать вопрос оператору ?",
-                                reply_markup=ask_operator(question_id, question_from_user, question_message_id))
-        db.add_statistics(tg_id=message.from_user.id, user_id=user.id, text_request=message.text, is_answered=answered)
-    else:
-        await message.answer(message_dict["not_in_db"])
+            await message.answer(message_dict["not_in_db"])
 
 
 # @dp.callback_query_handler(lambda c: c.data.startswith("get"), state=None)

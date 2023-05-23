@@ -186,7 +186,7 @@ def validate_phone(phone: str) -> str or False:
 def validate_email(email: str) -> bool:
     result = validate(email,
                       check_format=True,
-                      check_blacklist=True,
+                      check_blacklist=False,
                       check_dns=False,
                       dns_timeout=10,
                       check_smtp=False,  # Проверка действительно ли существует почта, инициировав SMTP-диалог

@@ -48,5 +48,6 @@ def operator_add_new_question_kb_gen():
 def confirm_new_user(tg_id):
     button_1 = InlineKeyboardButton(text="Все ок", callback_data=f"new_user ok {tg_id}")
     button_2 = InlineKeyboardButton(text="Что-то не так", callback_data="new_user not_ok")
-    new_user = InlineKeyboardMarkup(row_width=1).add(button_1, button_2)
+    button_3 = InlineKeyboardButton(text="Отправить анкету в чат ТИМФОРС", callback_data="new_user send")
+    new_user = InlineKeyboardMarkup(row_width=1).add(button_1, button_2, button_3)
     return new_user
