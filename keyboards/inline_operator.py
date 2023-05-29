@@ -59,8 +59,17 @@ def mail_or_card(tg_id):
     return mail_or_card
 
 
+def just_mail():
+    button_1 = InlineKeyboardButton(text="Заполнить заявку на почту", callback_data=f"operator mail")
+    button_2 = InlineKeyboardButton(text="Выход", callback_data=f"operator exit")
+    just_mail = InlineKeyboardMarkup(row_width=1).add(button_1, button_2)
+    return just_mail
+
+
 def edit_or_send():
-    button_1 = InlineKeyboardButton(text="Редактировать увлечения", callback_data=f"operator edit")
-    button_2 = InlineKeyboardButton(text="Запланировать отправку", callback_data=f"operator send")
-    edit_or_send = InlineKeyboardMarkup(row_width=1).add(button_1, button_2)
+    button_1 = InlineKeyboardButton(text="Редактировать увлечения", callback_data=f"operator edit_hobbie")
+    button_2 = InlineKeyboardButton(text="Редактировать должность", callback_data=f"operator edit_job")
+    button_3 = InlineKeyboardButton(text="Редактировать почту", callback_data=f"operator edit_mail")
+    button_4 = InlineKeyboardButton(text="Запланировать отправку", callback_data=f"operator send")
+    edit_or_send = InlineKeyboardMarkup(row_width=1).add(button_1, button_2, button_3, button_4)
     return edit_or_send

@@ -269,3 +269,19 @@ def is_duplicates(checked_list: list) -> False or str:
             return checked_list[i]
     return False
 
+
+def create_newbie_card_text(*args, **kwargs) -> str:
+    """
+    Формирует текст для анкеты новенького в общем чате
+    """
+    text = f"Добрый день, коллеги!💫\n\n" \
+           f"В нашей команде пополнение.👏\n\n" \
+           f"{kwargs.get('surname')} {kwargs.get('name')} {kwargs.get('patronymic')} – {kwargs.get('job_title')}❗\n\n" \
+           f"Немного о {kwargs.get('name')}:\n" \
+           f"{kwargs.get('hobbie')}.\n\n" \
+           f"☎ Контакты:\n" \
+           f"Номер для связи: <code>{kwargs.get('phone')}</code>\n" \
+           f"Telegram: <code>{kwargs.get('telegram_name')}</code>\n" \
+           f"Почта: <code>{kwargs.get('email')}</code>"
+    return text
+

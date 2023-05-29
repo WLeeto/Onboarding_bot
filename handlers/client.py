@@ -8,14 +8,14 @@ from create_bot import dp, bot, db
 
 from func.all_func import delete_message, is_breakes, is_reply_keyboard, validate_date_from_str
 
-from dicts.messages import message_dict, commands_dict, operator_list, administarator_list, main_chat_id
+from dicts.messages import message_dict, commands_dict, operator_list, administarator_list, main_chat_id, testers_list
 from func.scheldule import _send_message_with_photo
 from keyboards.all_keyboards import all_keyboards
 from keyboards.inline_bday import bday_kb
 from keyboards.inline_create_kb import create_kb
 from keyboards.inline_find import search_way
 from keyboards.inline_initiate_vacation import vacation_keyboard
-from keyboards.inline_operator import mail_or_card, edit_or_send
+from keyboards.inline_operator import mail_or_card, edit_or_send, confirm_new_user
 from keyboards.inline_projects import Projects_keyboard
 from keyboards.inline_sick_leave import sick_leave_kb
 from keyboards.inline_start_survey import Survey_inlines_keyboards
@@ -79,6 +79,29 @@ async def vacation(message: types.Message):
 
 @dp.message_handler(commands="r")
 async def r(message: types.Message, scheduler: AsyncIOScheduler):
+    # db.add_newbie_for_confirming(
+    #     tg_id=5148438149,
+    #     first_name="Олег",
+    #     surname="Марченко",
+    #     middle_name="Александрович",
+    #     tg_name="WLeeto",
+    #     date_of_birth="1989-07-28",
+    #     phone="",
+    #     email="",
+    #     tg_photo="AgACAgIAAxkBAAIWqWR0NQyFbtSQwUUp6nCMgVEEGfJ_AAIsxzEb7smhS0Nyrk9aY3h7AQADAgADeQADLwQ",
+    #     hobby="HOBBIE",
+    #     surname_eng="Marchenko",
+    # )
+    # await bot.send_photo(operator_list[0],
+    #                      "AgACAgIAAxkBAAIWqWR0NQyFbtSQwUUp6nCMgVEEGfJ_AAIsxzEb7smhS0Nyrk9aY3h7AQADAgADeQADLwQ",
+    #                      'Нужно проверить нового пользователя:\n\n'
+    #                      f'tg_id: {"5148438149"}\n'
+    #                      f'{"Марченко"} {"Олег"} {"Александрович"}\n'
+    #                      f'Дата рождения: {""}\n'
+    #                      f'Телефон: +{""}\n'
+    #                      f'E-mail: {""}\n'
+    #                      f'Хобби и увлечения: {"HOBBIE"}',
+    #                      reply_markup=confirm_new_user(5148438149))
     pass
 
 
@@ -86,15 +109,17 @@ async def r(message: types.Message, scheduler: AsyncIOScheduler):
 async def test(message: types.Message):
     # await message.answer_photo("AgACAgIAAxkBAAIU_WRnQH1EMI1TCpYtskatxr8nqVJYAAI4yTEbaGM4S4VwH6f3PSN-AQADAgADcwADLwQ",
     #                            "some text")
-    if message.chat.type == types.ChatType.PRIVATE:
-        answer = await message.answer(f'Ваш id: `{message.from_id}`\n'
-                                      f'Бот работает. Сообщение будет удалено', parse_mode=types.ParseMode.MARKDOWN)
-        await asyncio.create_task(delete_message(answer, 3))
-    else:
-        answer = await message.answer(f'Ваш id: `{message.from_id}`\n'
-                                      f'Id группы: `{message.chat.id}`\n'
-                                      f'Бот работает. Сообщение будет удалено', parse_mode=types.ParseMode.MARKDOWN)
-        await asyncio.create_task(delete_message(answer, 3))
+    await message.delete()
+    if message.from_id in testers_list:
+        if message.chat.type == types.ChatType.PRIVATE:
+            answer = await message.answer(f'Ваш id: `{message.from_id}`\n'
+                                          f'Бот работает. Сообщение будет удалено', parse_mode=types.ParseMode.MARKDOWN)
+            await asyncio.create_task(delete_message(answer, 3))
+        else:
+            answer = await message.answer(f'Ваш id: `{message.from_id}`\n'
+                                          f'Id группы: `{message.chat.id}`\n'
+                                          f'Бот работает. Сообщение будет удалено', parse_mode=types.ParseMode.MARKDOWN)
+            await asyncio.create_task(delete_message(answer, 3))
 
 
 # @dp.message_handler(commands=['start'])
