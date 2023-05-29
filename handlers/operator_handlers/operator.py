@@ -434,6 +434,25 @@ async def procced(callback_querry: types.CallbackQuery, state: FSMContext):
         async with state.proxy() as data:
             data["to_edit"] = to_edit
         await FSM_newbie_questioning.schedulered_card_step_1.set()
+    elif callback_querry.data.split(" ")[1] == "send_now":
+        async with state.proxy() as data:
+            photo_id = data["confirming_user_tg_photo"]
+            text = create_newbie_card_text(
+                surname=data["confirming_user_surname"],
+                name=data["confirming_user_first_name"],
+                patronymic=data["confirming_user_middle_name"],
+                job_title=data["job_title"],
+                hobbie=data["confirming_user_hobby"],
+                phone=data["confirming_user_phone"],
+                telegram_name=data["confirming_user_tg_name"],
+                email=data["confirming_user_email"]
+            )
+            data["card_text"] = text
+        await bot.send_photo(chat_id=main_chat_id, photo=photo_id, caption=text, parse_mode=types.ParseMode.HTML)
+        await callback_querry.message.edit_caption(f"{text}\n\n"
+                                                   f"Анкета отправлена в чат.\n"
+                                                   f"Заполним анкету на создание почты?",
+                                                   reply_markup=just_mail())
     elif callback_querry.data.split(" ")[1] == "exit":
         await callback_querry.message.answer("Выход из анкеты нового пользователя.")
         await state.finish()

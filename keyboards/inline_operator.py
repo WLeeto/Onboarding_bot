@@ -71,5 +71,6 @@ def edit_or_send():
     button_2 = InlineKeyboardButton(text="Редактировать должность", callback_data=f"operator edit_job")
     button_3 = InlineKeyboardButton(text="Редактировать почту", callback_data=f"operator edit_mail")
     button_4 = InlineKeyboardButton(text="Запланировать отправку", callback_data=f"operator send")
-    edit_or_send = InlineKeyboardMarkup(row_width=1).add(button_1, button_2, button_3, button_4)
+    button_5 = InlineKeyboardButton(text="Отправить анкету в чат", callback_data=f"operator send_now")
+    edit_or_send = InlineKeyboardMarkup(row_width=1).add(button_1, button_2, button_3, button_4, button_5)
     return edit_or_send
