@@ -99,12 +99,14 @@ async def get_contacts(callback_query: types.CallbackQuery):
 
 # @dp.message_handler(content_types='video')
 async def got_video(message: types.Message):
-    await message.answer(f"Получил видео. Его id {message.video.file_id}")
+    if message.chat.type == types.ChatType.PRIVATE:
+        await message.answer(f"Получил видео. Его id {message.video.file_id}")
 
 
 # @dp.message_handler(content_types=ContentType.PHOTO)
 async def got_photo(message: types.Message):
-    await message.answer(message.photo[-1].file_id)
+    if message.chat.type == types.ChatType.PRIVATE:
+        await message.answer(message.photo[-1].file_id)
 
 
 # Состояния для опросника при старте работы ----------------------------------------------------------------------------
