@@ -1,5 +1,6 @@
 import asyncio
 import os
+import re
 from contextlib import suppress
 
 from aiogram.utils.exceptions import MessageCantBeDeleted, MessageToDeleteNotFound
@@ -12,6 +13,7 @@ from fuzzywuzzy import fuzz
 from dicts.messages import start_survey_dict
 
 from datetime import datetime
+from datetime import timedelta
 
 from email_validate import validate
 
@@ -166,6 +168,26 @@ def validate_date(date: str) -> bool:
     else:
         result = False
     return result
+
+
+def validate_date_from_str(string_date_time: str) -> datetime or False:
+    pattern = r"((\d\d).(\d\d).(\d\d\d\d))[\s\S]*((\d\d).(\d\d))"
+    try:
+        year = re.match(pattern, string_date_time).group(4)
+        month = re.match(pattern, string_date_time).group(3)
+        day = re.match(pattern, string_date_time).group(2)
+        hour = re.match(pattern, string_date_time).group(6)
+        minute = re.match(pattern, string_date_time).group(7)
+        inserted_date = datetime(int(year), int(month), int(day), int(hour), int(minute))
+        now = datetime.utcnow() + timedelta(hours=3)
+        if inserted_date > now + timedelta(minutes=7):
+            return inserted_date
+        else:
+            print(f"Указана дата {inserted_date} в прошлом, либо слишком близко к текущей")
+            return False
+    except AttributeError:
+        print(f"Невозможно обработать введенную дату {string_date_time} по шаблону {pattern}")
+        return False
 
 
 def validate_phone(phone: str) -> str or False:

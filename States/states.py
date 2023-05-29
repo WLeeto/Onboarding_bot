@@ -26,6 +26,9 @@ class FSM_newbie_questioning(StatesGroup):
     change_hobbie = State()
     procced = State()
 
+    edit_card = State()
+    schedulered_card_step_1 = State()
+
     step_1 = State()
     step_2 = State()
     step_3 = State()

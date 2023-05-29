@@ -6,17 +6,21 @@ from create_bot import dp, bot, db
 
 from States.states import FSM_newbie_questioning
 
-from dicts.messages import operator_list
-from func.all_func import is_breakes, is_reply_keyboard, list_split, create_pagi_data, validate_date
+from dicts.messages import operator_list, main_chat_id
+from func.all_func import is_breakes, is_reply_keyboard, list_split, create_pagi_data, validate_date, \
+    validate_date_from_str
+from func.scheldule import _send_message, _send_message_with_photo
 from keyboards.all_keyboards import all_keyboards
 from keyboards.inline_newbie_questioning import choose_department_kb_gen
 from keyboards.inline_operator import operator_choice_kb_gen, operator_start_answering, auto_answers_kb_gen, \
-    operator_add_new_question_kb_gen, mail_or_card
+    operator_add_new_question_kb_gen, mail_or_card, edit_or_send
 from keyboards.inline_type_of_employement import type_of_employement_kb
 
 from datetime import date
 
 from keyboards.inline_xlsx_newbie_form import create_kb_next
+
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 
 # Состояния для общение с оператором -----------------------------------------------------------------------------------
@@ -326,7 +330,7 @@ async def add_new_user_to_db(message: types.Message, state: FSMContext):
     if new_phone and new_email:
         await message.answer("Отлично ! Я добавил нового сотрудника в БД\n"
                              "Заполним заявку на почту или отправим карточку новенького в чат?",
-                             reply_markup=mail_or_card())
+                             reply_markup=mail_or_card(tg_id=confirming_user_tg_id))
         await bot.send_message(chat_id=confirming_user_tg_id, text="Оператор добавил вас в БД сотрудников, "
                                                                    "теперь все функции доступны!")
         db.clear_newbee_confirming(data["confirming_user_id"])
@@ -378,8 +382,97 @@ async def procced(callback_querry: types.CallbackQuery, state: FSMContext):
             data["first_work_day"] = data["first_work_day"]
             data["pagi"] = pagi_data
             data["pagi_step"] = 0
+    elif callback_querry.data.split(" ")[1] == "card":
+        async with state.proxy() as data:
+            surname = data["confirming_user_surname"]
+            name = data["confirming_user_first_name"]
+            patronymic = data["confirming_user_middle_name"]
+            job_title = data["job_title"]
+            hobbie = data["confirming_user_hobby"]
+            phone = data["confirming_user_phone"]
+            telegram_name = data["confirming_user_tg_name"]
+            email = data["confirming_user_email"]
+            photo_id = data["confirming_user_tg_photo"]
+
+            text = f"Добрый день, коллеги!💫\n\n" \
+                   f"В нашей команде пополнение.👏\n\n" \
+                   f"{surname} {name} {patronymic} – {job_title}❗\n\n" \
+                   f"Немого о {name}:\n" \
+                   f"{hobbie}.\n\n" \
+                   f"☎ Контакты:\n" \
+                   f"Номер для связи: <code>{phone}</code>\n" \
+                   f"Telegram <code>{telegram_name}</code>:\n" \
+                   f"Почта: <code>{email}</code>"
+
+            data["card_text"] = text
+
+        await callback_querry.message.answer_photo(photo_id, f"Вот такая анкета получилась:\n\n{text}\n\n"
+                                                             f"Редактируем или отправляем в чат?",
+                                                   parse_mode=types.ParseMode.HTML,
+                                                   reply_markup=edit_or_send())
+    elif callback_querry.data.split(" ")[1] == "edit":
+        await callback_querry.message.answer("Введите новый текст для хобби:")
+        await FSM_newbie_questioning.edit_card.set()
+    elif callback_querry.data.split(" ")[1] == "send":
+        await callback_querry.message.answer("Введите дату отправки анкеты в чат в формате дд.мм.гггг чч:мм:")
+        await FSM_newbie_questioning.schedulered_card_step_1.set()
+
+
+@dp.message_handler(state=FSM_newbie_questioning.edit_card)
+async def edit_card(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        surname = data["confirming_user_surname"]
+        name = data["confirming_user_first_name"]
+        patronymic = data["confirming_user_middle_name"]
+        job_title = data["job_title"]
+        data["confirming_user_hobby"] = message.text
+        hobbie = message.text
+        phone = data["confirming_user_phone"]
+        telegram_name = data["confirming_user_tg_name"]
+        email = data["confirming_user_email"]
+        photo_id = data["confirming_user_tg_photo"]
+
+        text = f"Добрый день, коллеги!💫\n\n" \
+               f"В нашей команде пополнение.👏\n\n" \
+               f"{surname} {name} {patronymic} – {job_title}❗\n\n" \
+               f"Немого о {name}:\n" \
+               f"{hobbie}.\n\n" \
+               f"☎ Контакты:\n" \
+               f"Номер для связи: <code>{phone}</code>\n" \
+               f"Telegram <code>{telegram_name}</code>:\n" \
+               f"Почта: <code>{email}</code>"
+
+        data["card_text"] = text
+
+    await message.answer_photo(photo_id, f"Вот такая анкета получилась:\n\n{text}\n\n"
+                                         f"Редактируем или отправляем в чат?",
+                               parse_mode=types.ParseMode.HTML,
+                               reply_markup=edit_or_send())
+    await FSM_newbie_questioning.procced.set()
+
+
+@dp.message_handler(state=FSM_newbie_questioning.schedulered_card_step_1)
+async def schedulered_card(message: types.Message, state: FSMContext, scheduler: AsyncIOScheduler):
+    await message.delete()
+    async with state.proxy() as data:
+        text = data["card_text"]
+        photo_id = data["confirming_user_tg_photo"]
+    date_time = validate_date_from_str(message.text)
+    if date_time:
+        scheduler.add_job(_send_message_with_photo, trigger="date", run_date=date_time,
+                          kwargs={"chat_id": main_chat_id,
+                                  "text": text,
+                                  "photo_id": photo_id})
+        print(f"Создано новое отложенное событие:\n"
+              f"Время: {date_time}\n"
+              f"Получатель (чат): {main_chat_id}")
+        db.add_scheldulered_group_message(text=text, from_id=message.from_id, to_id=main_chat_id,
+                                          date_to_send=date_time, photo_id=photo_id)
+        await message.answer(f"Я добавил запланированную отправку карточки на {date_time.strftime('%d.%m.%Y %H:%M')}")
+        await state.finish()
     else:
-        pass
+        await message.answer("Не могу обработать дату, убедитесь что дата введена по шаблону: дд.мм.гггг чч:мм\n"
+                             "Или используй /stop чтобы прекратить заполнение")
 
 
 def register_handlers_operator(dp: Dispatcher):

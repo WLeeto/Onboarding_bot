@@ -191,3 +191,14 @@ class Schelduled_message(Base):
 
     from_user = relationship(Users, backref="from_user", foreign_keys=[from_id])
     to_user = relationship(Users, backref="to_user", foreign_keys=[to_id])
+
+
+class Schelduled_message_group(Base):
+    __tablename__ = "Schelduled_message_group"
+
+    id = sq.Column(sq.Integer, primary_key=True)
+    text = sq.Column(sq.Text, nullable=False)
+    from_tg_id = sq.Column(sq.BIGINT)
+    to_group_id = sq.Column(sq.BIGINT)
+    photo_id = sq.Column(sq.Text)
+    date_to_send = sq.Column(sq.DateTime, nullable=False)

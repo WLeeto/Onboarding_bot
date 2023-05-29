@@ -52,8 +52,15 @@ def confirm_new_user(tg_id):
     return new_user
 
 
-def mail_or_card():
+def mail_or_card(tg_id):
     button_1 = InlineKeyboardButton(text="Заполнить заявку на почту", callback_data=f"operator mail")
-    button_2 = InlineKeyboardButton(text="Отправить карточку в чат ТИМФОРС", callback_data=f"operator card")
+    button_2 = InlineKeyboardButton(text="Отправить карточку в чат ТИМФОРС", callback_data=f"operator card {tg_id}")
     mail_or_card = InlineKeyboardMarkup(row_width=1).add(button_1, button_2)
     return mail_or_card
+
+
+def edit_or_send():
+    button_1 = InlineKeyboardButton(text="Редактировать увлечения", callback_data=f"operator edit")
+    button_2 = InlineKeyboardButton(text="Запланировать отправку", callback_data=f"operator send")
+    edit_or_send = InlineKeyboardMarkup(row_width=1).add(button_1, button_2)
+    return edit_or_send

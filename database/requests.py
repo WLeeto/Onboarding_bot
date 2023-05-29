@@ -6,7 +6,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
 
 from database.models import Base, Answer, Question, Users, Departments, Contacts, Projects, Operator_questions, \
-    Newbie, New_User, Statistics, SuperviserEmployer, Full_statistics, Schelduled_message
+    Newbie, New_User, Statistics, SuperviserEmployer, Full_statistics, Schelduled_message, Schelduled_message_group
 
 
 class database:
@@ -604,6 +604,23 @@ class database:
     def get_all_scheldulered_message(self) -> list:
         result = self.session.query(Schelduled_message).all()
         return result
+
+    def add_scheldulered_group_message(self, text: str, from_id: int, to_id: int, date_to_send: str,
+                                       photo_id: str) -> None:
+        new_scheldulered_message = Schelduled_message_group(text=text, from_tg_id=from_id, to_group_id=to_id,
+                                                            date_to_send=date_to_send, photo_id=photo_id)
+        self.session.add(new_scheldulered_message)
+        self.session.commit()
+        self.session.close()
+
+    def get_all_scheldulered_group_message(self) -> list:
+        result = self.session.query(Schelduled_message_group).all()
+        return result
+
+    def delete_scheldulered_group_message(self, id: int) -> None:
+        to_del = self.session.query(Schelduled_message_group).filter(Schelduled_message_group.id == id).first()
+        self.session.delete(to_del)
+        self.session.commit()
 
     def delete_scheldulered_message(self, id: int) -> None:
         to_del = self.session.query(Schelduled_message).filter(Schelduled_message.id == id).first()

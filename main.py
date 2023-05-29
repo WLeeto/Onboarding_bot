@@ -10,7 +10,7 @@ from create_bot import dp, bot, db
 from func.all_func import set_default_commands
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
-from func.scheldule import _send_message
+from func.scheldule import _send_message, _send_message_with_photo
 from middleware.scheldule_middleware import SchedulerMiddleware
 
 from apscheduler_di import ContextSchedulerDecorator
@@ -37,17 +37,35 @@ async def on_startup(_):
     dp.middleware.setup(SchedulerMiddleware(scheduler))
     db.create_tables()
 
+    # Все отложенные отправки для пользователей
     all_scheldulered_message = db.get_all_scheldulered_message()
-    for i in all_scheldulered_message:
-        if i.date_to_send >= datetime.datetime.utcnow() + datetime.timedelta(hours=3, minutes=6):
-            recipient = db.find_user_by_id(i.to_id)
-            scheduler.add_job(_send_message, trigger="date", run_date=i.date_to_send - datetime.timedelta(minutes=5),
-                      kwargs={"chat_id": recipient.tg_id,
-                              "text": i.text},
-                      timezone='Europe/Moscow')
-            print(f"Добавлена отложенная отправка: {i.date_to_send} {recipient.tg_name}")
-        else:
-            db.delete_scheldulered_message(i.id)
+    if all_scheldulered_message:
+        for i in all_scheldulered_message:
+            if i.date_to_send >= datetime.datetime.utcnow() + datetime.timedelta(hours=3, minutes=6):
+                recipient = db.find_user_by_id(i.to_id)
+                scheduler.add_job(_send_message, trigger="date", run_date=i.date_to_send - datetime.timedelta(minutes=5),
+                          kwargs={"chat_id": recipient.tg_id,
+                                  "text": i.text},
+                          timezone='Europe/Moscow')
+                print(f"Добавлена отложенная отправка: {i.date_to_send} {recipient.tg_name}")
+            else:
+                db.delete_scheldulered_message(i.id)
+    db.session.close()
+
+    # Все отложенные отправки для групп (для отсроченной отправки карточки новенького)
+    all_scheldulered_group_message = db.get_all_scheldulered_group_message()
+    if all_scheldulered_group_message:
+        for i in all_scheldulered_group_message:
+            if i.date_to_send >= datetime.datetime.utcnow() + datetime.timedelta(hours=3):
+                scheduler.add_job(_send_message_with_photo, trigger="date", run_date=i.date_to_send,
+                          kwargs={"chat_id": i.to_group_id,
+                                  "text": i.text,
+                                  "photo_id": i.photo_id},
+                          timezone='Europe/Moscow')
+                print(f"Добавлена отложенная отправка для группы: {i.date_to_send} {i.to_group_id}")
+            else:
+
+                db.delete_scheldulered_group_message(i.id)
     db.session.close()
 
     print('Бот запущен')
