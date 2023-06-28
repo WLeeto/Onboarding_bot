@@ -285,5 +285,7 @@ recognize_log.txt
 pgdata
 start_log.txt
 saved_files
+sandbox/
+google_api/scopes.json
 
 backups/

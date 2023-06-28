@@ -7,6 +7,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from create_bot import dp, bot, db
 
 from States.states import FSM_meeting
+from func.google_meet import create_google_meet
 from func.scheldule import _send_message
 from keyboards.inline_meeting import meeting_kb
 
@@ -160,6 +161,13 @@ async def send_invites(callback_query: types.CallbackQuery, scheduler: AsyncIOSc
             await callback_query.message.answer("<b>Вот у этих пользователей не указана почта:</b>\n"
                                                 f"{not_found_emails_text}",
                                                 parse_mode=types.ParseMode.HTML)
+
+        # create_google_meeting = create_google_meet(start_datetime=send_datetime, headline=header)
+        # if create_google_meeting:
+        #     await callback_query.message.answer('Я так же создал событие в календаре google')
+        # else:
+        #     await callback_query.message.answer('Я не смог создать событие в календаре google. Смотри логи')
+
         await state.finish()
     else:
         await callback_query.message.answer("Давай начнем все с начала\n"
