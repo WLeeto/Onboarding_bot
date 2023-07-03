@@ -64,7 +64,7 @@ help_message = "/contacts - Контакты всех отделов\n" \
 
 message_dict = {
     "greetings": greeting_message,
-    "greeting_video_id": "BAACAgIAAxkBAAIhB2SiQ217Cgdk0BQwQBfH64E6VLg6AAJWNgACKTURSXCI_maRxOzALwQ",
+    "greeting_video_id": "BAACAgIAAxkBAAIhD2SiWn_iE86QN7SmHbf_uNkL-kZQAAKgNgACKTURSRX7Rm3wR2a_LwQ",
     # BAACAgIAAxkBAAIEs2QS5x_ZNP-mVaEWYNfWcr2SXoB2AAK_KAACr3iYSOxofi9-8pdULwQ - для теста
     # BAACAgIAAxkBAAILEWQAAXCXK-hny6PxMEFCsLjm50jwUwACBiYAAkLnAUhEeMXYd4w_7i4E - для прода
     "for_olds_message": for_olds_message,
