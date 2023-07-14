@@ -4,7 +4,7 @@ import re
 from contextlib import suppress
 
 from aiogram.utils.exceptions import MessageCantBeDeleted, MessageToDeleteNotFound
-from create_bot import db
+from create_bot import db, bot
 
 from aiogram import types
 
@@ -114,7 +114,8 @@ def is_reply_keyboard(message: str):
         return None
 
 
-def search_message(id: int, first_name: str, surname: str, patronymic: str, job_title: str, tg_name: str) -> str:
+def search_message(id: int, first_name: str, surname: str, patronymic: str, job_title: str, tg_name: str,
+                   tg_id: int = None) -> str:
     contacts = db.find_contacts_by_id(id)
     if first_name is None:
         first_name = ""
@@ -122,15 +123,46 @@ def search_message(id: int, first_name: str, surname: str, patronymic: str, job_
         surname = ""
     if patronymic is None:
         patronymic = ""
-    contacts_text = f"  └ <b>Email:</b> <code>{contacts.get('e-mail')}</code>\n" \
-                    f"  └ <b>Phone:</b> <code>{contacts.get('phone')}</code>\n" \
-                    f"  └ <b>Telegram:</b> <code>{tg_name}</code>"
+
+    email_record = f"  └ <b>Email:</b> <code>{contacts.get('e-mail')}</code>"
+    phone_record = f"  └ <b>Phone:</b> <code>{contacts.get('phone')}</code>"
+    telegram_record = f"  └ <b>Telegram:</b> <a href='https://t.me/{tg_name}'>{tg_name}</a>"
+
+    contacts_text = f"{email_record}\n{phone_record}\n{telegram_record}"
+
     text = f"<i><u>{surname} {first_name} {patronymic}</u></i>\n" \
            f"<b>Должность:</b> {job_title}\n" \
            f"<b>Отдел:</b> {db.find_department_by_user_id(id)}\n" \
            f"<b>Контакты:</b> \n{contacts_text}\n\n"
 
     return text
+
+
+async def create_find_answer_if_found(result: list, last_answer: object, message: types.Message):
+    """
+    Creates an answer logic for /find command gives a result.
+    """
+    text = ''
+    for i in result:
+        text += search_message(i.id, i.first_name, i.surname, i.middle_name, i.job_title, i.tg_name, i.tg_id)
+    await bot.edit_message_text(text=f"<u>Вот, кого удалось найти:</u>\n\n{text}\n", chat_id=message.from_id,
+                                message_id=last_answer, parse_mode=types.ParseMode.HTML,
+                                disable_web_page_preview=True)
+
+
+async def create_find_answer_if_not_found(partial_search_result: list, last_answer: object, message: types.Message,
+                                          request: str):
+    """
+    Creates an answer logic for /find command gives no results.
+    """
+    await bot.edit_message_text(f"Я не нашел никого с {request} {message.text} T_T", chat_id=message.from_id,
+                                message_id=last_answer, parse_mode=types.ParseMode.HTML)
+    if partial_search_result:
+        text = ''
+        for i in partial_search_result:
+            text += search_message(i.id, i.first_name, i.surname, i.middle_name, i.job_title, i.tg_name)
+        await message.answer(text=f"<u>Вот, кто частично подходит под твой запрос:</u>\n\n{text}\n",
+                             parse_mode=types.ParseMode.HTML, disable_web_page_preview=True)
 
 
 async def delete_temp_file(filepath):

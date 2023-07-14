@@ -4,7 +4,7 @@ from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 from create_bot import dp, db, bot
-from func.all_func import search_message, delete_message
+from func.all_func import search_message, delete_message, create_find_answer_if_found, create_find_answer_if_not_found
 
 from States.states import FSM_search
 
@@ -63,7 +63,8 @@ async def search_by_phone_step2(message: types.Message, state: FSMContext):
         text = f"Я не смог никого найти T_T, скорее всего пользователя с таким номером в базе нет"
     await state.finish()
     await delete_message(message, 0)
-    await bot.edit_message_text(text, chat_id=message.from_id, message_id=last_answer, parse_mode=types.ParseMode.HTML)
+    await bot.edit_message_text(text, chat_id=message.from_id, message_id=last_answer, parse_mode=types.ParseMode.HTML,
+                                disable_web_page_preview=True)
 
 
 # @dp.message_handler(content_types='text', state=FSM_search.enter_name)
@@ -73,74 +74,42 @@ async def search_by_name_step2(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         last_answer = data["answer"]
     if result:
-        text = ''
-        for i in result:
-            text += search_message(i.id, i.first_name, i.surname, i.middle_name, i.job_title, i.tg_name)
-        await bot.edit_message_text(text=f"<u>Вот, кого удалось найти:</u>\n\n{text}\n", chat_id=message.from_id,
-                                    message_id=last_answer, parse_mode=types.ParseMode.HTML)
+        await create_find_answer_if_found(result, last_answer, message)
     else:
-        await bot.edit_message_text(f"Я не нашел никого с именем {message.text} T_T", chat_id=message.from_id,
-                                    message_id=last_answer, parse_mode=types.ParseMode.HTML)
         partial_search_result = db.partial_search_by_name(message.text)
-        if partial_search_result:
-            text = ''
-            for i in partial_search_result:
-                text += search_message(i.id, i.first_name, i.surname, i.middle_name, i.job_title, i.tg_name)
-            await message.answer(text=f"<u>Вот, кто частично подходит под твой запрос:</u>\n\n{text}\n",
-                                 parse_mode=types.ParseMode.HTML)
+        await create_find_answer_if_not_found(partial_search_result, last_answer, message, 'именем')
+
     await state.finish()
 
 
 # @dp.message_handler(content_types='text', state=FSM_search.enter_surname)
 async def search_by_surname_step2(message: types.Message, state: FSMContext):
-    async with state.proxy() as data:
-        last_answer = data["answer"]
     result = db.find_by_surname(message.text)
     await message.delete()
+    async with state.proxy() as data:
+        last_answer = data["answer"]
     if result:
-        text = ''
-        for i in result:
-            text += search_message(i.id, i.first_name, i.surname, i.middle_name, i.job_title, i.tg_name)
-        await bot.edit_message_text(text=f"<u>Вот, кого удалось найти:</u>\n\n{text}\n", chat_id=message.from_id,
-                                    message_id=last_answer, parse_mode=types.ParseMode.HTML)
-        await state.finish()
+        await create_find_answer_if_found(result, last_answer, message)
     else:
-        await bot.edit_message_text(f"Я не нашел никого с фамилией {message.text} T_T", chat_id=message.from_id,
-                                    message_id=last_answer, parse_mode=types.ParseMode.HTML)
         partial_search_result = db.partial_search_by_surname(message.text)
-        if partial_search_result:
-            text = ''
-            for i in partial_search_result:
-                text += search_message(i.id, i.first_name, i.surname, i.middle_name, i.job_title, i.tg_name)
-            await message.answer(text=f"<u>Вот, кто частично подходит под твой запрос:</u>\n\n{text}\n",
-                                 parse_mode=types.ParseMode.HTML)
-        await state.finish()
+        await create_find_answer_if_not_found(partial_search_result, last_answer, message, 'фамилией')
+
+    await state.finish()
 
 
 # @dp.message_handler(content_types='text', state=FSM_search.enter_patronymic)
 async def search_by_patronymic_step2(message: types.Message, state: FSMContext):
-    async with state.proxy() as data:
-        last_answer = data["answer"]
     result = db.find_by_patronymic(message.text)
     await message.delete()
+    async with state.proxy() as data:
+        last_answer = data["answer"]
     if result:
-        text = ''
-        for i in result:
-            text += search_message(i.id, i.first_name, i.surname, i.middle_name, i.job_title, i.tg_name)
-        await bot.edit_message_text(text=f"<u>Вот, кого удалось найти:</u>\n\n{text}\n", chat_id=message.from_id,
-                                    message_id=last_answer, parse_mode=types.ParseMode.HTML)
-        await state.finish()
+        await create_find_answer_if_found(result, last_answer, message)
     else:
-        await bot.edit_message_text(f"Я не нашел никого с отчеством {message.text} T_T", chat_id=message.from_id,
-                                    message_id=last_answer, parse_mode=types.ParseMode.HTML)
         partial_search_result = db.partial_search_by_patronymic(message.text)
-        if partial_search_result:
-            text = ''
-            for i in partial_search_result:
-                text += search_message(i.id, i.first_name, i.surname, i.middle_name, i.job_title, i.tg_name)
-            await message.answer(text=f"<u>Вот, кто частично подходит под твой запрос:</u>\n\n{text}\n",
-                                 parse_mode=types.ParseMode.HTML)
-        await state.finish()
+        await create_find_answer_if_not_found(partial_search_result, last_answer, message, 'отчеством')
+
+    await state.finish()
 
 
 # @dp.message_handler(content_types='text', state=FSM_search.enter_title)
@@ -150,23 +119,12 @@ async def search_by_title_step2(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         last_answer = data["answer"]
     if result:
-        text = ''
-        for i in result:
-            text += search_message(i.id, i.first_name, i.surname, i.middle_name, i.job_title, i.tg_name)
-        await bot.edit_message_text(text=f"<u>Вот, кого удалось найти:</u>\n\n{text}\n", chat_id=message.from_id,
-                                    message_id=last_answer, parse_mode=types.ParseMode.HTML)
-        await state.finish()
+        await create_find_answer_if_found(result, last_answer, message)
     else:
-        await bot.edit_message_text(f"Я не нашел никого с должностью {message.text} T_T", chat_id=message.from_id,
-                                    message_id=last_answer, parse_mode=types.ParseMode.HTML)
         partial_search_result = db.partial_search_by_title(message.text)
-        if partial_search_result:
-            text = ''
-            for i in partial_search_result:
-                text += search_message(i.id, i.first_name, i.surname, i.middle_name, i.job_title, i.tg_name)
-            await message.answer(text=f"<u>Вот, кто частично подходит под твой запрос:</u>\n\n{text}\n",
-                                 parse_mode=types.ParseMode.HTML)
-        await state.finish()
+        await create_find_answer_if_not_found(partial_search_result, last_answer, message, 'должностью')
+
+    await state.finish()
 
 
 # @dp.message_handler(content_types='text', state=FSM_search.enter_tg_nickname)
@@ -176,23 +134,12 @@ async def search_by_tg_nickname_step2(message: types.Message, state: FSMContext)
     async with state.proxy() as data:
         last_answer = data["answer"]
     if result:
-        text = ''
-        for i in result:
-            text += search_message(i.id, i.first_name, i.surname, i.middle_name, i.job_title, i.tg_name)
-        await bot.edit_message_text(text=f"<u>Вот, кого удалось найти:</u>\n\n{text}\n",
-                                    chat_id=message.from_id, message_id=last_answer, parse_mode=types.ParseMode.HTML)
-        await state.finish()
+        await create_find_answer_if_found(result, last_answer, message)
     else:
-        await bot.edit_message_text(f"Я не нашел никого с ником {message.text} T_T", chat_id=message.from_id,
-                                    message_id=last_answer, parse_mode=types.ParseMode.HTML)
         partial_search_result = db.partial_search_by_telegram_ninckname(message.text)
-        if partial_search_result:
-            text = ''
-            for i in partial_search_result:
-                text += search_message(i.id, i.first_name, i.surname, i.middle_name, i.job_title, i.tg_name)
-            await message.answer(text=f"<u>Вот, кто частично подходит под твой запрос:</u>\n\n{text}\n",
-                                 parse_mode=types.ParseMode.HTML)
-        await state.finish()
+        await create_find_answer_if_not_found(partial_search_result, last_answer, message, 'ником')
+
+    await state.finish()
 
 
 # @dp.message_handler(content_types='text', state=FSM_search.enter_email)
@@ -202,23 +149,12 @@ async def search_by_email_step2(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         last_answer = data["answer"]
     if result:
-        text = ''
-        for i in result:
-            text += search_message(i.id, i.first_name, i.surname, i.middle_name, i.job_title, i.tg_name)
-        await bot.edit_message_text(text=f"<u>Вот, кого удалось найти:</u>\n\n{text}\n",
-                                    chat_id=message.from_id, message_id=last_answer, parse_mode=types.ParseMode.HTML)
-        await state.finish()
+        await create_find_answer_if_found(result, last_answer, message)
     else:
-        await bot.edit_message_text(f"Я не нашел никого с почтой {message.text} T_T", chat_id=message.from_id,
-                                    message_id=last_answer, parse_mode=types.ParseMode.HTML)
         partial_search_result = db.partial_search_by_email(message.text)
-        if partial_search_result:
-            text = ''
-            for i in partial_search_result:
-                text += search_message(i.id, i.first_name, i.surname, i.middle_name, i.job_title, i.tg_name)
-            await message.answer(text=f"<u>Вот, кто частично подходит под твой запрос:</u>\n\n{text}\n",
-                                 parse_mode=types.ParseMode.HTML)
-        await state.finish()
+        await create_find_answer_if_not_found(partial_search_result, last_answer, message, 'почтой')
+
+    await state.finish()
 
 
 # @dp.message_handler(content_types='text', state=FSM_search.enter_department)
@@ -235,7 +171,8 @@ async def search_by_department_step2(message: types.Message, state: FSMContext):
                     f"<b>Сотрудники:</b>\n" \
                     f"{employers}\n\n"
         await bot.edit_message_text(text=f"<u>Вот, что удалось найти:</u>\n\n{text}\n",
-                                    chat_id=message.from_id, message_id=last_answer, parse_mode=types.ParseMode.HTML)
+                                    chat_id=message.from_id, message_id=last_answer, parse_mode=types.ParseMode.HTML,
+                                    disable_web_page_preview=True)
         await state.finish()
     else:
         await bot.edit_message_text(f"Я не нашел отдела {message.text} T_T", chat_id=message.from_id,
@@ -249,7 +186,8 @@ async def search_by_department_step2(message: types.Message, state: FSMContext):
                         f"<b>Сотрудники:</b>\n" \
                         f"{employers}\n\n"
             await message.answer(text=f"<u>Вот, кто частично подходит под твой запрос:</u>\n\n{text}\n",
-                                 parse_mode=types.ParseMode.HTML)
+                                 parse_mode=types.ParseMode.HTML,
+                                 disable_web_page_preview=True)
         await state.finish()
 
 # Пример пагинации -----------------------------------------------------------------------------------------------------
